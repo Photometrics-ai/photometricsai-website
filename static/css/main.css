@@ -1,4 +1,4 @@
-/* ===== ELECTRIC AMBER NIGHT ===== */
+/* ===== LUMINOUS BLUE ===== */
 /* Bold, energetic design for Photometrics AI */
 /* Street lighting meets intelligent technology */
 
@@ -13,17 +13,17 @@
   --graphite: #2a2a38;
   --charcoal: #3a3a48;
 
-  /* Primary: Electric Amber */
-  --amber: #ff8c00;
-  --amber-light: #ffa333;
-  --amber-dark: #cc7000;
-  --amber-glow: rgba(255, 140, 0, 0.15);
-  --amber-glow-strong: rgba(255, 140, 0, 0.35);
+  /* Primary: Light Blue */
+  --accent: #4ea3dc;
+  --accent-light: #6fb8e8;
+  --accent-dark: #3d82b0;
+  --accent-glow: rgba(78, 163, 220, 0.15);
+  --accent-glow-strong: rgba(78, 163, 220, 0.35);
 
-  /* Secondary: Cool Cyan */
-  --cyan: #00d4ff;
-  --cyan-dim: #0099bb;
-  --cyan-glow: rgba(0, 212, 255, 0.12);
+  /* Secondary: Deeper Blue */
+  --cyan: #4385b7;
+  --cyan-dim: #2d5a7b;
+  --cyan-glow: rgba(67, 133, 183, 0.12);
 
   /* Text */
   --white: #fafafa;
@@ -34,7 +34,7 @@
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-default: rgba(255, 255, 255, 0.12);
-  --border-amber: rgba(255, 140, 0, 0.4);
+  --border-accent: rgba(78, 163, 220, 0.4);
 
   /* Typography */
   --font-display: 'Clash Display', sans-serif;
@@ -87,13 +87,13 @@ body {
 }
 
 a {
-  color: var(--amber);
+  color: var(--accent);
   text-decoration: none;
   transition: color var(--duration-fast) ease;
 }
 
 a:hover {
-  color: var(--amber-light);
+  color: var(--accent-light);
 }
 
 img {
@@ -146,15 +146,15 @@ p {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--amber);
+  color: var(--accent);
 }
 
 .accent {
-  color: var(--amber);
+  color: var(--accent);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--amber), var(--amber-light));
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -304,14 +304,14 @@ section {
 
 .nav-cta {
   padding: 0.625rem 1.25rem;
-  background: var(--amber);
+  background: var(--accent);
   color: var(--ink) !important;
   border-radius: var(--radius-sm);
   font-weight: 600;
 }
 
 .nav-cta:hover {
-  background: var(--amber-light);
+  background: var(--accent-light);
   color: var(--ink) !important;
 }
 
@@ -388,15 +388,15 @@ section {
 }
 
 .btn-primary {
-  background: var(--amber);
+  background: var(--accent);
   color: var(--ink);
 }
 
 .btn-primary:hover {
-  background: var(--amber-light);
+  background: var(--accent-light);
   color: var(--ink);
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px var(--amber-glow-strong);
+  box-shadow: 0 10px 30px var(--accent-glow-strong);
 }
 
 .btn-secondary {
@@ -407,8 +407,8 @@ section {
 
 .btn-secondary:hover {
   color: var(--white);
-  border-color: var(--amber);
-  background: var(--amber-glow);
+  border-color: var(--accent);
+  background: var(--accent-glow);
 }
 
 .btn-lg {
@@ -440,8 +440,8 @@ section {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 140, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 140, 0, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(78, 163, 220, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(78, 163, 220, 0.04) 1px, transparent 1px);
   background-size: 60px 60px;
   animation: gridPulse 6s ease-in-out infinite;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 70%);
@@ -459,7 +459,7 @@ section {
   height: 100vh;
   background: radial-gradient(
     ellipse at center,
-    rgba(255, 140, 0, 0.08) 0%,
+    rgba(78, 163, 220, 0.08) 0%,
     transparent 50%
   );
   pointer-events: none;
@@ -516,7 +516,7 @@ section {
 .scroll-line {
   width: 1px;
   height: 50px;
-  background: linear-gradient(to bottom, var(--amber), transparent);
+  background: linear-gradient(to bottom, var(--accent), transparent);
   animation: scrollBounce 2s ease-in-out infinite;
 }
 
@@ -612,7 +612,7 @@ section {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(135deg, rgba(255, 140, 0, 0.03) 1px, transparent 1px);
+    linear-gradient(135deg, rgba(78, 163, 220, 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -655,13 +655,13 @@ section {
 .card:hover {
   border-color: var(--border-amber);
   transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 60px var(--amber-glow);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 60px var(--accent-glow);
 }
 
 .card-icon {
   width: 56px;
   height: 56px;
-  background: var(--amber-glow);
+  background: var(--accent-glow);
   border: 1px solid var(--border-amber);
   border-radius: var(--radius-sm);
   display: flex;
@@ -687,7 +687,7 @@ section {
   background: var(--slate);
   border-radius: 100px;
   font-size: 0.75rem;
-  color: var(--amber);
+  color: var(--accent);
   font-weight: 500;
 }
 
@@ -735,7 +735,7 @@ section {
   font-family: var(--font-display);
   font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 700;
-  color: var(--amber);
+  color: var(--accent);
   line-height: 1;
 }
 
@@ -759,7 +759,7 @@ section {
 
 .math-result .math-number {
   font-size: clamp(5rem, 12vw, 10rem);
-  text-shadow: 0 0 80px var(--amber-glow-strong);
+  text-shadow: 0 0 80px var(--accent-glow-strong);
 }
 
 @media (max-width: 600px) {
@@ -797,7 +797,7 @@ section {
   font-family: var(--font-display);
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--amber);
+  color: var(--accent);
   line-height: 1;
   margin-bottom: var(--space-xs);
 }
@@ -847,13 +847,13 @@ section {
 }
 
 .tab-btn:hover {
-  border-color: var(--amber);
+  border-color: var(--accent);
   color: var(--white);
 }
 
 .tab-btn.active {
-  background: var(--amber);
-  border-color: var(--amber);
+  background: var(--accent);
+  border-color: var(--accent);
   color: var(--ink);
 }
 
@@ -876,7 +876,7 @@ section {
   font-family: var(--font-display);
   font-size: 3rem;
   font-weight: 700;
-  color: var(--amber);
+  color: var(--accent);
   margin-bottom: var(--space-xs);
 }
 
@@ -905,7 +905,7 @@ section {
   transform: translateY(-50%);
   width: 6px;
   height: 6px;
-  background: var(--amber);
+  background: var(--accent);
   border-radius: 50%;
 }
 
@@ -927,7 +927,7 @@ section {
   left: 40px;
   right: 40px;
   height: 2px;
-  background: linear-gradient(90deg, var(--amber), var(--amber-dark));
+  background: linear-gradient(90deg, var(--accent), var(--accent-dark));
 }
 
 .process-step {
@@ -941,7 +941,7 @@ section {
   width: 64px;
   height: 64px;
   background: var(--ink);
-  border: 2px solid var(--amber);
+  border: 2px solid var(--accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -950,7 +950,7 @@ section {
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--amber);
+  color: var(--accent);
 }
 
 .process-step h4 {
@@ -1010,12 +1010,12 @@ section {
 
 .quote-text::before {
   content: '"';
-  color: var(--amber);
+  color: var(--accent);
 }
 
 .quote-text::after {
   content: '"';
-  color: var(--amber);
+  color: var(--accent);
 }
 
 .traction-text {
@@ -1024,7 +1024,7 @@ section {
 }
 
 .traction-text strong {
-  color: var(--amber);
+  color: var(--accent);
 }
 
 /* ===== CTA SECTION ===== */
@@ -1049,7 +1049,7 @@ section {
   height: 100%;
   background: radial-gradient(
     ellipse at center,
-    rgba(255, 140, 0, 0.1) 0%,
+    rgba(78, 163, 220, 0.1) 0%,
     transparent 60%
   );
   pointer-events: none;
@@ -1076,7 +1076,7 @@ section {
 }
 
 .cta-alt a {
-  color: var(--amber);
+  color: var(--accent);
 }
 
 /* ===== PAGE HEADER ===== */
@@ -1097,7 +1097,7 @@ section {
   height: 500px;
   background: radial-gradient(
     ellipse at center,
-    rgba(255, 140, 0, 0.08) 0%,
+    rgba(78, 163, 220, 0.08) 0%,
     transparent 60%
   );
   pointer-events: none;
@@ -1161,7 +1161,7 @@ section {
 }
 
 .prose blockquote {
-  border-left: 3px solid var(--amber);
+  border-left: 3px solid var(--accent);
   padding-left: var(--space-md);
   margin: var(--space-lg) 0;
   font-style: italic;
@@ -1213,14 +1213,14 @@ section {
 }
 
 .faq-question:hover {
-  color: var(--amber);
+  color: var(--accent);
 }
 
 .faq-question::after {
   content: '+';
   font-size: 1.75rem;
   font-weight: 400;
-  color: var(--amber);
+  color: var(--accent);
   transition: transform 0.3s ease;
 }
 
@@ -1337,8 +1337,8 @@ section {
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: var(--amber);
-  box-shadow: 0 0 0 4px var(--amber-glow);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
 .form-group input::placeholder,
