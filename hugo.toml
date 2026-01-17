@@ -1,0 +1,18 @@
+baseURL = "https://photometrics.ai/"
+languageCode = "en-us"
+title = "Photometrics AI | Street Lighting Optimization"
+
+# Enable sitemap generation
+[sitemap]
+  changefreq = "weekly"
+  filename = "sitemap.xml"
+  priority = 0.5
+
+# Basic metadata
+[params]
+  description = "Photometrics AI optimizes municipal street lighting using GIS and AI, delivering ~40% energy savings without hardware installation."
+  author = "Photometrics AI"
+
+# Output formats - ensure we generate sitemap
+[outputs]
+  home = ["HTML", "RSS", "sitemap"]
