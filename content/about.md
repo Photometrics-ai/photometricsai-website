@@ -45,7 +45,7 @@ He holds two patents related to dynamic lighting design using applied geography 
 
 His leadership in aligning technology with transportation safety, crime prevention, environmental protection, and energy resilience has positioned him at the forefront of modern lighting innovation.
 
-**Contact:** [ari@photometrics.ai](mailto:ari@photometrics.ai) | 858-633-6447
+**Contact:** [ari@photometrics.ai](mailto:ari@photometrics.ai) | 858-633-6447 | [LinkedIn](https://www.linkedin.com/in/ari-isaak/)
 
 ---
 

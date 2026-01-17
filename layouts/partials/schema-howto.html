@@ -1,0 +1,88 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Reduce Streetlight Energy Costs by 40% Without Hardware Changes",
+  "description": "A step-by-step guide to implementing Photometrics AI's software-only street lighting optimization that delivers 40% energy savings through existing networked lighting controls.",
+  "image": "{{ .Site.BaseURL }}images/og-image.png",
+  "totalTime": "P7D",
+  "estimatedCost": {
+    "@type": "MonetaryAmount",
+    "currency": "USD",
+    "value": "0",
+    "description": "No upfront hardware costs—subscription-based software model"
+  },
+  "supply": [
+    {
+      "@type": "HowToSupply",
+      "name": "Existing Networked Lighting Controls (NLC)"
+    },
+    {
+      "@type": "HowToSupply",
+      "name": "Asset data from NLC platform"
+    }
+  ],
+  "tool": [
+    {
+      "@type": "HowToTool",
+      "name": "Photometrics AI software platform"
+    },
+    {
+      "@type": "HowToTool",
+      "name": "NLC API integration (Ubicquia, etc.)"
+    }
+  ],
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Connect",
+      "text": "Your Networked Lighting Control system provides asset data via API. No hardware installation required.",
+      "itemListElement": {
+        "@type": "HowToDirection",
+        "text": "Photometrics AI connects to your existing NLC platform (such as Ubicquia) to receive luminaire location, wattage, and configuration data."
+      }
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Map",
+      "text": "We generate Target Lighting Layers using patented GIS-based technology.",
+      "itemListElement": {
+        "@type": "HowToDirection",
+        "text": "Using Patent US9894736B2, our system creates precise illumination targets for every zone—crosswalks, streets, sidewalks, and building setbacks."
+      }
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Optimize",
+      "text": "AI calculates every luminaire's ideal output by testing thousands of configurations.",
+      "itemListElement": {
+        "@type": "HowToDirection",
+        "text": "Our AI engine tests thousands of dimming configurations in minutes, finding the optimal output for each luminaire based on real geometry while maintaining IES/ANSI RP-8 compliance."
+      }
+    },
+    {
+      "@type": "HowToStep",
+      "position": 4,
+      "name": "Deploy",
+      "text": "Optimized dimming schedules push automatically via API.",
+      "itemListElement": {
+        "@type": "HowToDirection",
+        "text": "No field crews, no hardware changes. Schedules are deployed directly to your NLC system through the API integration."
+      }
+    },
+    {
+      "@type": "HowToStep",
+      "position": 5,
+      "name": "Save",
+      "text": "Energy reduction begins immediately—typically 40% savings.",
+      "itemListElement": {
+        "@type": "HowToDirection",
+        "text": "25% savings from precision design optimization (dusk-to-dawn) plus 15% from early morning dimming (1AM-6AM) equals 40% total energy savings with no visible impact to lighting quality."
+      }
+    }
+  ]
+}
+</script>

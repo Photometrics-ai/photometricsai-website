@@ -1,7 +1,8 @@
 <header class="site-header" id="site-header">
   <nav class="nav-container">
     <a href="/" class="logo">
-      <img src="/images/logo-white.png" alt="Photometrics AI" height="32">
+      <img src="/images/logo-white.png" alt="Photometrics AI" height="32" class="logo-dark">
+      <img src="/images/logo-dark.png" alt="Photometrics AI" height="32" class="logo-light">
     </a>
 
     <button class="mobile-menu-toggle" aria-label="Toggle menu" onclick="toggleMobileMenu()">
@@ -12,7 +13,7 @@
       {{ range .Site.Menus.main }}
       <li><a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }}class="active"{{ end }}>{{ .Name }}</a></li>
       {{ end }}
-      <li><a href="https://bit.ly/30MinMeetWAri" class="nav-cta" target="_blank" rel="noopener">Get Demo</a></li>
+      <li><a href="https://beta.photometrics.ai" class="nav-cta" target="_blank" rel="noopener">Try Beta</a></li>
     </ul>
   </nav>
 </header>
@@ -23,13 +24,39 @@ function toggleMobileMenu() {
   document.querySelector('.mobile-menu-toggle').classList.toggle('active');
 }
 
-// Header scroll effect
-window.addEventListener('scroll', function() {
+// Header theme detection based on section background
+document.addEventListener('DOMContentLoaded', function() {
   const header = document.getElementById('site-header');
-  if (window.scrollY > 50) {
-    header.classList.add('scrolled');
-  } else {
-    header.classList.remove('scrolled');
+  const sections = document.querySelectorAll('[data-theme]');
+
+  function updateHeaderTheme() {
+    const headerBottom = header.getBoundingClientRect().bottom;
+
+    // Find which section the header is overlapping
+    let currentTheme = 'dark'; // default
+
+    for (const section of sections) {
+      const rect = section.getBoundingClientRect();
+      // If the header bottom is within this section
+      if (rect.top <= headerBottom && rect.bottom > 0) {
+        currentTheme = section.dataset.theme;
+        break;
+      }
+    }
+
+    if (currentTheme === 'light') {
+      header.classList.add('theme-light');
+      header.classList.remove('theme-dark');
+    } else {
+      header.classList.add('theme-dark');
+      header.classList.remove('theme-light');
+    }
   }
+
+  // Update on scroll
+  window.addEventListener('scroll', updateHeaderTheme, { passive: true });
+
+  // Initial check
+  updateHeaderTheme();
 });
 </script>

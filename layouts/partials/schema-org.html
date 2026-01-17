@@ -3,30 +3,72 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Photometrics AI",
+  "alternateName": "Photometrics.ai",
   "url": "{{ .Site.BaseURL }}",
   "logo": "{{ .Site.BaseURL }}images/logo-white.png",
-  "description": "{{ .Site.Params.description }}",
+  "image": "{{ .Site.BaseURL }}images/og-image.png",
+  "description": "Photometrics AI is a software platform that optimizes public lighting performance through networked lighting controls, delivering 40% energy savings without hardware installation. Using patented GIS-based Target Lighting Layers and AI-powered optimization, we help municipalities reduce streetlight energy costs while maintaining lighting standards compliance.",
+  "slogan": "Where Light Meets Intelligence",
   "email": "{{ .Site.Params.email }}",
   "telephone": "{{ .Site.Params.phone }}",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "US"
+  },
   "parentOrganization": {
     "@type": "Organization",
-    "name": "{{ .Site.Params.parentCompany }}"
+    "name": "{{ .Site.Params.parentCompany }}",
+    "url": "https://evarilabs.com"
   },
-  "sameAs": [],
+  "sameAs": [
+    "https://www.linkedin.com/company/photometricsai/",
+    "https://www.linkedin.com/in/ari-isaak/"
+  ],
   "foundingDate": "2024",
+  "foundingLocation": {
+    "@type": "Place",
+    "name": "United States"
+  },
   "founders": [{
     "@type": "Person",
     "name": "Ari Isaak",
-    "jobTitle": "Founder"
+    "jobTitle": "Founder & CEO",
+    "url": "https://www.linkedin.com/in/ari-isaak/",
+    "sameAs": "https://www.linkedin.com/in/ari-isaak/"
   }],
+  "numberOfEmployees": {
+    "@type": "QuantitativeValue",
+    "value": "1-10"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "United States"
+  },
   "knowsAbout": [
     "Street lighting optimization",
-    "Networked lighting controls",
-    "GIS",
-    "Artificial intelligence",
-    "Municipal infrastructure",
-    "Energy efficiency",
-    "Smart city technology"
-  ]
+    "Networked lighting controls (NLC)",
+    "NLC dimming optimization",
+    "GIS-based lighting design",
+    "Target Lighting Layers",
+    "Artificial intelligence for energy management",
+    "Municipal infrastructure optimization",
+    "Energy efficiency in public lighting",
+    "Smart city technology",
+    "IES/ANSI RP-8 lighting standards"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Photometrics AI Services",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Street Lighting Optimization Software",
+          "description": "AI-powered dimming optimization for existing networked lighting controls, delivering 40% energy savings"
+        }
+      }
+    ]
+  }
 }
 </script>

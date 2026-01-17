@@ -1,7 +1,7 @@
 ---
 title: "How It Works"
 subtitle: "Four integrated components deliver precision lighting optimization"
-description: "Learn how Photometrics AI uses GIS, artificial intelligence, and dynamic scheduling to optimize street lighting performance through existing networked lighting controls."
+description: "Discover how to reduce streetlight energy by 40% without hardware changes. Photometrics AI uses GIS-based Target Lighting Layers and AI optimization to deliver precision dimming through your existing networked lighting controls."
 ---
 
 <div class="features-grid" style="margin-bottom: var(--space-xl);">

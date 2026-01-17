@@ -1,12 +1,13 @@
 {{ define "main" }}
-<div class="page-header">
+<div class="page-header" data-theme="dark">
   <div class="container">
     <h1>{{ .Title }}</h1>
     {{ with .Params.subtitle }}<p class="lead">{{ . }}</p>{{ end }}
+    <p class="page-updated">Last updated: {{ now.Format "January 2006" }}</p>
   </div>
 </div>
 
-<div class="page-content">
+<div class="page-content" data-theme="light">
   <div class="container">
     <div class="faq-list">
       {{ range .Params.faq }}

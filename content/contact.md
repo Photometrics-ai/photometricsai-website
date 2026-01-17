@@ -1,7 +1,7 @@
 ---
 title: "Contact"
 subtitle: "Let's discuss how Photometrics AI can help your municipality"
-description: "Contact Photometrics AI to learn how our street lighting optimization platform can deliver 40% energy savings for your city or utility."
+description: "Schedule a demo of Photometrics AI street lighting optimization. Learn how municipalities and utilities achieve 40% energy savings through existing networked lighting controls—no hardware required."
 layout: "contact"
 ---
 

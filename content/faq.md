@@ -39,4 +39,22 @@ faq:
 
   - question: "How does BirdCast integration work?"
     answer: "BirdCast provides real-time migration forecasts from the Cornell Lab of Ornithology. Over half of annual bird migration occurs on just 10% of nights, and migration altitude decreases during early morning hours, increasing collision risk. Photometrics AI integrates BirdCast data to automatically dim lights in low-speed, low-crime areas during high-migration nights, protecting wildlife without compromising safety."
+
+  - question: "How do I reduce streetlight energy costs without changing hardware?"
+    answer: "Photometrics AI reduces streetlight energy costs by 40% through software-only optimization—no hardware changes required. If your city already has networked lighting controls installed, you can connect Photometrics AI via API to optimize dimming schedules based on real-world geometry, overlapping beam spreads, and lighting standards. The system calculates the optimal output for each luminaire individually, delivering energy savings without any physical retrofits, field crews, or equipment purchases."
+
+  - question: "How much can municipalities save on street lighting with Photometrics AI?"
+    answer: "Municipalities can expect approximately $61.81 per streetlight per year in quantifiable value from Photometrics AI. This includes $42.71 in asset management value (extended luminaire life, reduced maintenance) and $19.10 in quality-of-life improvements (safety, environmental protection). With pricing from $3-12 per light per year and payback in under 12 months, the ROI is substantial. For a city with 10,000 streetlights, that's over $600,000 in annual value."
+
+  - question: "Does Photometrics AI work with Ubicquia and other NLC platforms?"
+    answer: "Yes. Photometrics AI is designed to integrate with existing networked lighting control platforms via API. We currently have active integrations with 2 major NLC platforms. Ubicquia is one of our integration partners—their controllers provide the communication infrastructure while Photometrics AI adds the photometric intelligence and optimization algorithms. This partnership model means you can add Photometrics AI to your existing NLC investment without replacing anything."
+
+  - question: "What is the difference between Photometrics AI and LED retrofits?"
+    answer: "LED retrofits require capital expenditure, physical installation, field crews, and typically 3-5 years for payback. Photometrics AI is software-only—no hardware purchases, no installation, no field activity, and payback in under 12 months. LED retrofits optimize the fixture; Photometrics AI optimizes the system. The two approaches are complementary: even cities with new LED fixtures benefit from dimming optimization because traditional 'typical layout' designs often overlight by 20-40% to ensure compliance."
+
+  - question: "Can street lighting be dimmed without causing safety concerns?"
+    answer: "Yes. Human eyes cannot perceive brightness changes under 20%, which means significant dimming headroom exists without any visible impact to residents. Photometrics AI optimizes to IES/ANSI RP-8 lighting standards, achieving 91-97% compliance rates—often better than traditional designs. The system prioritizes safety: crosswalks and high-traffic areas maintain full illumination while lower-priority zones are optimized more aggressively. The result is smarter lighting that meets standards everywhere while eliminating unnecessary waste."
+
+  - question: "Where is Photometrics AI currently deployed?"
+    answer: "Photometrics AI is currently deployed in the Memphis suburbs with over 8,500 streetlights under active optimization. The system has demonstrated real-world energy savings while maintaining lighting standards compliance. Next deployments are planned for Nashville and Chattanooga, Tennessee. Our goal is to expand across municipal, utility, and community lighting systems nationwide."
 ---

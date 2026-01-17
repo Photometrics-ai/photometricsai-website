@@ -32,9 +32,19 @@
 <!-- Organization Schema (JSON-LD) -->
 {{ partial "schema-org.html" . }}
 
+<!-- Software Application Schema (homepage only) -->
+{{ if .IsHome }}
+{{ partial "schema-software.html" . }}
+{{ partial "schema-howto.html" . }}
+{{ end }}
+
 <!-- Page-specific schema -->
 {{ if eq .Type "faq" }}
 {{ partial "schema-faq.html" . }}
+{{ end }}
+
+{{ if eq .File.BaseFileName "about" }}
+{{ partial "schema-person.html" . }}
 {{ end }}
 
 <!-- Fonts loaded via CSS @import (Fontshare: Clash Display + Satoshi) -->

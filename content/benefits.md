@@ -1,7 +1,7 @@
 ---
 title: "Benefits"
 subtitle: "Quantified value for municipalities, utilities, and communities"
-description: "Photometrics AI delivers $61.81 per streetlight per year in value for municipalities, plus $15.48 for utilities—with ROI in under 12 months."
+description: "Calculate your street lighting savings: Photometrics AI delivers $61.81 per light per year for municipalities and $15.48 for utilities. 40% energy reduction, under 12-month payback, zero hardware costs."
 ---
 
 <div class="stats-grid" style="margin-bottom: var(--space-xl);">
