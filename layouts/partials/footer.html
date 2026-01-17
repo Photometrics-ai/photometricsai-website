@@ -1,54 +1,18 @@
 <footer class="site-footer">
   <div class="footer-container">
-    <div class="footer-main">
-      <div class="footer-brand">
-        <img src="/images/logo-white.png" alt="Photometrics AI" height="32">
-        <p class="tagline">{{ .Site.Params.tagline }}</p>
-      </div>
-
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4>Product</h4>
-          <ul>
-            <li><a href="/how-it-works/">How It Works</a></li>
-            <li><a href="/benefits/">Benefits</a></li>
-            <li><a href="/faq/">FAQ</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column">
-          <h4>Company</h4>
-          <ul>
-            <li><a href="/about/">About</a></li>
-            <li><a href="/press/">Press</a></li>
-            <li><a href="/contact/">Contact</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column">
-          <h4>Contact</h4>
-          <ul>
-            <li><a href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }}</a></li>
-            <li><a href="tel:{{ .Site.Params.phone }}">{{ .Site.Params.phone }}</a></li>
-          </ul>
-        </div>
-      </div>
+    <div class="footer-brand">
+      <span>&copy; {{ now.Year }} Photometrics AI</span>
     </div>
 
-    <div class="footer-bottom">
-      <div class="footer-legal">
-        <p>&copy; {{ now.Year }} Photometrics AI. All rights reserved.</p>
-        <div class="footer-legal-links">
-          {{ range .Site.Menus.footer }}
-          <a href="{{ .URL }}">{{ .Name }}</a>
-          {{ end }}
-        </div>
-      </div>
+    <nav class="footer-nav">
+      <a href="/about/">About</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/contact/">Contact</a>
+    </nav>
 
-      <div class="footer-parent">
-        <span>A product of</span>
-        <img src="/images/evarilabs-grey.png" alt="EvariLABS LLC" height="24">
-      </div>
+    <div class="footer-parent">
+      <span>A product of</span>
+      <img src="/images/evarilabs-grey.png" alt="EvariLABS LLC" height="20">
     </div>
   </div>
 </footer>
