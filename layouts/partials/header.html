@@ -1,7 +1,7 @@
 <header class="site-header" id="site-header">
   <nav class="nav-container">
     <a href="/" class="logo">
-      <img src="/images/logo-white.png" alt="Photometrics AI" height="40">
+      <img src="/images/logo-white.png" alt="Photometrics AI" height="32">
     </a>
 
     <button class="mobile-menu-toggle" aria-label="Toggle menu" onclick="toggleMobileMenu()">
@@ -12,7 +12,7 @@
       {{ range .Site.Menus.main }}
       <li><a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }}class="active"{{ end }}>{{ .Name }}</a></li>
       {{ end }}
-      <li><a href="/contact/" class="btn btn-primary">Request Demo</a></li>
+      <li><a href="https://bit.ly/30MinMeetWAri" class="nav-cta" target="_blank" rel="noopener">Get Demo</a></li>
     </ul>
   </nav>
 </header>
