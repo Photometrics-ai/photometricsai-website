@@ -1,6 +1,126 @@
 {{ define "main" }}
-<main>
-    <h1>{{ .Title }}</h1>
-    {{ .Content }}
-</main>
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>{{ .Site.Params.tagline }}</h1>
+    <p class="lead">{{ .Site.Params.description }}</p>
+    <div class="hero-buttons">
+      <a href="/how-it-works/" class="btn btn-primary btn-lg">See How It Works</a>
+      <a href="/contact/" class="btn btn-secondary btn-lg">Request Demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="bg-gradient">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card glass-card">
+        <div class="stat-number">40%</div>
+        <div class="stat-label">Energy Savings</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-number">$62</div>
+        <div class="stat-label">Value per Light/Year</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-number">&lt;12</div>
+        <div class="stat-label">Month ROI</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Hardware Required</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- What Is Section -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <h2>What is Photometrics AI?</h2>
+      <p class="lead">A software platform that optimizes public lighting performance through networked lighting controls. We determine the optimal operating parameters for each luminaire based on real-world geography, lighting standards, and configurable priorities.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card glass-card">
+        <div class="feature-icon">&#x1F5FA;</div>
+        <h3>GIS-Based Design</h3>
+        <p>Target Lighting Layers specify precise illumination levels for every zone: crosswalks, streets, sidewalks, and more.</p>
+      </div>
+
+      <div class="feature-card glass-card">
+        <div class="feature-icon">&#x1F9E0;</div>
+        <h3>AI Optimization</h3>
+        <p>Our engine tests thousands of configurations in minutes, finding the optimal dimming level for each luminaire.</p>
+      </div>
+
+      <div class="feature-card glass-card">
+        <div class="feature-icon">&#x1F4C5;</div>
+        <h3>Dynamic Scheduling</h3>
+        <p>Priority-based calendar handles emergencies, events, and environmental conditions automatically.</p>
+      </div>
+
+      <div class="feature-card glass-card">
+        <div class="feature-icon">&#x1F50C;</div>
+        <h3>NLC Integration</h3>
+        <p>Works with your existing networked lighting control systems via API. No hardware changes needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How Savings Are Achieved -->
+<section class="bg-gradient">
+  <div class="container">
+    <div class="section-header">
+      <h2>How 40% Energy Savings Is Achieved</h2>
+    </div>
+
+    <div class="features-grid" style="max-width: 800px; margin: 0 auto;">
+      <div class="feature-card glass-card">
+        <div class="stat-number" style="font-size: 2.5rem;">25%</div>
+        <h3>Precision Design Optimization</h3>
+        <p>Applied dusk-to-dawn. Per-luminaire dimming based on actual geometry, overlapping beam spreads, and Target Lighting Layers. Replaces cookie-cutter designs that ignore real-world conditions.</p>
+      </div>
+
+      <div class="feature-card glass-card">
+        <div class="stat-number" style="font-size: 2.5rem;">15%</div>
+        <h3>Early Morning Dimming</h3>
+        <p>Applied 1AM-6AM. As traffic and pedestrian activity decline, applicable lighting standards decrease. Lights dim an additional ~34% during these hours in low-speed residential areas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Social Proof -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <h2>Proven Technology</h2>
+      <p class="lead">Real deployments. Real results. Patented innovation.</p>
+    </div>
+
+    <div class="features-grid" style="max-width: 900px; margin: 0 auto;">
+      <div class="feature-card glass-card text-center">
+        <div class="stat-number" style="font-size: 2rem;">8,500+</div>
+        <p>Streetlights in active deployment (Memphis suburbs)</p>
+      </div>
+
+      <div class="feature-card glass-card text-center">
+        <div class="stat-number" style="font-size: 2rem;">2</div>
+        <p>Major NLC systems integrated</p>
+      </div>
+
+      <div class="feature-card glass-card text-center">
+        <div class="stat-number" style="font-size: 2rem;">2</div>
+        <p>Patents (US9894736B2 granted, 18/660,680 pending)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+{{ partial "cta.html" . }}
 {{ end }}

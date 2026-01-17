@@ -1,0 +1,33 @@
+{{ define "main" }}
+<div class="page-header">
+  <div class="container">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.subtitle }}<p class="lead">{{ . }}</p>{{ end }}
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="container">
+    {{ if .Content }}
+    <div class="prose" style="margin-bottom: var(--space-lg);">
+      {{ .Content }}
+    </div>
+    {{ end }}
+
+    {{ if .Pages }}
+    <div class="features-grid">
+      {{ range .Pages }}
+      <article class="glass-card">
+        <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+        {{ with .Params.date }}<p class="stat-label">{{ . | time.Format "January 2, 2006" }}</p>{{ end }}
+        {{ with .Summary }}<p>{{ . }}</p>{{ end }}
+        <a href="{{ .Permalink }}" class="btn btn-secondary">Read More</a>
+      </article>
+      {{ end }}
+    </div>
+    {{ end }}
+  </div>
+</div>
+
+{{ partial "cta.html" . }}
+{{ end }}

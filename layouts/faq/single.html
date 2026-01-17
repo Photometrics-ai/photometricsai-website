@@ -1,0 +1,29 @@
+{{ define "main" }}
+<div class="page-header">
+  <div class="container">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.subtitle }}<p class="lead">{{ . }}</p>{{ end }}
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="container">
+    <div class="faq-list">
+      {{ range .Params.faq }}
+      <div class="faq-item">
+        <button class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+          {{ .question }}
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            {{ .answer | markdownify }}
+          </div>
+        </div>
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</div>
+
+{{ partial "cta.html" . }}
+{{ end }}

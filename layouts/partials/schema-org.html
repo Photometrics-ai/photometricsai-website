@@ -1,0 +1,32 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Photometrics AI",
+  "url": "{{ .Site.BaseURL }}",
+  "logo": "{{ .Site.BaseURL }}images/logo-white.png",
+  "description": "{{ .Site.Params.description }}",
+  "email": "{{ .Site.Params.email }}",
+  "telephone": "{{ .Site.Params.phone }}",
+  "parentOrganization": {
+    "@type": "Organization",
+    "name": "{{ .Site.Params.parentCompany }}"
+  },
+  "sameAs": [],
+  "foundingDate": "2024",
+  "founders": [{
+    "@type": "Person",
+    "name": "Ari Isaak",
+    "jobTitle": "Founder"
+  }],
+  "knowsAbout": [
+    "Street lighting optimization",
+    "Networked lighting controls",
+    "GIS",
+    "Artificial intelligence",
+    "Municipal infrastructure",
+    "Energy efficiency",
+    "Smart city technology"
+  ]
+}
+</script>
