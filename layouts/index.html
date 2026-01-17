@@ -2,6 +2,7 @@
 <!-- Hero Section -->
 <section class="hero">
   <div class="hero-content">
+    <p class="eyebrow hero-eyebrow">Public Lighting Optimization</p>
     <h1>{{ .Site.Params.tagline }}</h1>
     <p class="lead">{{ .Site.Params.description }}</p>
     <div class="hero-buttons">
@@ -11,24 +12,24 @@
   </div>
 </section>
 
-<!-- Stats Section -->
-<section class="section-dark">
+<!-- Stats Bar -->
+<section class="stats-bar">
   <div class="container">
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-number">40%</div>
+      <div class="stat-item reveal reveal-1">
+        <div class="stat-value">40<span class="accent">%</span></div>
         <div class="stat-label">Energy Savings</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">$62</div>
+      <div class="stat-item reveal reveal-2">
+        <div class="stat-value"><span class="accent">$</span>62</div>
         <div class="stat-label">Value per Light/Year</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">&lt;12</div>
+      <div class="stat-item reveal reveal-3">
+        <div class="stat-value">&lt;12</div>
         <div class="stat-label">Month ROI</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">0</div>
+      <div class="stat-item reveal reveal-4">
+        <div class="stat-value">0</div>
         <div class="stat-label">Hardware Required</div>
       </div>
     </div>
@@ -44,19 +45,19 @@
     </div>
 
     <div class="features-grid">
-      <div class="card">
+      <div class="card reveal reveal-1">
         <div class="card-icon">&#x1F5FA;</div>
         <h3>GIS-Based Design</h3>
         <p>Target Lighting Layers specify precise illumination levels for every zone: crosswalks, streets, sidewalks, and more.</p>
       </div>
 
-      <div class="card">
+      <div class="card reveal reveal-2">
         <div class="card-icon">&#x1F9E0;</div>
         <h3>AI Optimization</h3>
         <p>Our engine tests thousands of configurations in minutes, finding the optimal dimming level for each luminaire.</p>
       </div>
 
-      <div class="card">
+      <div class="card reveal reveal-3">
         <div class="card-icon">&#x1F4C5;</div>
         <h3>Dynamic Scheduling</h3>
         <p>Priority-based calendar handles emergencies, events, and environmental conditions automatically.</p>
@@ -72,15 +73,15 @@
       <h2>How 40% Energy Savings Is Achieved</h2>
     </div>
 
-    <div class="features-grid" style="grid-template-columns: repeat(2, 1fr); max-width: 800px; margin: 0 auto;">
-      <div class="glass-card">
-        <div class="stat-number" style="font-size: 2rem; margin-bottom: var(--space-sm);">25%</div>
+    <div class="savings-grid">
+      <div class="savings-card reveal reveal-1">
+        <div class="savings-percent">25%</div>
         <h3>Precision Design</h3>
         <p>Applied dusk-to-dawn. Per-luminaire dimming based on actual geometry, overlapping beam spreads, and Target Lighting Layers.</p>
       </div>
 
-      <div class="glass-card">
-        <div class="stat-number" style="font-size: 2rem; margin-bottom: var(--space-sm);">15%</div>
+      <div class="savings-card reveal reveal-2">
+        <div class="savings-percent">15%</div>
         <h3>Early Morning Dimming</h3>
         <p>Applied 1AM-6AM. As traffic declines, applicable standards decrease. Lights dim an additional ~34% in low-speed residential areas.</p>
       </div>
@@ -88,7 +89,7 @@
   </div>
 </section>
 
-<!-- Social Proof -->
+<!-- Proven Technology -->
 <section class="section-light">
   <div class="container">
     <div class="section-header">
@@ -96,19 +97,19 @@
       <p class="lead">Real deployments. Real results. Patented innovation.</p>
     </div>
 
-    <div class="features-grid" style="max-width: 800px; margin: 0 auto;">
-      <div class="card text-center">
-        <div style="font-size: 2rem; font-weight: 300; color: var(--color-medium-blue); margin-bottom: var(--space-xs);">8,500+</div>
+    <div class="proof-grid">
+      <div class="proof-item reveal reveal-1">
+        <div class="proof-value">8,500+</div>
         <p>Streetlights in active deployment (Memphis suburbs)</p>
       </div>
 
-      <div class="card text-center">
-        <div style="font-size: 2rem; font-weight: 300; color: var(--color-medium-blue); margin-bottom: var(--space-xs);">2</div>
+      <div class="proof-item reveal reveal-2">
+        <div class="proof-value">2</div>
         <p>Major NLC systems integrated</p>
       </div>
 
-      <div class="card text-center">
-        <div style="font-size: 2rem; font-weight: 300; color: var(--color-medium-blue); margin-bottom: var(--space-xs);">2</div>
+      <div class="proof-item reveal reveal-3">
+        <div class="proof-value">2</div>
         <p>Patents (US9894736B2 granted, pending)</p>
       </div>
     </div>
