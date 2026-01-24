@@ -1,3 +1,4 @@
+<a href="#main-content" class="skip-to-content">Skip to content</a>
 <header class="site-header" id="site-header">
   <nav class="nav-container">
     <a href="/" class="logo">
@@ -5,7 +6,7 @@
       <img src="/images/logo-dark.png" alt="Photometrics AI" height="32" class="logo-light">
     </a>
 
-    <button class="mobile-menu-toggle" aria-label="Toggle menu" onclick="toggleMobileMenu()">
+    <button class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links" onclick="toggleMobileMenu()">
       <span class="hamburger"></span>
     </button>
 
@@ -20,8 +21,11 @@
 
 <script>
 function toggleMobileMenu() {
-  document.getElementById('nav-links').classList.toggle('active');
-  document.querySelector('.mobile-menu-toggle').classList.toggle('active');
+  const navLinks = document.getElementById('nav-links');
+  const menuButton = document.querySelector('.mobile-menu-toggle');
+  const isExpanded = navLinks.classList.toggle('active');
+  menuButton.classList.toggle('active');
+  menuButton.setAttribute('aria-expanded', isExpanded);
 }
 
 // Header theme detection based on section background

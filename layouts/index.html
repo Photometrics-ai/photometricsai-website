@@ -158,13 +158,13 @@
     </div>
 
     <div class="tabs">
-      <div class="tab-buttons">
-        <button class="tab-btn active" data-tab="municipalities">Municipalities</button>
-        <button class="tab-btn" data-tab="utilities">Utilities</button>
-        <button class="tab-btn" data-tab="communities">Communities</button>
+      <div class="tab-buttons" role="tablist" aria-label="Benefits by audience">
+        <button class="tab-btn active" data-tab="municipalities" role="tab" aria-selected="true" aria-controls="municipalities" id="tab-municipalities" tabindex="0">Municipalities</button>
+        <button class="tab-btn" data-tab="utilities" role="tab" aria-selected="false" aria-controls="utilities" id="tab-utilities" tabindex="-1">Utilities</button>
+        <button class="tab-btn" data-tab="communities" role="tab" aria-selected="false" aria-controls="communities" id="tab-communities" tabindex="-1">Communities</button>
       </div>
 
-      <div class="tab-panel active" id="municipalities">
+      <div class="tab-panel active" id="municipalities" role="tabpanel" aria-labelledby="tab-municipalities">
         <div class="tab-content">
           <div class="tab-stat">$51.09</div>
           <p class="tab-stat-label">Value per light per year</p>
@@ -177,7 +177,7 @@
         </div>
       </div>
 
-      <div class="tab-panel" id="utilities">
+      <div class="tab-panel" id="utilities" role="tabpanel" aria-labelledby="tab-utilities" hidden>
         <div class="tab-content">
           <div class="tab-stat">$10.18</div>
           <p class="tab-stat-label">Avoided costs per light per year</p>
@@ -190,7 +190,7 @@
         </div>
       </div>
 
-      <div class="tab-panel" id="communities">
+      <div class="tab-panel" id="communities" role="tabpanel" aria-labelledby="tab-communities" hidden>
         <div class="tab-content">
           <div class="tab-stat">Zero</div>
           <p class="tab-stat-label">Disruption to residents</p>
@@ -277,21 +277,60 @@
   </div>
 </section>
 
-<!-- Tab switching script -->
+<!-- Tab switching script with keyboard navigation -->
 <script>
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const tabId = btn.dataset.tab;
+(function() {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  function switchTab(newTab) {
+    const tabId = newTab.dataset.tab;
 
     // Update buttons
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    tabButtons.forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-selected', 'false');
+      btn.setAttribute('tabindex', '-1');
+    });
+    newTab.classList.add('active');
+    newTab.setAttribute('aria-selected', 'true');
+    newTab.setAttribute('tabindex', '0');
+    newTab.focus();
 
     // Update panels
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
+    tabPanels.forEach(panel => {
+      panel.classList.remove('active');
+      panel.setAttribute('hidden', '');
+    });
+    const activePanel = document.getElementById(tabId);
+    activePanel.classList.add('active');
+    activePanel.removeAttribute('hidden');
+  }
+
+  tabButtons.forEach((btn, index) => {
+    btn.addEventListener('click', () => switchTab(btn));
+
+    btn.addEventListener('keydown', (e) => {
+      let newIndex;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        newIndex = (index + 1) % tabButtons.length;
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        newIndex = (index - 1 + tabButtons.length) % tabButtons.length;
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        newIndex = 0;
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        newIndex = tabButtons.length - 1;
+      }
+      if (newIndex !== undefined) {
+        switchTab(tabButtons[newIndex]);
+      }
+    });
   });
-});
+})();
 </script>
 
 {{ end }}

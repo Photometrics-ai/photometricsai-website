@@ -9,18 +9,24 @@
 
 <div class="page-content" data-theme="light">
   <div class="container">
-    <div class="faq-list">
+    <div class="faq-list" role="list">
+      {{ $index := 0 }}
       {{ range .Params.faq }}
-      <div class="faq-item"{{ with .id }} id="{{ . }}"{{ end }}>
-        <button class="faq-question" onclick="this.parentElement.classList.toggle('active')">
+      {{ $faqId := .id | default (printf "faq-%d" $index) }}
+      <div class="faq-item" role="listitem"{{ with .id }} id="{{ . }}"{{ end }}>
+        <button class="faq-question"
+                aria-expanded="false"
+                aria-controls="answer-{{ $faqId }}"
+                onclick="toggleFaq(this)">
           {{ .question }}
         </button>
-        <div class="faq-answer">
+        <div class="faq-answer" id="answer-{{ $faqId }}" role="region" aria-hidden="true">
           <div class="faq-answer-content">
             {{ .answer | markdownify }}
           </div>
         </div>
       </div>
+      {{ $index = add $index 1 }}
       {{ end }}
     </div>
   </div>
@@ -29,12 +35,21 @@
 {{ partial "cta.html" . }}
 
 <script>
+function toggleFaq(button) {
+  const item = button.parentElement;
+  const answer = item.querySelector('.faq-answer');
+  const isExpanded = item.classList.toggle('active');
+  button.setAttribute('aria-expanded', isExpanded);
+  answer.setAttribute('aria-hidden', !isExpanded);
+}
+
 // Auto-open FAQ item if navigated via anchor
 (function() {
   if (window.location.hash) {
     const target = document.querySelector(window.location.hash);
     if (target && target.classList.contains('faq-item')) {
-      target.classList.add('active');
+      const button = target.querySelector('.faq-question');
+      if (button) toggleFaq(button);
       setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
     }
   }

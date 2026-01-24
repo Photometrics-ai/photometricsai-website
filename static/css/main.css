@@ -402,6 +402,21 @@ section {
   padding: 1rem 2rem;
 }
 
+/* Primary button on light backgrounds */
+.glass-card .btn-primary,
+.page-content .btn-primary {
+  background: var(--accent);
+  color: var(--text-white);
+  border-color: var(--accent);
+}
+
+.glass-card .btn-primary:hover,
+.page-content .btn-primary:hover {
+  background: var(--accent-light);
+  border-color: var(--accent-light);
+  color: var(--text-white);
+}
+
 /* ===== HERO ===== */
 .hero {
   min-height: 100vh;
@@ -1355,6 +1370,118 @@ section {
 .form-group textarea {
   min-height: 120px;
   resize: vertical;
+}
+
+/* ===== FEATURES GRID (How It Works, Contact) ===== */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== GLASS CARD ===== */
+.glass-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  transition: all var(--duration) var(--ease);
+}
+
+.glass-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== FEATURE CARDS ===== */
+.feature-card {
+  padding: var(--space-lg);
+}
+
+.feature-card h3 {
+  margin-bottom: var(--space-xs);
+  color: var(--text-dark);
+}
+
+.feature-card p {
+  color: var(--text-body);
+  margin-bottom: var(--space-sm);
+}
+
+.feature-card p:last-child {
+  margin-bottom: 0;
+}
+
+.feature-card ul,
+.feature-card ol {
+  margin-left: var(--space-md);
+  margin-bottom: var(--space-sm);
+  color: var(--text-body);
+}
+
+.feature-card li {
+  margin-bottom: var(--space-xs);
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--accent);
+  color: var(--text-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+}
+
+/* ===== STAT CARDS (Benefits page) ===== */
+.stat-card {
+  text-align: center;
+  padding: var(--space-lg);
+}
+
+.stat-number {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 300;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-xs);
+}
+
+.stat-card .stat-label {
+  font-size: 0.8125rem;
+  color: var(--text-subtle);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* ===== SKIP TO CONTENT (Accessibility) ===== */
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: var(--text-white);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-full);
+  z-index: 9999;
+  transition: top var(--duration) var(--ease);
+}
+
+.skip-to-content:focus {
+  top: var(--space-sm);
+  outline: 2px solid var(--text-white);
+  outline-offset: 2px;
 }
 
 /* ===== UTILITIES ===== */
