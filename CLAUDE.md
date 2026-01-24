@@ -24,11 +24,15 @@ Deployment is a **two-step process**:
 
 ### Step 1: Push to GitHub
 
+**IMPORTANT: Always commit ALL changed files.** Don't cherry-pick specific files. Git tracks what changed since last commit - just add everything:
+
 ```bash
-git add <files>
+git add -A
 git commit -m "Your commit message"
 git push origin master
 ```
+
+This is how normal git workflows work - you sync all changes, not just some. Selecting specific files leads to missing dependencies (e.g., pushing a partial but not the layout that includes it).
 
 ### Step 2: Trigger AWS Amplify Build
 
