@@ -1,49 +1,49 @@
 ---
 title: "Benefits"
 subtitle: "Quantified value for municipalities, utilities, and communities"
-description: "Calculate your street lighting savings: Photometrics AI delivers $61.81 per light per year for municipalities and $15.48 for utilities. 40% energy reduction, under 12-month payback, zero hardware costs."
+description: "Calculate your street lighting savings: Photometrics AI delivers $61.27 combined value per light per year ($51.09 municipal + $10.18 utility). 35% energy reduction, immediate ROI, zero hardware costs."
 ---
 
 <div class="stats-grid" style="margin-bottom: var(--space-xl);">
   <div class="stat-card glass-card">
-    <div class="stat-number">$61.81</div>
+    <div class="stat-number">$51.09</div>
     <div class="stat-label">Municipal Value/Light/Year</div>
   </div>
   <div class="stat-card glass-card">
-    <div class="stat-number">$15.48</div>
+    <div class="stat-number">$10.18</div>
     <div class="stat-label">Utility Value/Light/Year</div>
   </div>
   <div class="stat-card glass-card">
-    <div class="stat-number">$77.29</div>
+    <div class="stat-number">$61.27</div>
     <div class="stat-label">Combined System Value</div>
   </div>
   <div class="stat-card glass-card">
-    <div class="stat-number">&lt;12mo</div>
-    <div class="stat-label">ROI Timeline</div>
+    <div class="stat-number">5-20×</div>
+    <div class="stat-label">Immediate ROI</div>
   </div>
 </div>
 
 ## For Municipalities
 
-**Asset Management Benefits ($42.71/light/year):**
+**Asset Management Benefits ($30.44/light/year):**
 - Extend luminaire life through optimized dimming
 - Reduce maintenance truck rolls and costs
-- 40% energy savings while maintaining lighting quality
+- 35% energy savings while maintaining lighting quality
 - Better long-term budgeting and asset planning
 
-**Quality of Life Benefits ($19.10/light/year):**
+**Quality of Life Benefits ($20.65/light/year):**
 - Crime reduction through CPTED principles
 - Traffic incident reduction (FHWA Proven Safety Countermeasure)
 - Grid stability and demand response capability
 - Support for Vision Zero and climate action goals
 
-> "Photometrics AI delivers ~$62/streetlight/year in value. The cost to implement is far outweighed by the financial benefits."
+> "Photometrics AI delivers ~$61/streetlight/year in combined value. The cost to implement is far outweighed by the financial benefits."
 
 ---
 
 ## For Utilities
 
-**Avoided Costs ($15.48/light/year):**
+**Avoided Costs ($10.18/light/year):**
 - Energy savings reduce wholesale procurement costs
 - Generation capacity avoidance defers investment
 - T&D capacity avoidance extends equipment life
@@ -81,10 +81,10 @@ description: "Calculate your street lighting savings: Photometrics AI delivers $
 
 | City Size | Lights | Annual Value | Typical Annual Cost |
 |-----------|--------|--------------|---------------------|
-| Small suburb | 3,000 | $185K | $9-36K |
-| Mid-size city | 10,000 | $618K | $30-120K |
-| Large city | 50,000 | $3.1M | $150-600K |
-| Major metro | 250,000 | $15.5M | $750K-3M |
+| Small suburb | 3,000 | $153K | $9-36K |
+| Mid-size city | 10,000 | $511K | $30-120K |
+| Large city | 50,000 | $2.55M | $150-600K |
+| Major metro | 250,000 | $12.77M | $750K-3M |
 
 ---
 

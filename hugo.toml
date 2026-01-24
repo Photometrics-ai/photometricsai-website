@@ -11,7 +11,7 @@ title = "Photometrics AI | Street Lighting Optimization"
 # Site parameters
 [params]
   tagline = "Where Light Meets Intelligence"
-  description = "Photometrics AI is a software platform that optimizes public lighting performance through networked lighting controls, delivering 40% energy savings without hardware installation."
+  description = "Photometrics AI is a software platform that optimizes public lighting performance through networked lighting controls, delivering 35% energy savings without hardware installation."
   author = "Photometrics AI"
   email = "ari@photometrics.ai"
   phone = "858-633-6447"

@@ -11,7 +11,7 @@
   <div class="container">
     <div class="faq-list">
       {{ range .Params.faq }}
-      <div class="faq-item">
+      <div class="faq-item"{{ with .id }} id="{{ . }}"{{ end }}>
         <button class="faq-question" onclick="this.parentElement.classList.toggle('active')">
           {{ .question }}
         </button>
@@ -27,4 +27,17 @@
 </div>
 
 {{ partial "cta.html" . }}
+
+<script>
+// Auto-open FAQ item if navigated via anchor
+(function() {
+  if (window.location.hash) {
+    const target = document.querySelector(window.location.hash);
+    if (target && target.classList.contains('faq-item')) {
+      target.classList.add('active');
+      setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    }
+  }
+})();
+</script>
 {{ end }}
