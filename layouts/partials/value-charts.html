@@ -1,0 +1,564 @@
+<!-- Value Breakdown Pie Charts with Flying Slice Animation -->
+<section class="value-charts" data-theme="light">
+  <div class="container">
+    <div class="section-header">
+      <p class="eyebrow mb-sm">The Value</p>
+      <h2>Direct Financial Benefits: $61.27/streetlight/year</h2>
+      <p class="lead">Getting street lighting right has overlooked downstream financial benefits</p>
+    </div>
+
+    <div class="ownership-toggle">
+      <span class="ownership-label active" data-state="municipal">Municipal-Owned Street Lights</span>
+      <span class="ownership-label" data-state="utility">Utility-Owned Street Lights</span>
+    </div>
+
+    <div class="charts-row" id="charts-row">
+      <!-- Animation overlay for flying slices -->
+      <div class="charts-animation-layer" id="animation-layer"></div>
+
+      <!-- Chart 1: Quality of Life -->
+      <div class="chart-card" data-chart="qol">
+        <svg class="pie-chart" viewBox="0 0 200 200" id="chart-qol">
+          <g class="pie-slices" transform="translate(100,100)"></g>
+        </svg>
+        <div class="chart-label">
+          <div class="chart-title">Quality of Life</div>
+          <div class="chart-value" data-value="qol">$20.65</div>
+        </div>
+        <div class="chart-legend" id="legend-qol"></div>
+      </div>
+
+      <!-- Chart 2: Asset Management -->
+      <div class="chart-card" data-chart="asset">
+        <svg class="pie-chart" viewBox="0 0 200 200" id="chart-asset">
+          <g class="pie-slices" transform="translate(100,100)"></g>
+        </svg>
+        <div class="chart-label">
+          <div class="chart-title">Asset Management</div>
+          <div class="chart-value" data-value="asset">$30.44</div>
+        </div>
+        <div class="chart-legend" id="legend-asset"></div>
+      </div>
+
+      <!-- Chart 3: Utility -->
+      <div class="chart-card" data-chart="utility">
+        <svg class="pie-chart" viewBox="0 0 200 200" id="chart-utility">
+          <g class="pie-slices" transform="translate(100,100)"></g>
+        </svg>
+        <div class="chart-label">
+          <div class="chart-title">Utility Benefits</div>
+          <div class="chart-value" data-value="utility">$10.18</div>
+        </div>
+        <div class="chart-legend" id="legend-utility"></div>
+      </div>
+    </div>
+
+    <div class="charts-summary">
+      <div class="summary-item municipal">
+        <span class="summary-label">Municipality Value:</span>
+        <span class="summary-value" id="municipal-total">$51.09</span>
+      </div>
+      <div class="summary-item utility">
+        <span class="summary-label">Utility Value:</span>
+        <span class="summary-value" id="utility-total">$10.18</span>
+      </div>
+    </div>
+
+    <p class="charts-footer">Photometrics AI delivers immediate cost savings, rapid ROI, and long-term value without expensive hardware upgrades.</p>
+  </div>
+</section>
+
+<script>
+(function() {
+  // ===== DATA DEFINITIONS =====
+  // 7 unique colors for each slice
+  const COLORS = {
+    crime: '#1a3a5c',    // Navy blue
+    crash: '#d97706',    // Amber
+    demand: '#7c3aed',   // Purple
+    life: '#0891b2',     // Cyan/teal
+    energy: '#ea580c',   // Deep orange
+    maint: '#059669',    // Emerald green
+    acc: '#4ea3dc'       // Sky blue
+  };
+
+  const CHART_DATA = {
+    municipal: {
+      qol: {
+        total: 20.65,
+        slices: [
+          { id: 'crime', label: 'Crime Reduction', value: 10.81, color: COLORS.crime },
+          { id: 'crash', label: 'Transportation Safety', value: 7.82, color: COLORS.crash },
+          { id: 'demand', label: 'Demand Response', value: 2.02, color: COLORS.demand, movesTo: 'utility' }
+        ]
+      },
+      asset: {
+        total: 30.44,
+        slices: [
+          { id: 'life', label: 'Extended Life', value: 15.76, color: COLORS.life, movesTo: 'utility' },
+          { id: 'energy', label: 'Energy Efficiency', value: 9.78, color: COLORS.energy },
+          { id: 'maint', label: 'Reduced Maint.', value: 4.90, color: COLORS.maint, movesTo: 'utility' }
+        ]
+      },
+      utility: {
+        total: 10.18,
+        slices: [
+          { id: 'acc', label: 'Utility Cost Avoidance', value: 10.18, color: COLORS.acc }
+        ]
+      }
+    },
+    utility: {
+      qol: {
+        total: 18.63,
+        slices: [
+          { id: 'crime', label: 'Crime Reduction', value: 10.81, color: COLORS.crime },
+          { id: 'crash', label: 'Transportation Safety', value: 7.82, color: COLORS.crash }
+        ]
+      },
+      asset: {
+        total: 9.78,
+        slices: [
+          { id: 'energy', label: 'Energy Efficiency', value: 9.78, color: COLORS.energy }
+        ]
+      },
+      utility: {
+        total: 32.86,
+        slices: [
+          { id: 'acc', label: 'Utility Cost Avoidance', value: 10.18, color: COLORS.acc },
+          { id: 'life', label: 'Extended Life', value: 15.76, color: COLORS.life },
+          { id: 'maint', label: 'Reduced Maint.', value: 4.90, color: COLORS.maint },
+          { id: 'demand', label: 'Demand Response', value: 2.02, color: COLORS.demand }
+        ]
+      }
+    }
+  };
+
+  const TOTALS = {
+    municipal: { municipal: '$51.09', utility: '$10.18' },
+    utility: { municipal: '$28.41', utility: '$32.86' }
+  };
+
+  // ===== SVG PATH HELPERS =====
+  function polarToCartesian(radius, angleInDegrees) {
+    const angleInRadians = (angleInDegrees - 90) * Math.PI / 180;
+    return {
+      x: radius * Math.cos(angleInRadians),
+      y: radius * Math.sin(angleInRadians)
+    };
+  }
+
+  function describeArc(radius, startAngle, endAngle) {
+    // Handle full circle (single slice = 100%)
+    if (endAngle - startAngle >= 359.99) {
+      return [
+        'M', 0, -radius,
+        'A', radius, radius, 0, 1, 1, 0, radius,
+        'A', radius, radius, 0, 1, 1, 0, -radius,
+        'Z'
+      ].join(' ');
+    }
+
+    const start = polarToCartesian(radius, endAngle);
+    const end = polarToCartesian(radius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+
+    return [
+      'M', 0, 0,
+      'L', start.x, start.y,
+      'A', radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+      'Z'
+    ].join(' ');
+  }
+
+  // ===== PIE CHART RENDERER =====
+  const BASE_CHART_SIZE = 140; // Max size in pixels
+  const MIN_CHART_SIZE = 70;   // Min size in pixels
+  const MAX_VALUE = 32.86;     // Largest possible chart value (for scaling)
+
+  class PieChartAnimator {
+    constructor() {
+      this.currentState = 'municipal';
+      this.isAnimating = false;
+      this.animationLayer = document.getElementById('animation-layer');
+      this.chartsRow = document.getElementById('charts-row');
+
+      this.renderAllCharts();
+      this.setupEventListeners();
+      this.startAutoCycle();
+    }
+
+    // Calculate chart size based on value (sqrt scaling for area proportion)
+    getChartSize(value) {
+      const scale = Math.sqrt(value / MAX_VALUE);
+      return MIN_CHART_SIZE + (BASE_CHART_SIZE - MIN_CHART_SIZE) * scale;
+    }
+
+    renderChart(chartId, data, animate = false) {
+      const svg = document.getElementById(`chart-${chartId}`);
+      const legend = document.getElementById(`legend-${chartId}`);
+      const slicesGroup = svg.querySelector('.pie-slices');
+
+      // Clear existing content
+      slicesGroup.innerHTML = '';
+      legend.innerHTML = '';
+
+      // Calculate and apply proportional size
+      const chartSize = this.getChartSize(data.total);
+      if (animate) {
+        svg.style.transition = 'width 0.8s var(--ease), height 0.8s var(--ease)';
+      }
+      svg.style.width = `${chartSize}px`;
+      svg.style.height = `${chartSize}px`;
+
+      const total = data.slices.reduce((sum, s) => sum + s.value, 0);
+      let currentAngle = 0;
+
+      data.slices.forEach((slice, index) => {
+        const sliceAngle = (slice.value / total) * 360;
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
+        path.setAttribute('d', describeArc(70, currentAngle, currentAngle + sliceAngle));
+        path.setAttribute('fill', slice.color);
+        path.setAttribute('data-slice-id', slice.id);
+        path.setAttribute('data-chart', chartId);
+        path.setAttribute('data-start-angle', currentAngle);
+        path.setAttribute('data-end-angle', currentAngle + sliceAngle);
+        path.classList.add('pie-slice');
+
+        if (slice.movesTo) {
+          path.setAttribute('data-moves-to', slice.movesTo);
+        }
+
+        slicesGroup.appendChild(path);
+
+        // Create legend item
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        legendItem.setAttribute('data-slice-id', slice.id);
+        legendItem.innerHTML = `<span class="legend-dot" style="background:${slice.color}"></span>${slice.label} $${slice.value.toFixed(2)}`;
+        legend.appendChild(legendItem);
+
+        currentAngle += sliceAngle;
+      });
+
+      // Update chart value
+      document.querySelector(`[data-value="${chartId}"]`).textContent = `$${data.total.toFixed(2)}`;
+    }
+
+    renderAllCharts(animate = false) {
+      const stateData = CHART_DATA[this.currentState];
+      this.renderChart('qol', stateData.qol, animate);
+      this.renderChart('asset', stateData.asset, animate);
+      this.renderChart('utility', stateData.utility, animate);
+
+      // Update totals
+      document.getElementById('municipal-total').textContent = TOTALS[this.currentState].municipal;
+      document.getElementById('utility-total').textContent = TOTALS[this.currentState].utility;
+    }
+
+    getSliceCenter(chartId, sliceId) {
+      const svg = document.getElementById(`chart-${chartId}`);
+      const slice = svg.querySelector(`[data-slice-id="${sliceId}"]`);
+      if (!slice) return null;
+
+      const startAngle = parseFloat(slice.getAttribute('data-start-angle'));
+      const endAngle = parseFloat(slice.getAttribute('data-end-angle'));
+      const midAngle = (startAngle + endAngle) / 2;
+
+      // Get center point of the slice (at 50% of radius)
+      const point = polarToCartesian(35, midAngle);
+
+      // Get the SVG's position on the page
+      const svgRect = svg.getBoundingClientRect();
+      const rowRect = this.chartsRow.getBoundingClientRect();
+
+      return {
+        x: (svgRect.left - rowRect.left) + (svgRect.width / 2) + point.x,
+        y: (svgRect.top - rowRect.top) + (svgRect.height / 2) + point.y,
+        angle: midAngle
+      };
+    }
+
+    // Calculate where a slice WILL BE in the target state/chart
+    getTargetSlicePosition(targetChartId, sliceId, targetState) {
+      const chartData = CHART_DATA[targetState][targetChartId];
+      const svg = document.getElementById(`chart-${targetChartId}`);
+
+      // Calculate future chart size based on target state
+      const futureSize = this.getChartSize(chartData.total);
+
+      // Find the slice and calculate its future angle
+      const total = chartData.slices.reduce((sum, s) => sum + s.value, 0);
+      let currentAngle = 0;
+      let targetMidAngle = 0;
+
+      for (const slice of chartData.slices) {
+        const sliceAngle = (slice.value / total) * 360;
+        if (slice.id === sliceId) {
+          targetMidAngle = currentAngle + sliceAngle / 2;
+          break;
+        }
+        currentAngle += sliceAngle;
+      }
+
+      // Get center point at the target angle (at 50% of radius, scaled for viewBox)
+      const point = polarToCartesian(35, targetMidAngle);
+
+      // Get the SVG's current position (it will resize, but we need current position)
+      const svgRect = svg.getBoundingClientRect();
+      const rowRect = this.chartsRow.getBoundingClientRect();
+
+      // Scale factor: the point is in viewBox coords (radius 70), but SVG will be futureSize
+      const scaleFactor = futureSize / 200; // viewBox is 200x200
+
+      return {
+        x: (svgRect.left - rowRect.left) + (svgRect.width / 2) + point.x * scaleFactor,
+        y: (svgRect.top - rowRect.top) + (svgRect.height / 2) + point.y * scaleFactor,
+        angle: targetMidAngle
+      };
+    }
+
+    createFlyingSlice(sourceChartId, sliceId, targetChartId) {
+      const sourceSvg = document.getElementById(`chart-${sourceChartId}`);
+      const sourceSlice = sourceSvg.querySelector(`[data-slice-id="${sliceId}"]`);
+      if (!sourceSlice) return null;
+
+      // Create a mini SVG for the flying slice
+      const flyingSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      flyingSvg.setAttribute('viewBox', '-70 -70 140 140');
+      flyingSvg.classList.add('flying-slice');
+
+      const clonedPath = sourceSlice.cloneNode(true);
+      flyingSvg.appendChild(clonedPath);
+
+      this.animationLayer.appendChild(flyingSvg);
+
+      return flyingSvg;
+    }
+
+    animateSlice(flyingSvg, startPos, endPos, duration) {
+      return new Promise(resolve => {
+        const startTime = performance.now();
+
+        // Control point for quadratic bezier (arc above)
+        const midX = (startPos.x + endPos.x) / 2;
+        const midY = Math.min(startPos.y, endPos.y) - 80; // Arc apex above midpoint
+
+        // Calculate rotation needed (from source angle to target angle)
+        const startAngle = startPos.angle || 0;
+        const endAngle = endPos.angle || 0;
+        let angleDelta = endAngle - startAngle;
+
+        // Take shortest rotation path
+        if (angleDelta > 180) angleDelta -= 360;
+        if (angleDelta < -180) angleDelta += 360;
+
+        const animate = (currentTime) => {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+
+          // Easing function (ease-out cubic)
+          const eased = 1 - Math.pow(1 - progress, 3);
+
+          // Quadratic bezier calculation
+          const t = eased;
+          const x = Math.pow(1-t, 2) * startPos.x + 2 * (1-t) * t * midX + Math.pow(t, 2) * endPos.x;
+          const y = Math.pow(1-t, 2) * startPos.y + 2 * (1-t) * t * midY + Math.pow(t, 2) * endPos.y;
+
+          flyingSvg.style.left = `${x - 35}px`;
+          flyingSvg.style.top = `${y - 35}px`;
+
+          // Scale effect: grow slightly in middle, shrink at end
+          // Also rotate to match target angle
+          const scale = 1 + 0.2 * Math.sin(progress * Math.PI);
+          const currentRotation = angleDelta * eased;
+          flyingSvg.style.transform = `scale(${scale}) rotate(${currentRotation}deg)`;
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            resolve();
+          }
+        };
+
+        requestAnimationFrame(animate);
+      });
+    }
+
+    async transitionToUtility() {
+      if (this.isAnimating) return;
+      this.isAnimating = true;
+
+      // Define which slices move and from which chart
+      const movingSlices = [
+        { id: 'life', from: 'asset' },
+        { id: 'maint', from: 'asset' },
+        { id: 'demand', from: 'qol' }
+      ];
+
+      const flyingElements = [];
+      const sourceSlices = [];
+
+      // Step 1: Create flying clones and fade source slices
+      for (const { id: sliceId, from: sourceChart } of movingSlices) {
+        const startPos = this.getSliceCenter(sourceChart, sliceId);
+        if (!startPos) continue;
+
+        const flyingSvg = this.createFlyingSlice(sourceChart, sliceId, 'utility');
+        if (!flyingSvg) continue;
+
+        flyingSvg.style.left = `${startPos.x - 35}px`;
+        flyingSvg.style.top = `${startPos.y - 35}px`;
+
+        flyingElements.push({ svg: flyingSvg, sliceId, startPos });
+
+        // Fade source slice
+        const sourceSlice = document.querySelector(`#chart-${sourceChart} [data-slice-id="${sliceId}"]`);
+        if (sourceSlice) {
+          sourceSlice.style.opacity = '0.2';
+          sourceSlices.push(sourceSlice);
+        }
+      }
+
+      // Step 2: Animate all flying slices to their exact target positions
+      const animations = flyingElements.map(({ svg, sliceId, startPos }) => {
+        // Calculate exact end position where slice will appear in utility chart
+        const endPos = this.getTargetSlicePosition('utility', sliceId, 'utility');
+        return this.animateSlice(svg, startPos, endPos, 1200);
+      });
+
+      await Promise.all(animations);
+
+      // Step 3: Update to final state
+      this.currentState = 'utility';
+      this.renderAllCharts(true); // animate = true for size transition
+
+      // Step 4: Clean up flying elements
+      flyingElements.forEach(({ svg }) => svg.remove());
+      sourceSlices.forEach(slice => slice.style.opacity = '1');
+
+      // Update toggle labels
+      this.updateToggleLabels();
+
+      this.isAnimating = false;
+    }
+
+    async transitionToMunicipal() {
+      if (this.isAnimating) return;
+      this.isAnimating = true;
+
+      // Define which slices move and to which chart
+      const movingSlices = [
+        { id: 'life', to: 'asset' },
+        { id: 'maint', to: 'asset' },
+        { id: 'demand', to: 'qol' }
+      ];
+
+      const flyingElements = [];
+      const sourceSlices = [];
+
+      // Step 1: Create flying clones from utility chart
+      for (const { id: sliceId, to: targetChart } of movingSlices) {
+        const startPos = this.getSliceCenter('utility', sliceId);
+        if (!startPos) continue;
+
+        const flyingSvg = this.createFlyingSlice('utility', sliceId, targetChart);
+        if (!flyingSvg) continue;
+
+        flyingSvg.style.left = `${startPos.x - 35}px`;
+        flyingSvg.style.top = `${startPos.y - 35}px`;
+
+        flyingElements.push({ svg: flyingSvg, sliceId, targetChart, startPos });
+
+        // Fade source slice
+        const sourceSlice = document.querySelector(`#chart-utility [data-slice-id="${sliceId}"]`);
+        if (sourceSlice) {
+          sourceSlice.style.opacity = '0.2';
+          sourceSlices.push(sourceSlice);
+        }
+      }
+
+      // Step 2: Animate all flying slices to their exact target positions
+      const animations = flyingElements.map(({ svg, sliceId, targetChart, startPos }) => {
+        // Calculate exact end position where slice will appear in target chart
+        const endPos = this.getTargetSlicePosition(targetChart, sliceId, 'municipal');
+        return this.animateSlice(svg, startPos, endPos, 1200);
+      });
+
+      await Promise.all(animations);
+
+      // Step 3: Update to final state
+      this.currentState = 'municipal';
+      this.renderAllCharts(true); // animate = true for size transition
+
+      // Step 4: Clean up
+      flyingElements.forEach(({ svg }) => svg.remove());
+      sourceSlices.forEach(slice => slice.style.opacity = '1');
+
+      this.updateToggleLabels();
+
+      this.isAnimating = false;
+    }
+
+    updateToggleLabels() {
+      document.querySelectorAll('.ownership-label').forEach(label => {
+        label.classList.toggle('active', label.dataset.state === this.currentState);
+      });
+    }
+
+    toggle() {
+      if (this.currentState === 'municipal') {
+        this.transitionToUtility();
+      } else {
+        this.transitionToMunicipal();
+      }
+    }
+
+    setupEventListeners() {
+      // Click handlers for toggle labels
+      document.querySelectorAll('.ownership-label').forEach(label => {
+        label.addEventListener('click', () => {
+          if (label.dataset.state !== this.currentState && !this.isAnimating) {
+            this.resetAutoCycle();
+            this.toggle();
+          }
+        });
+      });
+
+      // Pause on hover
+      this.chartsRow.addEventListener('mouseenter', () => {
+        this.pauseAutoCycle();
+      });
+
+      this.chartsRow.addEventListener('mouseleave', () => {
+        this.startAutoCycle();
+      });
+    }
+
+    startAutoCycle() {
+      this.cycleInterval = setInterval(() => {
+        this.toggle();
+      }, 5000);
+    }
+
+    pauseAutoCycle() {
+      if (this.cycleInterval) {
+        clearInterval(this.cycleInterval);
+        this.cycleInterval = null;
+      }
+    }
+
+    resetAutoCycle() {
+      this.pauseAutoCycle();
+      this.startAutoCycle();
+    }
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => new PieChartAnimator());
+  } else {
+    new PieChartAnimator();
+  }
+})();
+</script>
