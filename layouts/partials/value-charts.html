@@ -12,42 +12,43 @@
       <span class="ownership-label" data-state="utility">Utility-Owned Street Lights</span>
     </div>
 
+    <div class="light-count-input">
+      <label for="light-count">How many street lights?</label>
+      <input type="number" id="light-count" value="3000" min="100" step="100">
+    </div>
+
     <div class="charts-row" id="charts-row">
-      <!-- Animation overlay for flying slices -->
       <div class="charts-animation-layer" id="animation-layer"></div>
 
-      <!-- Chart 1: Quality of Life -->
-      <div class="chart-card" data-chart="qol">
-        <svg class="pie-chart" viewBox="0 0 200 200" id="chart-qol">
-          <g class="pie-slices" transform="translate(100,100)"></g>
-        </svg>
-        <div class="chart-label">
-          <div class="chart-title">Quality of Life</div>
-          <div class="chart-value" data-value="qol">$20.65</div>
+      <div class="chart-column" data-chart="qol">
+        <div class="chart-title">Quality of Life</div>
+        <div class="chart-value" data-value="qol">$20.65</div>
+        <div class="chart-pie-area">
+          <svg class="pie-chart" viewBox="0 0 200 200" id="chart-qol">
+            <g class="pie-slices" transform="translate(100,100)"></g>
+          </svg>
         </div>
         <div class="chart-legend" id="legend-qol"></div>
       </div>
 
-      <!-- Chart 2: Asset Management -->
-      <div class="chart-card" data-chart="asset">
-        <svg class="pie-chart" viewBox="0 0 200 200" id="chart-asset">
-          <g class="pie-slices" transform="translate(100,100)"></g>
-        </svg>
-        <div class="chart-label">
-          <div class="chart-title">Asset Management</div>
-          <div class="chart-value" data-value="asset">$30.44</div>
+      <div class="chart-column" data-chart="asset">
+        <div class="chart-title">Asset Management</div>
+        <div class="chart-value" data-value="asset">$30.44</div>
+        <div class="chart-pie-area">
+          <svg class="pie-chart" viewBox="0 0 200 200" id="chart-asset">
+            <g class="pie-slices" transform="translate(100,100)"></g>
+          </svg>
         </div>
         <div class="chart-legend" id="legend-asset"></div>
       </div>
 
-      <!-- Chart 3: Utility -->
-      <div class="chart-card" data-chart="utility">
-        <svg class="pie-chart" viewBox="0 0 200 200" id="chart-utility">
-          <g class="pie-slices" transform="translate(100,100)"></g>
-        </svg>
-        <div class="chart-label">
-          <div class="chart-title">Utility Benefits</div>
-          <div class="chart-value" data-value="utility">$10.18</div>
+      <div class="chart-column" data-chart="utility">
+        <div class="chart-title">Utility Benefits</div>
+        <div class="chart-value" data-value="utility">$10.18</div>
+        <div class="chart-pie-area">
+          <svg class="pie-chart" viewBox="0 0 200 200" id="chart-utility">
+            <g class="pie-slices" transform="translate(100,100)"></g>
+          </svg>
         </div>
         <div class="chart-legend" id="legend-utility"></div>
       </div>
@@ -74,12 +75,12 @@
   // 7 unique colors for each slice
   const COLORS = {
     crime: '#1a3a5c',    // Navy blue
-    crash: '#d97706',    // Amber
-    demand: '#7c3aed',   // Purple
-    life: '#0891b2',     // Cyan/teal
+    crash: '#e6a019',    // Gold/amber
+    demand: '#9333ea',   // Vivid purple
+    life: '#e03e3e',     // Red
     energy: '#ea580c',   // Deep orange
     maint: '#059669',    // Emerald green
-    acc: '#4ea3dc'       // Sky blue
+    acc: '#3b82f6'       // Bright blue
   };
 
   const CHART_DATA = {
@@ -134,9 +135,20 @@
   };
 
   const TOTALS = {
-    municipal: { municipal: '$51.09', utility: '$10.18' },
-    utility: { municipal: '$28.41', utility: '$32.86' }
+    municipal: { municipal: 51.09, utility: 10.18 },
+    utility: { municipal: 28.41, utility: 32.86 }
   };
+
+  function getLightCount() {
+    return parseInt(document.getElementById('light-count').value) || 1;
+  }
+
+  function formatDollars(perLight) {
+    const total = perLight * getLightCount();
+    if (total >= 1000000) return '$' + (total / 1000000).toFixed(2) + 'M';
+    if (total >= 1000) return '$' + (total / 1000).toFixed(1) + 'K';
+    return '$' + total.toFixed(2);
+  }
 
   // ===== SVG PATH HELPERS =====
   function polarToCartesian(radius, angleInDegrees) {
@@ -171,8 +183,8 @@
   }
 
   // ===== PIE CHART RENDERER =====
-  const BASE_CHART_SIZE = 140; // Max size in pixels
-  const MIN_CHART_SIZE = 70;   // Min size in pixels
+  const BASE_CHART_SIZE = 240; // Max size in pixels
+  const MIN_CHART_SIZE = 120;  // Min size in pixels
   const MAX_VALUE = 32.86;     // Largest possible chart value (for scaling)
 
   class PieChartAnimator {
@@ -235,14 +247,14 @@
         const legendItem = document.createElement('div');
         legendItem.className = 'legend-item';
         legendItem.setAttribute('data-slice-id', slice.id);
-        legendItem.innerHTML = `<span class="legend-dot" style="background:${slice.color}"></span>${slice.label} $${slice.value.toFixed(2)}`;
+        legendItem.innerHTML = `<span class="legend-dot" style="background:${slice.color}"></span>${slice.label} ${formatDollars(slice.value)}`;
         legend.appendChild(legendItem);
 
         currentAngle += sliceAngle;
       });
 
       // Update chart value
-      document.querySelector(`[data-value="${chartId}"]`).textContent = `$${data.total.toFixed(2)}`;
+      document.querySelector(`[data-value="${chartId}"]`).textContent = formatDollars(data.total);
     }
 
     renderAllCharts(animate = false) {
@@ -252,8 +264,8 @@
       this.renderChart('utility', stateData.utility, animate);
 
       // Update totals
-      document.getElementById('municipal-total').textContent = TOTALS[this.currentState].municipal;
-      document.getElementById('utility-total').textContent = TOTALS[this.currentState].utility;
+      document.getElementById('municipal-total').textContent = formatDollars(TOTALS[this.currentState].municipal);
+      document.getElementById('utility-total').textContent = formatDollars(TOTALS[this.currentState].utility);
     }
 
     getSliceCenter(chartId, sliceId) {
@@ -412,11 +424,11 @@
 
         flyingElements.push({ svg: flyingSvg, sliceId, startPos });
 
-        // Fade source slice
+        // Hide source slice by turning it white
         const sourceSlice = document.querySelector(`#chart-${sourceChart} [data-slice-id="${sliceId}"]`);
         if (sourceSlice) {
-          sourceSlice.style.opacity = '0.2';
-          sourceSlices.push(sourceSlice);
+          sourceSlice.setAttribute('fill', '#ffffff');
+          sourceSlices.push({ el: sourceSlice, origColor: sourceSlice.getAttribute('fill') });
         }
       }
 
@@ -435,7 +447,6 @@
 
       // Step 4: Clean up flying elements
       flyingElements.forEach(({ svg }) => svg.remove());
-      sourceSlices.forEach(slice => slice.style.opacity = '1');
 
       // Update toggle labels
       this.updateToggleLabels();
@@ -470,10 +481,10 @@
 
         flyingElements.push({ svg: flyingSvg, sliceId, targetChart, startPos });
 
-        // Fade source slice
+        // Hide source slice by turning it white
         const sourceSlice = document.querySelector(`#chart-utility [data-slice-id="${sliceId}"]`);
         if (sourceSlice) {
-          sourceSlice.style.opacity = '0.2';
+          sourceSlice.setAttribute('fill', '#ffffff');
           sourceSlices.push(sourceSlice);
         }
       }
@@ -493,7 +504,6 @@
 
       // Step 4: Clean up
       flyingElements.forEach(({ svg }) => svg.remove());
-      sourceSlices.forEach(slice => slice.style.opacity = '1');
 
       this.updateToggleLabels();
 
@@ -532,6 +542,11 @@
 
       this.chartsRow.addEventListener('mouseleave', () => {
         this.startAutoCycle();
+      });
+
+      // Re-render when light count changes
+      document.getElementById('light-count').addEventListener('input', () => {
+        this.renderAllCharts();
       });
     }
 

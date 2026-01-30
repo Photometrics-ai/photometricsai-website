@@ -1527,6 +1527,38 @@ section {
   color: var(--text-white);
 }
 
+/* Light count input */
+.light-count-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: var(--space-lg);
+}
+
+.light-count-input label {
+  font-size: 1rem;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.light-count-input input {
+  width: 120px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid rgba(78, 163, 220, 0.3);
+  border-radius: var(--radius);
+  text-align: center;
+  color: var(--text-dark);
+  background: var(--bg-white);
+}
+
+.light-count-input input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(78, 163, 220, 0.15);
+}
+
 /* 3-column chart row */
 .charts-row {
   display: grid;
@@ -1534,6 +1566,7 @@ section {
   gap: var(--space-lg);
   margin-bottom: var(--space-lg);
   position: relative;
+  align-items: start;
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
@@ -1550,29 +1583,23 @@ section {
   z-index: 100;
 }
 
-/* Individual chart card */
-.chart-card {
-  text-align: center;
-  padding: var(--space-md);
-  background: rgba(78, 163, 220, 0.03);
-  border: 1px solid rgba(78, 163, 220, 0.15);
-  border-radius: var(--radius);
-  transition: all 0.4s var(--ease);
+/* Chart column */
+.chart-column {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 280px;
+  text-align: center;
 }
 
-.chart-card:hover {
-  background: rgba(78, 163, 220, 0.06);
-  border-color: rgba(78, 163, 220, 0.25);
+.chart-pie-area {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pie-chart {
-  /* Size set dynamically via JS based on value */
   display: block;
-  margin: 0 auto;
   transition: width 0.8s var(--ease), height 0.8s var(--ease);
 }
 
@@ -1595,13 +1622,13 @@ section {
 }
 
 .chart-title {
-  font-size: 0.875rem;
+  font-size: 1.125rem;
   font-weight: 500;
   color: var(--text-dark);
 }
 
 .chart-value {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 300;
   color: var(--accent);
   transition: all 0.4s var(--ease);
@@ -1610,22 +1637,25 @@ section {
 /* Chart legend */
 .chart-legend {
   margin-top: var(--space-sm);
-  text-align: left;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.6875rem;
+  font-size: 14px;
   color: var(--text-subtle);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
   transition: opacity 0.3s var(--ease);
 }
 
 .legend-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
 }

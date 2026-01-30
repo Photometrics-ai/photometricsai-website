@@ -63,15 +63,35 @@ With approximately 26-60 million streetlights in the US, Photometrics AI's optim
 
 ## Current Traction
 
-- **8,500-light deployment** underway in Memphis suburbs
-- MVP complete: optimization engine, scheduling, labeled training data, API integrations
+**Deployed lights: 0** (as of January 2025)
+
+**Pipeline:**
+- **8,500 lights (Tennessee)** — Contract with ESCO partner; ON HIATUS while ESCO negotiates with utility. Not deployed.
+- **2,000 lights (Mississippi)** — Awaiting city council approval. Not deployed.
+
+**Product status:**
+- Core platform complete: optimization engine, scheduling, API integrations
 - Integrated with **2 major NLC systems**
-- Next deployments: Nashville + Chattanooga through ESCO partners
+- Software tested and operational
+
+**Final development in progress:**
+- Training currently runs on 50 lights (for speed) — results not yet highly accurate
+- Building TLL adjustment tool to create variable training scenarios for better distribution
+- This is the last step before full production deployment
+
+**Do not claim:**
+- "X streetlights in active deployment"
+- "Running in Memphis right now"
+- Any deployed/operational claims until projects go live
 
 ## Patents & IP
 
 - **US9894736B2** (granted 2018): Target Lighting Layers
-- **18/660,680** (pending): AI training data methodology
+- **18/660,680** (pending, issuance expected soon): AI training data methodology
+- **Continuation filed** on 18/660,680 — will result in 2 patents from this application
+
+**Total: 3 patents** (1 granted, 1 issuing soon, 1 continuation pending)
+
 - Proprietary labeled training dataset—competitors would need years to replicate
 
 ## Reference Files

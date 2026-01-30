@@ -235,25 +235,32 @@ Total lighting market: $260.5B (15-20% of global electricity)
 
 ### For Investors
 
-"Photometrics AI is building the intelligence layer for all lighting—starting with streetlights and scaling across every indoor and outdoor space where light is needed. We're years ahead with patents, proprietary training data, and production deployments."
+"Photometrics AI is building the intelligence layer for all lighting—starting with streetlights and scaling across every indoor and outdoor space where light is needed. We're years ahead with patents, proprietary training data, and contracts in progress."
 
 ---
 
 ## Current Traction & Next Steps
 
-### Traction
+### Traction (as of January 2025)
 
-- 8,500-light Memphis deployment underway
-- MVP complete (optimization, scheduling, training data, integrations)
-- 2 major NLC integrations live
-- Free Electrons utility program participation
+**Deployed: 0 lights** — Pipeline active, deployments pending external approvals.
+
+**Pipeline:**
+- 8,500 lights (Tennessee) — ESCO contract; on hiatus while ESCO negotiates with utility
+- 2,000 lights (Mississippi) — Awaiting city council approval
+
+**Technical readiness:**
+- Core platform complete (optimization, scheduling, integrations)
+- 2 major NLC integrations built and tested
+- Final step in progress: TLL adjustment tool for improved training distribution
+- Production-ready once training refinement complete
 
 ### Immediate Priorities
 
-1. LOIs / Expand GTM pilots
-2. Build sales team
-3. Scale proprietary AI training dataset
-4. Nashville + Chattanooga deployments through partners
+1. Close pending approvals (Mississippi city council, Tennessee utility)
+2. First production deployment
+3. Build sales team
+4. Scale proprietary AI training dataset
 
 ### Funding Needs
 
