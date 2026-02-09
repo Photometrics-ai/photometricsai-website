@@ -1,4 +1,4 @@
 ---
-title: "Photometrics AI | Street Lighting Optimization"
-description: "Photometrics AI is a software platform that optimizes public lighting performance through networked lighting controls, delivering 35% energy savings without hardware installation."
+title: "Photometrics AI | Light That Moves With Us"
+description: "Street lighting that responds to how we actually live—birds migrating, children sleeping, drivers in rain, pedestrians in crosswalks. Software-only. No hardware changes. Just smarter light."
 ---

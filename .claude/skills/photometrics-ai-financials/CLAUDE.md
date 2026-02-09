@@ -68,8 +68,11 @@ Status: [VERIFIED/DERIVED/ESTIMATE]
 | Crime reduction | $10.81/light/year | DERIVED (LAPD supports $20.85) |
 | Traffic safety | $7.82/light/year | DERIVED |
 | Electric rate | $0.1363/kWh | VERIFIED (EIA) |
-| Operating hours | 4,100 hrs/year | VERIFIED |
+| Operating hours (rates) | 4,100 hrs/year | VERIFIED (PG&E tariff) |
+| Operating hours (actual) | 4,165 hrs/year | DERIVED (astronomical) |
 | Pricing | $3-12/light/year | — |
+
+**Operating hours note:** Use 4,100 hrs for rate/cost calculations (matches utility billing). Use 4,165 hrs for actual energy or CO2 calculations (astronomical reality).
 
 ### Source Files
 
@@ -89,6 +92,8 @@ When deeper verification is needed, read files in `references/sources/`:
 | `streetlighting-demand-response-stockton-ca.pdf` | DR methodology example |
 | `bjs-justice-expenditures-employment-2017.pdf` | BJS Table 1: $246.7B crime spending |
 | `lapd-crime-data-2010-2019-open-data-portal.pdf` | LAPD 2.13M records: 17.1% treatable |
+| `Lighting the Way for Next-Generation Streetlight Efficiency _ Energized by Edison.pdf` | SCE utility-owned count: 450,000 lights |
+| `gis_analysis/streetlight_estimation_results.json` | CA IOU territory totals vs utility-owned |
 
 ### Customer-Specific Calculations
 
@@ -102,12 +107,17 @@ When calculating for a specific customer, replace defaults with actual values:
 | Maintenance cost | $35/light/yr | Customer's actual |
 | Operating hours | 4,100 hrs/yr | Customer's utility tariff |
 
+### When Values Are Challenged or Dismissed
+
+If a stakeholder dismisses DERIVED or ESTIMATE values as "soft," "unmeasurable," or "zero," refer to the **"Unknown ≠ Zero"** section in SKILL.md. Use the response framing there: acknowledge uncertainty, reject the false alternative of $0, show the methodology, and shift the burden. Do not become defensive — the position is logically sound.
+
 ### What NOT to Do
 
 - Do NOT cite a PLACEHOLDER number as fact
 - Do NOT make up sources — if unsure, say "needs verification"
 - Do NOT conflate LED-specific costs with generic street light costs
 - Do NOT use this skill for product/technical questions (use core photometrics-ai skill instead)
+- Do NOT concede that DERIVED or ESTIMATE values are zero — they are honest about methodology, which is stronger than an unstated assumption of $0
 
 ## Relationship to Other Skills
 

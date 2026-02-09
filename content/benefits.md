@@ -1,7 +1,9 @@
 ---
-title: "Benefits"
+title: "The Numbers"
 subtitle: "Quantified value for municipalities, utilities, and communities"
 description: "Calculate your street lighting savings: Photometrics AI delivers $61.27 combined value per light per year ($51.09 municipal + $10.18 utility). 35% energy reduction, immediate ROI, zero hardware costs."
+layout: benefits
+type: page
 ---
 
 <div class="stats-grid" style="margin-bottom: var(--space-xl);">

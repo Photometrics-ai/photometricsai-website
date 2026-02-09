@@ -108,9 +108,37 @@ Estimated Jan 2026: 7.2% + (2.56 × 3.1) = 15.1%
 
 ---
 
-### California Streetlights: 3,380,000
+### California Streetlights: 2.2M (GIS-derived) / 3.38M (population-derived)
 
-**Claim:** California has approximately 3.38 million streetlights  
+**Two methodologies exist — use the appropriate one:**
+
+#### Method 1: GIS-Derived (Preferred for IOU Territories)
+
+**Claim:** California IOU territories contain ~1.72M streetlights; California total ~2.2M
+**Logic:** AB 719 CPUC baseline (2013) scaled by territory-specific population growth
+
+| Utility | 2013 CPUC Baseline | 2023 Estimate | Growth Factor |
+|---------|-------------------|---------------|---------------|
+| PG&E | 729,585 | 771,321 | 1.057 |
+| SCE | 768,669 | 792,475 | 1.031 |
+| SDG&E | 147,450 | 154,124 | 1.045 |
+| **IOU Total** | **1,645,704** | **1,717,920** | — |
+| Non-IOU (POUs, munis) | — | 488,792 | — |
+| **California Total** | — | **2,221,094** | — |
+
+**Sources:**
+- AB 719 Bill Analysis (April 2013), data provided by CPUC
+- Census ACS 2013/2023 population at tract level
+- CEC ElectricLoadServingEntities boundary data
+- File: `sources/gis_analysis/streetlight_estimation_results.json`
+
+**Status:** 🔶 DERIVED — Verified baseline with documented growth methodology
+
+---
+
+#### Method 2: Population-Derived (Legacy)
+
+**Claim:** California has approximately 3.38 million streetlights
 **Logic:** Population-based allocation using CA total population and national streetlight density
 
 | Region | Population | % of CA Pop | Estimated Streetlights | 25% Energy Savings (MWh/year) | Homes Equivalent |
@@ -121,21 +149,43 @@ Estimated Jan 2026: 7.2% + (2.56 × 3.1) = 15.1%
 | **Total IOUs** | **30,582,637** | **58.57%** | **1,979,666** | **123,729** | **11,548** |
 | **California** | **52,214,021** | **100%** | **3,380,000** | **211,250** | **19,715** |
 
-**Derivation method:**
-- California population: 52,214,021
-- Streetlight-to-population ratio derived from [NEED: source for base ratio]
-- IOU territories allocated by population percentage
-
 **Sources:**
 - Population data: [NEED: Census or CA DOF source/year]
 - Streetlight estimate methodology: Internal analysis
 
 **Status:** 🔶 DERIVED — Logic documented; base ratio source needed
 
-**Usage notes:**
-- Use 3.38M for California-specific proposals
-- IOU breakdown useful for utility program applications (CalNEXT, etc.)
-- 25% savings column assumes design optimization only (not early morning dimming)
+**Note:** The GIS-derived method (2.2M) is more conservative and better sourced than the population-derived method (3.38M). Use GIS-derived for defensible claims.
+
+---
+
+### California IOU Utility-Owned vs Territory Totals
+
+**Critical distinction for DR calculations:**
+
+| Utility | Territory Total | Utility-Owned | Source |
+|---------|-----------------|---------------|--------|
+| PG&E | 771,321 | Unknown | — |
+| SCE | 792,475 | **450,000** | Edison Energized article |
+| SDG&E | 154,124 | Unknown | — |
+
+**Why this matters:**
+- **Territory total** = All streetlights in the service area (utility + municipal + other)
+- **Utility-owned** = Lights the utility directly owns, operates, and can dispatch
+- For DR calculations, only utility-owned lights can be dimmed without municipal coordination
+- SCE owns ~57% of streetlights in its territory; the rest are city/muni-owned
+
+**SCE Utility-Owned Source:**
+> "Southern California Edison has a historic tie to street lighting, and it continues to be an important part of our business... SCE owns and operates approximately 450,000 city streetlights across its 50,000-square-mile service area."
+
+**Sources:**
+1. Edison International, "Lighting the Way for Next-Generation Streetlight Efficiency," Energized by Edison
+   - File: `sources/Lighting the Way for Next-Generation Streetlight Efficiency _ Energized by Edison.pdf`
+   - URL: https://energized.edison.com/stories/lighting-the-way-for-next-generation-streetlight-efficiency
+
+**Status:** ✅ VERIFIED (SCE) — Primary source from utility
+
+**Action needed:** Find equivalent sources for PG&E and SDG&E utility-owned counts.
 
 ---
 

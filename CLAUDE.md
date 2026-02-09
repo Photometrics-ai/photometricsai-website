@@ -2,6 +2,28 @@
 
 Hugo static site for photometrics.ai marketing website.
 
+## Site Purpose & Strategy
+
+This site uses **gap selling** — a sales methodology that drives action by making the visitor feel the distance between their current state and a better future state. Every page and section should reinforce this framework:
+
+### Gap Selling Structure (Homepage)
+
+1. **Current State (The Injustice)** — Establish that street lighting hasn't changed in 100 years. Specific, emotional pain points: birds dying, children in darkness, dangerous crosswalks, rain-blind intersections. The visitor should feel that the status quo is unacceptable.
+
+2. **Future State (The Vignettes)** — Cinematic video scenarios showing what *should* happen. Each vignette pairs a human moment with an intelligent lighting response. The visitor should feel the gap between what exists and what's possible.
+
+3. **The Bridge (The How)** — Photometrics AI closes the gap. Software-only, no hardware, works with existing infrastructure. This must feel simple and inevitable — the gap is big, and the fix is small.
+
+4. **Call to Action** — Drive toward a demo or conversation. The visitor should feel urgency from the gap, not from pressure tactics.
+
+### Content Guidelines
+
+- **Lead with emotion, follow with logic.** Vignettes come before technical details.
+- **Specificity over abstraction.** "Birds die colliding with over-lit buildings during migration" not "lighting causes environmental harm."
+- **The product is the bridge, not the hero.** The gap (current vs. future) is the story. Photometrics AI is just how you get there.
+- **No jargon in storytelling sections.** Technical depth lives on How It Works and Benefits pages, not in the emotional narrative.
+- **Every page should connect back to the gap.** Even technical pages should remind the visitor why this matters.
+
 ## Tech Stack
 
 - **Static Site Generator:** Hugo
