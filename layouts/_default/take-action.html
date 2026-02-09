@@ -1,0 +1,426 @@
+{{ define "main" }}
+<div class="page-header" data-theme="dark">
+  <div class="container">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.subtitle }}<p class="lead">{{ . }}</p>{{ end }}
+  </div>
+</div>
+
+<div class="page-content" data-theme="light">
+  <div class="container">
+    <div class="ta-wizard">
+
+      <!-- Progress indicator -->
+      <div class="ta-progress">
+        <div class="ta-progress-step active" data-step="1">
+          <div class="ta-progress-number">1</div>
+          <span class="ta-progress-label">Location</span>
+        </div>
+        <div class="ta-progress-line"></div>
+        <div class="ta-progress-step" data-step="2">
+          <div class="ta-progress-number">2</div>
+          <span class="ta-progress-label">Priorities</span>
+        </div>
+        <div class="ta-progress-line"></div>
+        <div class="ta-progress-step" data-step="3">
+          <div class="ta-progress-number">3</div>
+          <span class="ta-progress-label">Your Letter</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Location + Name -->
+      <div class="ta-step active" id="ta-step-1">
+        <div class="glass-card" style="padding: var(--space-lg);">
+          <h3 style="color: var(--text-dark); margin-bottom: var(--space-xs);">Where do you live?</h3>
+          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">We'll find the right officials who influence street lighting decisions in your area.</p>
+
+          <div class="form-group">
+            <label for="ta-location">City, state, or ZIP code</label>
+            <input type="text" id="ta-location" placeholder="e.g. Austin, TX or 78701" maxlength="200" autocomplete="address-level2">
+          </div>
+
+          <div class="form-group">
+            <label for="ta-name">Your name <span style="font-weight: 400; color: var(--text-subtle);">(optional &mdash; makes the letter more personal)</span></label>
+            <input type="text" id="ta-name" placeholder="e.g. Jane Smith" maxlength="100" autocomplete="name">
+          </div>
+
+          <button class="btn btn-primary btn-lg" id="ta-next-1" style="width: 100%;" disabled>Next</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Priorities -->
+      <div class="ta-step" id="ta-step-2">
+        <div class="glass-card" style="padding: var(--space-lg);">
+          <h3 style="color: var(--text-dark); margin-bottom: var(--space-xs);">What matters most to you?</h3>
+          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Select the issues you care about. We'll tailor your letter around these priorities.</p>
+
+          <div class="ta-priorities-grid">
+            <label class="ta-priority-card">
+              <input type="checkbox" value="Crime & Safety">
+              <span class="ta-priority-icon">&#x1F6E1;</span>
+              <span class="ta-priority-label">Crime &amp; Safety</span>
+            </label>
+            <label class="ta-priority-card">
+              <input type="checkbox" value="Transportation Safety">
+              <span class="ta-priority-icon">&#x1F6A7;</span>
+              <span class="ta-priority-label">Transportation Safety</span>
+            </label>
+            <label class="ta-priority-card">
+              <input type="checkbox" value="Children's Safety">
+              <span class="ta-priority-icon">&#x1F6B8;</span>
+              <span class="ta-priority-label">Children's Safety</span>
+            </label>
+            <label class="ta-priority-card">
+              <input type="checkbox" value="Migratory Birds">
+              <span class="ta-priority-icon">&#x1F426;</span>
+              <span class="ta-priority-label">Migratory Birds</span>
+            </label>
+            <label class="ta-priority-card">
+              <input type="checkbox" value="Light Pollution">
+              <span class="ta-priority-icon">&#x1F30C;</span>
+              <span class="ta-priority-label">Light Pollution</span>
+            </label>
+            <label class="ta-priority-card">
+              <input type="checkbox" value="Energy Waste">
+              <span class="ta-priority-icon">&#x26A1;</span>
+              <span class="ta-priority-label">Energy Waste</span>
+            </label>
+            <label class="ta-priority-card">
+              <input type="checkbox" value="Environmental Impact">
+              <span class="ta-priority-icon">&#x1F33F;</span>
+              <span class="ta-priority-label">Environmental Impact</span>
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-top: var(--space-md);">
+            <label for="ta-custom-priority">Something else?</label>
+            <input type="text" id="ta-custom-priority" placeholder="e.g. Nighttime cycling safety" maxlength="100">
+          </div>
+
+          <div style="margin-top: var(--space-md); text-align: center;">
+            <button class="btn btn-primary btn-lg" id="ta-generate" style="width: 100%;" disabled>Generate My Letter</button>
+            <button class="btn btn-secondary" id="ta-back-2" style="margin-top: var(--space-sm);">Back</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Results -->
+      <div class="ta-step" id="ta-step-3">
+
+        <!-- Loading state -->
+        <div class="ta-loading" id="ta-loading">
+          <div class="ta-loading-spinner"></div>
+          <p style="color: var(--text-body); font-size: 1.125rem; margin-top: var(--space-md);">Finding your representatives and drafting your letter...</p>
+          <p style="color: var(--text-subtle); font-size: 0.875rem;">This usually takes about 10 seconds.</p>
+        </div>
+
+        <!-- Error state -->
+        <div class="ta-error" id="ta-error" style="display: none;">
+          <div class="glass-card" style="padding: var(--space-lg); text-align: center;">
+            <h3 style="color: var(--text-dark); margin-bottom: var(--space-sm);">Something went wrong</h3>
+            <p id="ta-error-message" style="color: var(--text-subtle); margin-bottom: var(--space-md);">We couldn't generate your letter. Please try again.</p>
+            <button class="btn btn-primary btn-lg" id="ta-retry">Try Again</button>
+          </div>
+        </div>
+
+        <!-- Results state -->
+        <div class="ta-results" id="ta-results" style="display: none;">
+
+          <div class="glass-card" style="padding: var(--space-lg); margin-bottom: var(--space-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+              <h3 style="color: var(--text-dark); margin-bottom: 0;">Your Letter</h3>
+              <span style="font-size: 0.8125rem; color: var(--text-subtle);">Edit freely &mdash; it updates all send buttons</span>
+            </div>
+            <textarea class="ta-letter-textarea" id="ta-letter" rows="16"></textarea>
+          </div>
+
+          <h3 style="color: var(--text-dark); margin-bottom: var(--space-md);">Send Your Letter</h3>
+          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Click a send button to open your email with the letter pre-filled and personalized for that official.</p>
+
+          <div class="ta-reps-grid" id="ta-reps-grid">
+            <!-- Rep cards injected by JS -->
+          </div>
+
+          <div style="text-align: center; margin-top: var(--space-xl);">
+            <button class="btn btn-secondary btn-lg" id="ta-start-over">Start Over</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // === Configuration ===
+  var API_BASE = "https://nzb0e3yuld.execute-api.us-east-2.amazonaws.com";
+  var sessionId = generateUUID();
+
+  // === DOM refs ===
+  var locationInput = document.getElementById("ta-location");
+  var nameInput = document.getElementById("ta-name");
+  var nextBtn1 = document.getElementById("ta-next-1");
+  var backBtn2 = document.getElementById("ta-back-2");
+  var generateBtn = document.getElementById("ta-generate");
+  var letterTextarea = document.getElementById("ta-letter");
+  var repsGrid = document.getElementById("ta-reps-grid");
+  var customPriority = document.getElementById("ta-custom-priority");
+  var retryBtn = document.getElementById("ta-retry");
+  var startOverBtn = document.getElementById("ta-start-over");
+  var priorityCheckboxes = document.querySelectorAll(".ta-priority-card input[type=checkbox]");
+  var steps = document.querySelectorAll(".ta-step");
+  var progressSteps = document.querySelectorAll(".ta-progress-step");
+
+  var currentReps = [];
+
+  // === Utility functions ===
+  function generateUUID() {
+    if (crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0;
+      return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  function goToStep(n) {
+    steps.forEach(function(s) { s.classList.remove("active"); });
+    progressSteps.forEach(function(s) {
+      var stepNum = parseInt(s.getAttribute("data-step"));
+      s.classList.remove("active", "completed");
+      if (stepNum < n) s.classList.add("completed");
+      if (stepNum === n) s.classList.add("active");
+    });
+    document.getElementById("ta-step-" + n).classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function getSelectedPriorities() {
+    var selected = [];
+    priorityCheckboxes.forEach(function(cb) {
+      if (cb.checked) selected.push(cb.value);
+    });
+    var custom = customPriority.value.trim();
+    if (custom) selected.push(custom);
+    return selected;
+  }
+
+  function updateCheckboxCardStyles() {
+    document.querySelectorAll(".ta-priority-card").forEach(function(card) {
+      var cb = card.querySelector("input[type=checkbox]");
+      if (cb.checked) {
+        card.classList.add("selected");
+      } else {
+        card.classList.remove("selected");
+      }
+    });
+  }
+
+  function updateGenerateBtn() {
+    var hasPriority = getSelectedPriorities().length > 0;
+    generateBtn.disabled = !hasPriority;
+  }
+
+  function personalizeLetter(letter, repName) {
+    return letter.replace(/\[Official Name\]/g, repName);
+  }
+
+  function buildMailtoUrl(rep) {
+    var letter = letterTextarea.value;
+    var personalized = personalizeLetter(letter, rep.name);
+    var subject = "Intelligent Street Lighting for " + locationInput.value;
+    return "mailto:" + encodeURIComponent(rep.email) +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(personalized);
+  }
+
+  function buildGmailUrl(rep) {
+    var letter = letterTextarea.value;
+    var personalized = personalizeLetter(letter, rep.name);
+    var subject = "Intelligent Street Lighting for " + locationInput.value;
+    return "https://mail.google.com/mail/?view=cm" +
+      "&to=" + encodeURIComponent(rep.email) +
+      "&su=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(personalized);
+  }
+
+  function trackEvent(event, repEmail) {
+    var data = JSON.stringify({
+      session_id: sessionId,
+      event: event,
+      representative_email: repEmail || ""
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(API_BASE + "/track", new Blob([data], { type: "application/json" }));
+    }
+  }
+
+  function renderRepCards() {
+    repsGrid.innerHTML = "";
+    currentReps.forEach(function(rep) {
+      var card = document.createElement("div");
+      card.className = "ta-rep-card glass-card";
+
+      var mailtoUrl = buildMailtoUrl(rep);
+      var gmailUrl = buildGmailUrl(rep);
+
+      card.innerHTML =
+        '<div class="ta-rep-info">' +
+          '<h4 class="ta-rep-name">' + escapeHtml(rep.name) + '</h4>' +
+          '<p class="ta-rep-title">' + escapeHtml(rep.title) + '</p>' +
+          '<p class="ta-rep-org">' + escapeHtml(rep.organization) + '</p>' +
+          '<p class="ta-rep-relevance">' + escapeHtml(rep.relevance) + '</p>' +
+          '<p class="ta-rep-email">' + escapeHtml(rep.email) + '</p>' +
+        '</div>' +
+        '<div class="ta-rep-actions">' +
+          '<a href="' + escapeHtml(mailtoUrl) + '" class="ta-send-btn ta-send-mailto" data-email="' + escapeHtml(rep.email) + '">Send via Email</a>' +
+          '<a href="' + escapeHtml(gmailUrl) + '" class="ta-send-btn ta-send-gmail" target="_blank" rel="noopener" data-email="' + escapeHtml(rep.email) + '">Open in Gmail</a>' +
+          '<button class="ta-send-btn ta-send-copy" data-rep-name="' + escapeHtml(rep.name) + '" data-email="' + escapeHtml(rep.email) + '">Copy Letter</button>' +
+        '</div>';
+
+      repsGrid.appendChild(card);
+    });
+
+    // Attach event listeners
+    document.querySelectorAll(".ta-send-mailto").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        trackEvent("click_mailto", btn.getAttribute("data-email"));
+      });
+    });
+    document.querySelectorAll(".ta-send-gmail").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        trackEvent("click_gmail", btn.getAttribute("data-email"));
+      });
+    });
+    document.querySelectorAll(".ta-send-copy").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        var repName = btn.getAttribute("data-rep-name");
+        var repEmail = btn.getAttribute("data-email");
+        var personalized = personalizeLetter(letterTextarea.value, repName);
+        navigator.clipboard.writeText(personalized).then(function() {
+          var original = btn.textContent;
+          btn.textContent = "Copied!";
+          btn.classList.add("ta-copied");
+          setTimeout(function() {
+            btn.textContent = original;
+            btn.classList.remove("ta-copied");
+          }, 2000);
+        });
+        trackEvent("click_copy", repEmail);
+      });
+    });
+  }
+
+  // === Update mailto/Gmail URLs when letter is edited ===
+  letterTextarea.addEventListener("input", function() {
+    // Re-render cards with updated URLs
+    renderRepCards();
+  });
+
+  // === Step 1: Location validation ===
+  locationInput.addEventListener("input", function() {
+    nextBtn1.disabled = locationInput.value.trim().length < 2;
+  });
+
+  locationInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !nextBtn1.disabled) {
+      e.preventDefault();
+      goToStep(2);
+    }
+  });
+
+  nextBtn1.addEventListener("click", function() {
+    goToStep(2);
+  });
+
+  // === Step 2: Priority selection ===
+  priorityCheckboxes.forEach(function(cb) {
+    cb.addEventListener("change", function() {
+      updateCheckboxCardStyles();
+      updateGenerateBtn();
+    });
+  });
+
+  customPriority.addEventListener("input", updateGenerateBtn);
+
+  backBtn2.addEventListener("click", function() {
+    goToStep(1);
+  });
+
+  // === Generate letter ===
+  generateBtn.addEventListener("click", function() {
+    goToStep(3);
+
+    // Show loading, hide others
+    document.getElementById("ta-loading").style.display = "block";
+    document.getElementById("ta-error").style.display = "none";
+    document.getElementById("ta-results").style.display = "none";
+
+    var payload = {
+      session_id: sessionId,
+      location: locationInput.value.trim(),
+      name: nameInput.value.trim(),
+      priorities: getSelectedPriorities()
+    };
+
+    fetch(API_BASE + "/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(function(response) {
+      if (!response.ok) {
+        return response.json().then(function(err) {
+          throw new Error(err.error || "Request failed");
+        });
+      }
+      return response.json();
+    })
+    .then(function(data) {
+      sessionId = data.session_id || sessionId;
+      currentReps = data.representatives || [];
+      letterTextarea.value = data.letter || "";
+
+      document.getElementById("ta-loading").style.display = "none";
+      document.getElementById("ta-results").style.display = "block";
+
+      renderRepCards();
+    })
+    .catch(function(err) {
+      console.error("Generate error:", err);
+      document.getElementById("ta-loading").style.display = "none";
+      document.getElementById("ta-error").style.display = "block";
+      document.getElementById("ta-error-message").textContent = err.message || "We couldn't generate your letter. Please try again.";
+    });
+  });
+
+  // === Retry ===
+  retryBtn.addEventListener("click", function() {
+    goToStep(2);
+  });
+
+  // === Start Over ===
+  startOverBtn.addEventListener("click", function() {
+    locationInput.value = "";
+    nameInput.value = "";
+    customPriority.value = "";
+    letterTextarea.value = "";
+    repsGrid.innerHTML = "";
+    currentReps = [];
+    priorityCheckboxes.forEach(function(cb) { cb.checked = false; });
+    updateCheckboxCardStyles();
+    nextBtn1.disabled = true;
+    generateBtn.disabled = true;
+    sessionId = generateUUID();
+    goToStep(1);
+  });
+
+})();
+</script>
+{{ end }}

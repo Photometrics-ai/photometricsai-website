@@ -1,4 +1,4 @@
 ---
 title: "Photometrics AI | Light That Moves With Us"
-description: "Street lighting that responds to how we actually live—birds migrating, children sleeping, drivers in rain, pedestrians in crosswalks. Software-only. No hardware changes. Just smarter light."
+description: "We replaced streetlights with LEDs but never aligned lighting with how we live. Rain, crosswalks, bedtime, events—the lighting should adjust. Software-only. No hardware changes. Just smarter light."
 ---

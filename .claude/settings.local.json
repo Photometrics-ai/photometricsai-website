@@ -4,7 +4,10 @@
       "Bash(tree:*)",
       "WebSearch",
       "Bash(hugo:*)",
-      "Bash(timeout /t 3 /nobreak)"
+      "Bash(timeout /t 3 /nobreak)",
+      "Bash(find:*)",
+      "Bash(sort:*)",
+      "Bash(ls:*)"
     ]
   }
 }

@@ -30,40 +30,70 @@
 <!-- ========== 2. THE GAP / THE INJUSTICE ========== -->
 <section class="gap-section" data-theme="dark">
   <div class="container">
-    <h2 class="gap-headline">Street lights turn on at dusk.<br>They turn off at dawn.<br><em>That's it.</em></h2>
+    <h2 class="gap-headline">Street lights turn on at dusk<br>and off at dawn.<br><em>That's it.</em></h2>
 
-    <div class="gap-timeline">
-      <span class="gap-year">1920</span>
-      <div class="gap-line"></div>
-      <span class="gap-year">2025</span>
+    <p class="lead text-center text-muted mb-lg" style="max-width: 600px; margin-left: auto; margin-right: auto;">We replaced old streetlights with LEDs, but we haven't aligned lighting with how we live our lives and our values.</p>
+
+    <div class="gap-absurdity text-center" style="max-width: 600px; margin: 0 auto 2rem;">
+      <p class="text-muted" style="font-size: 1.1rem; line-height: 1.8;">Your phone adjusts its brightness for the room you're in.<br>Your car dims its headlights for oncoming traffic.<br>Your sprinklers check the forecast and skip watering when it's going to rain.<br>Your thermostat learns your schedule.</p>
     </div>
 
-    <p class="lead text-center text-muted mb-lg" style="max-width: 500px; margin-left: auto; margin-right: auto;">For 100 years, nothing has changed.</p>
+    <p class="text-center" style="font-size: 1.4rem; letter-spacing: 0.02em; margin-bottom: 3rem;"><strong>New light, new tech, same results.</strong></p>
 
     <div class="gap-impacts">
-      <p class="gap-impact">Birds die colliding with over-lit buildings during migration</p>
-      <p class="gap-impact">Children walk to school in darkness because fixtures don't know what time sunrise is</p>
-      <p class="gap-impact">Drivers can't see in the rain because intersections don't respond to weather</p>
-      <p class="gap-impact">Crosswalks stay dark until someone gets hurt</p>
-      <p class="gap-impact">Concert crowds exit into poorly lit parking lots</p>
-      <p class="gap-impact">Halloween—the most dangerous night for pedestrians—uses the same lighting as any other night</p>
+      <p class="gap-impact">The weather changes but the lighting doesn't</p>
+      <p class="gap-impact">Crosswalks are dark until someone complains</p>
+      <p class="gap-impact">Streetlights blaze at full power all night long</p>
+      <p class="gap-impact">Lighting should facilitate safe and quick egress and ingress for events</p>
+      <p class="gap-impact">Halloween—the most dangerous night for kids—uses the same lighting as any other night</p>
+      <p class="gap-impact">Bright white LEDs pull migratory birds off course</p>
     </div>
 
-    <p class="gap-punchline">The technology to fix this has existed for a decade.<br><strong>The fix? Just software.</strong></p>
+    <p class="gap-punchline"><strong>The fix?<br>No trucks. Nothing to install.<br>Just software aligned with your life and your values.</strong></p>
   </div>
 </section>
 
 <!-- ========== 3. VIGNETTES - THE VISION ========== -->
 
-<!-- Vignette: Birds -->
+<!-- Vignette: Weather (rain + snow alternating) -->
 <section class="vignette" data-theme="dark">
-  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
-    <source src="/videos/birds-migrating.webm" type="video/webm">
-    <source src="/videos/birds-migrating.mp4" type="video/mp4">
+  <video class="vignette-video vignette-weather" autoplay muted playsinline data-lazy id="weather-rain">
+    <source src="/videos/rain-driving.webm" type="video/webm">
+    <source src="/videos/rain-driving.mp4" type="video/mp4">
+  </video>
+  <video class="vignette-video vignette-weather" muted playsinline data-lazy id="weather-snow" style="opacity: 0;">
+    <source src="/videos/snow-driving.webm" type="video/webm">
+    <source src="/videos/snow-driving.mp4" type="video/mp4">
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
-    <p class="vignette-caption">When birds migrate, lights dim to let them pass.</p>
+    <p class="vignette-caption">Weather changes. Street lighting adjusts.</p>
+  </div>
+  <script>
+  (function() {
+    var rain = document.getElementById('weather-rain');
+    var snow = document.getElementById('weather-snow');
+    function swap(from, to) {
+      from.style.opacity = '0';
+      to.style.opacity = '1';
+      to.currentTime = 0;
+      to.play().catch(function(){});
+    }
+    rain.addEventListener('ended', function() { swap(rain, snow); });
+    snow.addEventListener('ended', function() { swap(snow, rain); });
+  })();
+  </script>
+</section>
+
+<!-- Vignette: Crosswalk -->
+<section class="vignette" data-theme="dark">
+  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
+    <source src="/videos/crosswalk.webm" type="video/webm">
+    <source src="/videos/crosswalk.mp4" type="video/mp4">
+  </video>
+  <div class="vignette-overlay"></div>
+  <div class="vignette-content">
+    <p class="vignette-caption">The crosswalk is lit before she gets there.</p>
   </div>
 </section>
 
@@ -75,7 +105,7 @@
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
-    <p class="vignette-caption">A child drifts to sleep. The light outside fades.</p>
+    <p class="vignette-caption">When it's time to sleep, the lights dim.</p>
   </div>
 </section>
 
@@ -87,31 +117,7 @@
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
-    <p class="vignette-caption">The concert ends. Every path home is bright.</p>
-  </div>
-</section>
-
-<!-- Vignette: Rain -->
-<section class="vignette" data-theme="dark">
-  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
-    <source src="/videos/rain-driving.webm" type="video/webm">
-    <source src="/videos/rain-driving.mp4" type="video/mp4">
-  </video>
-  <div class="vignette-overlay"></div>
-  <div class="vignette-content">
-    <p class="vignette-caption">Rain falls. The intersection illuminates.</p>
-  </div>
-</section>
-
-<!-- Vignette: Crosswalk -->
-<section class="vignette" data-theme="dark">
-  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
-    <source src="/videos/crosswalk.webm" type="video/webm">
-    <source src="/videos/crosswalk.mp4" type="video/mp4">
-  </video>
-  <div class="vignette-overlay"></div>
-  <div class="vignette-content">
-    <p class="vignette-caption">She steps into the crosswalk. He sees her in time.</p>
+    <p class="vignette-caption">The event ends. The streets are ready.</p>
   </div>
 </section>
 
@@ -124,6 +130,18 @@
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
     <p class="vignette-caption">Halloween night. Every house, every street, safe.</p>
+  </div>
+</section>
+
+<!-- Vignette: Birds -->
+<section class="vignette" data-theme="dark">
+  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
+    <source src="/videos/birds-migrating.webm" type="video/webm">
+    <source src="/videos/birds-migrating.mp4" type="video/mp4">
+  </video>
+  <div class="vignette-overlay"></div>
+  <div class="vignette-content">
+    <p class="vignette-caption">When birds migrate, the lights dim.</p>
   </div>
 </section>
 
@@ -172,8 +190,8 @@
 <section class="cta-vision" data-theme="dark">
   <h2>See what intelligent lighting looks like.</h2>
   <div class="cta-buttons">
-    <a href="https://bit.ly/30MinMeetWAri" class="btn btn-primary btn-lg" target="_blank" rel="noopener">Schedule a Demo</a>
-    <a href="/benefits/" class="btn btn-secondary btn-lg">See the Numbers</a>
+    <a href="https://bit.ly/30MinMeetWAri" class="btn btn-primary btn-lg" target="_blank" rel="noopener">Schedule a Conversation</a>
+    <a href="/take-action/" class="btn btn-secondary btn-lg">Take Action</a>
   </div>
   <p class="cta-alt mt-lg">Or email <a href="mailto:ari@photometrics.ai">ari@photometrics.ai</a></p>
 </section>
