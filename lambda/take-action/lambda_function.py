@@ -66,11 +66,8 @@ PILOT PROGRAM:
 dynamodb = boto3.client("dynamodb")
 serializer = TypeSerializer()
 
-# CORS headers for all responses
+# Response headers (CORS handled by Lambda Function URL config)
 CORS_HEADERS = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Content-Type": "application/json",
 }
 
