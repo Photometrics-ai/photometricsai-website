@@ -10,28 +10,13 @@
   <div class="container">
     <div class="ta-wizard">
 
-      <!-- Progress indicator -->
-      <div class="ta-progress">
-        <div class="ta-progress-step active" data-step="1">
-          <div class="ta-progress-number">1</div>
-          <span class="ta-progress-label">Location</span>
-        </div>
-        <div class="ta-progress-line"></div>
-        <div class="ta-progress-step" data-step="2">
-          <div class="ta-progress-number">2</div>
-          <span class="ta-progress-label">Priorities</span>
-        </div>
-        <div class="ta-progress-line"></div>
-        <div class="ta-progress-step" data-step="3">
-          <div class="ta-progress-number">3</div>
-          <span class="ta-progress-label">Your Letter</span>
-        </div>
-      </div>
-
-      <!-- Step 1: Location + Name -->
-      <div class="ta-step active" id="ta-step-1">
+      <!-- Card 1: Location + Name -->
+      <div class="ta-card" id="ta-card-1">
         <div class="glass-card" style="padding: var(--space-lg);">
-          <h3 style="color: var(--text-dark); margin-bottom: var(--space-xs);">Where do you live?</h3>
+          <div class="ta-card-header">
+            <span class="ta-card-badge">1</span>
+            <h3>Where do you live?</h3>
+          </div>
           <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">We'll find the right officials who influence street lighting decisions in your area.</p>
 
           <div class="form-group">
@@ -39,19 +24,20 @@
             <input type="text" id="ta-location" placeholder="e.g. Austin, TX or 78701" maxlength="200" autocomplete="address-level2">
           </div>
 
-          <div class="form-group">
+          <div class="form-group" style="margin-bottom: 0;">
             <label for="ta-name">Your name <span style="font-weight: 400; color: var(--text-subtle);">(optional &mdash; makes the letter more personal)</span></label>
             <input type="text" id="ta-name" placeholder="e.g. Jane Smith" maxlength="100" autocomplete="name">
           </div>
-
-          <button class="btn btn-primary btn-lg" id="ta-next-1" style="width: 100%;" disabled>Next</button>
         </div>
       </div>
 
-      <!-- Step 2: Priorities -->
-      <div class="ta-step" id="ta-step-2">
+      <!-- Card 2: Priorities -->
+      <div class="ta-card ta-card-locked" id="ta-card-2">
         <div class="glass-card" style="padding: var(--space-lg);">
-          <h3 style="color: var(--text-dark); margin-bottom: var(--space-xs);">What matters most to you?</h3>
+          <div class="ta-card-header">
+            <span class="ta-card-badge">2</span>
+            <h3>What matters most to you?</h3>
+          </div>
           <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Select the issues you care about. We'll tailor your letter around these priorities.</p>
 
           <div class="ta-priorities-grid">
@@ -99,51 +85,71 @@
 
           <div style="margin-top: var(--space-md); text-align: center;">
             <button class="btn btn-primary btn-lg" id="ta-generate" style="width: 100%;" disabled>Generate My Letter</button>
-            <button class="btn btn-secondary" id="ta-back-2" style="margin-top: var(--space-sm);">Back</button>
           </div>
         </div>
       </div>
 
-      <!-- Step 3: Results -->
-      <div class="ta-step" id="ta-step-3">
+      <!-- Card 3: Results -->
+      <div class="ta-card ta-card-locked" id="ta-card-3">
+        <div class="glass-card" style="padding: var(--space-lg);">
+          <div class="ta-card-header">
+            <span class="ta-card-badge">3</span>
+            <h3>Your Letter</h3>
+          </div>
 
-        <!-- Loading state -->
-        <div class="ta-loading" id="ta-loading">
-          <div class="ta-loading-spinner"></div>
-          <p style="color: var(--text-body); font-size: 1.125rem; margin-top: var(--space-md);">Finding your representatives and drafting your letter...</p>
-          <p style="color: var(--text-subtle); font-size: 0.875rem;">This usually takes about 10 seconds.</p>
-        </div>
+          <!-- Locked placeholder -->
+          <div class="ta-card-placeholder" id="ta-placeholder">
+            <p>Fill in your location and priorities above, then click <strong>Generate</strong>.</p>
+          </div>
 
-        <!-- Error state -->
-        <div class="ta-error" id="ta-error" style="display: none;">
-          <div class="glass-card" style="padding: var(--space-lg); text-align: center;">
-            <h3 style="color: var(--text-dark); margin-bottom: var(--space-sm);">Something went wrong</h3>
+          <!-- Loading state -->
+          <div class="ta-loading" id="ta-loading" style="display: none;">
+            <div class="ta-loading-spinner"></div>
+            <p style="color: var(--text-body); font-size: 1.125rem; margin-top: var(--space-md);">Finding and verifying your representatives, then drafting your letter...</p>
+            <p style="color: var(--text-subtle); font-size: 0.875rem;">This usually takes 20-30 seconds as we verify each official is current.</p>
+          </div>
+
+          <!-- Error state -->
+          <div class="ta-error" id="ta-error" style="display: none;">
+            <h4 style="color: var(--text-dark); margin-bottom: var(--space-sm);">Something went wrong</h4>
             <p id="ta-error-message" style="color: var(--text-subtle); margin-bottom: var(--space-md);">We couldn't generate your letter. Please try again.</p>
             <button class="btn btn-primary btn-lg" id="ta-retry">Try Again</button>
           </div>
-        </div>
 
-        <!-- Results state -->
-        <div class="ta-results" id="ta-results" style="display: none;">
+          <!-- Results state -->
+          <div class="ta-results" id="ta-results" style="display: none;">
 
-          <div class="glass-card" style="padding: var(--space-lg); margin-bottom: var(--space-lg);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
-              <h3 style="color: var(--text-dark); margin-bottom: 0;">Your Letter</h3>
-              <span style="font-size: 0.8125rem; color: var(--text-subtle);">Edit freely &mdash; it updates all send buttons</span>
+            <!-- Representatives -->
+            <div style="margin-bottom: var(--space-lg);">
+              <h4 style="color: var(--text-dark); margin-bottom: var(--space-xs);">Recommended Representatives</h4>
+              <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Based on your location and priorities, we recommend contacting these officials about street lighting improvements.</p>
+              <div class="ta-reps-grid" id="ta-reps-grid">
+                <!-- Rep cards injected by JS -->
+              </div>
             </div>
-            <textarea class="ta-letter-textarea" id="ta-letter" rows="16"></textarea>
+
+            <!-- Letter -->
+            <div style="margin-bottom: var(--space-lg);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                <h4 style="color: var(--text-dark); margin-bottom: 0;">Your Letter</h4>
+                <span style="font-size: 0.8125rem; color: var(--text-subtle);">Edit freely before sending</span>
+              </div>
+              <textarea class="ta-letter-textarea" id="ta-letter" rows="16"></textarea>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="ta-actions-bar">
+              <button class="ta-send-btn ta-send-mailto" id="ta-send-all-email">Send All via Email</button>
+              <button class="ta-send-btn ta-send-gmail" id="ta-send-all-gmail">Open All in Gmail</button>
+              <button class="ta-send-btn ta-send-copy" id="ta-copy-letter">Copy Letter</button>
+              <button class="ta-send-btn ta-send-copy" id="ta-copy-reps">Copy Representatives</button>
+            </div>
+
+            <div style="text-align: center; margin-top: var(--space-xl);">
+              <button class="btn btn-secondary btn-lg" id="ta-start-over">Start Over</button>
+            </div>
           </div>
 
-          <h3 style="color: var(--text-dark); margin-bottom: var(--space-md);">Send Your Letter</h3>
-          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Click a send button to open your email with the letter pre-filled and personalized for that official.</p>
-
-          <div class="ta-reps-grid" id="ta-reps-grid">
-            <!-- Rep cards injected by JS -->
-          </div>
-
-          <div style="text-align: center; margin-top: var(--space-xl);">
-            <button class="btn btn-secondary btn-lg" id="ta-start-over">Start Over</button>
-          </div>
         </div>
       </div>
 
@@ -160,17 +166,21 @@
   // === DOM refs ===
   var locationInput = document.getElementById("ta-location");
   var nameInput = document.getElementById("ta-name");
-  var nextBtn1 = document.getElementById("ta-next-1");
-  var backBtn2 = document.getElementById("ta-back-2");
   var generateBtn = document.getElementById("ta-generate");
   var letterTextarea = document.getElementById("ta-letter");
   var repsGrid = document.getElementById("ta-reps-grid");
   var customPriority = document.getElementById("ta-custom-priority");
   var retryBtn = document.getElementById("ta-retry");
   var startOverBtn = document.getElementById("ta-start-over");
+  var sendAllEmailBtn = document.getElementById("ta-send-all-email");
+  var sendAllGmailBtn = document.getElementById("ta-send-all-gmail");
+  var copyLetterBtn = document.getElementById("ta-copy-letter");
+  var copyRepsBtn = document.getElementById("ta-copy-reps");
   var priorityCheckboxes = document.querySelectorAll(".ta-priority-card input[type=checkbox]");
-  var steps = document.querySelectorAll(".ta-step");
-  var progressSteps = document.querySelectorAll(".ta-progress-step");
+
+  var card1 = document.getElementById("ta-card-1");
+  var card2 = document.getElementById("ta-card-2");
+  var card3 = document.getElementById("ta-card-3");
 
   var currentReps = [];
 
@@ -189,16 +199,18 @@
     return div.innerHTML;
   }
 
-  function goToStep(n) {
-    steps.forEach(function(s) { s.classList.remove("active"); });
-    progressSteps.forEach(function(s) {
-      var stepNum = parseInt(s.getAttribute("data-step"));
-      s.classList.remove("active", "completed");
-      if (stepNum < n) s.classList.add("completed");
-      if (stepNum === n) s.classList.add("active");
-    });
-    document.getElementById("ta-step-" + n).classList.add("active");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  function updateCardStates() {
+    var locationFilled = locationInput.value.trim().length >= 2;
+
+    // Card 2: unlock when location has 2+ chars
+    if (locationFilled) {
+      card2.classList.remove("ta-card-locked");
+    } else {
+      card2.classList.add("ta-card-locked");
+    }
+
+    // Card 3: stays locked until results are shown (managed by generate flow)
+    // But re-lock if location is cleared after generation
   }
 
   function getSelectedPriorities() {
@@ -227,27 +239,45 @@
     generateBtn.disabled = !hasPriority;
   }
 
-  function personalizeLetter(letter, repName) {
-    return letter.replace(/\[Official Name\]/g, repName);
+  function buildGroupSalutation(reps) {
+    if (!reps.length) return "";
+    var names = reps.map(function(rep) {
+      // Extract title prefix and last name, e.g. "Mayor Jane Smith" -> "Mayor Smith"
+      var parts = rep.name.trim().split(/\s+/);
+      var title = rep.title || "";
+      // Use title prefix (first word of title) + last name
+      var lastName = parts[parts.length - 1];
+      var titlePrefix = title.split(/\s+/)[0] || "";
+      return titlePrefix ? titlePrefix + " " + lastName : lastName;
+    });
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return names[0] + " and " + names[1];
+    return names.slice(0, -1).join(", ") + ", and " + names[names.length - 1];
   }
 
-  function buildMailtoUrl(rep) {
+  function prepareLetterForEmail() {
     var letter = letterTextarea.value;
-    var personalized = personalizeLetter(letter, rep.name);
+    var salutation = buildGroupSalutation(currentReps);
+    return letter.replace(/\[Official Name\]/g, salutation);
+  }
+
+  function buildMailtoUrl() {
+    var emails = currentReps.map(function(rep) { return rep.email; }).join(",");
+    var body = prepareLetterForEmail();
     var subject = "Intelligent Street Lighting for " + locationInput.value;
-    return "mailto:" + encodeURIComponent(rep.email) +
+    return "mailto:" + emails +
       "?subject=" + encodeURIComponent(subject) +
-      "&body=" + encodeURIComponent(personalized);
+      "&body=" + encodeURIComponent(body);
   }
 
-  function buildGmailUrl(rep) {
-    var letter = letterTextarea.value;
-    var personalized = personalizeLetter(letter, rep.name);
+  function buildGmailUrl() {
+    var emails = currentReps.map(function(rep) { return rep.email; }).join(",");
+    var body = prepareLetterForEmail();
     var subject = "Intelligent Street Lighting for " + locationInput.value;
     return "https://mail.google.com/mail/?view=cm" +
-      "&to=" + encodeURIComponent(rep.email) +
+      "&to=" + encodeURIComponent(emails) +
       "&su=" + encodeURIComponent(subject) +
-      "&body=" + encodeURIComponent(personalized);
+      "&body=" + encodeURIComponent(body);
   }
 
   function trackEvent(event, repEmail) {
@@ -267,9 +297,6 @@
       var card = document.createElement("div");
       card.className = "ta-rep-card glass-card";
 
-      var mailtoUrl = buildMailtoUrl(rep);
-      var gmailUrl = buildGmailUrl(rep);
-
       card.innerHTML =
         '<div class="ta-rep-info">' +
           '<h4 class="ta-rep-name">' + escapeHtml(rep.name) + '</h4>' +
@@ -277,69 +304,51 @@
           '<p class="ta-rep-org">' + escapeHtml(rep.organization) + '</p>' +
           '<p class="ta-rep-relevance">' + escapeHtml(rep.relevance) + '</p>' +
           '<p class="ta-rep-email">' + escapeHtml(rep.email) + '</p>' +
-        '</div>' +
-        '<div class="ta-rep-actions">' +
-          '<a href="' + escapeHtml(mailtoUrl) + '" class="ta-send-btn ta-send-mailto" data-email="' + escapeHtml(rep.email) + '">Send via Email</a>' +
-          '<a href="' + escapeHtml(gmailUrl) + '" class="ta-send-btn ta-send-gmail" target="_blank" rel="noopener" data-email="' + escapeHtml(rep.email) + '">Open in Gmail</a>' +
-          '<button class="ta-send-btn ta-send-copy" data-rep-name="' + escapeHtml(rep.name) + '" data-email="' + escapeHtml(rep.email) + '">Copy Letter</button>' +
         '</div>';
 
       repsGrid.appendChild(card);
     });
-
-    // Attach event listeners
-    document.querySelectorAll(".ta-send-mailto").forEach(function(btn) {
-      btn.addEventListener("click", function() {
-        trackEvent("click_mailto", btn.getAttribute("data-email"));
-      });
-    });
-    document.querySelectorAll(".ta-send-gmail").forEach(function(btn) {
-      btn.addEventListener("click", function() {
-        trackEvent("click_gmail", btn.getAttribute("data-email"));
-      });
-    });
-    document.querySelectorAll(".ta-send-copy").forEach(function(btn) {
-      btn.addEventListener("click", function() {
-        var repName = btn.getAttribute("data-rep-name");
-        var repEmail = btn.getAttribute("data-email");
-        var personalized = personalizeLetter(letterTextarea.value, repName);
-        navigator.clipboard.writeText(personalized).then(function() {
-          var original = btn.textContent;
-          btn.textContent = "Copied!";
-          btn.classList.add("ta-copied");
-          setTimeout(function() {
-            btn.textContent = original;
-            btn.classList.remove("ta-copied");
-          }, 2000);
-        });
-        trackEvent("click_copy", repEmail);
-      });
-    });
   }
 
-  // === Update mailto/Gmail URLs when letter is edited ===
-  letterTextarea.addEventListener("input", function() {
-    // Re-render cards with updated URLs
-    renderRepCards();
-  });
+  function copiedFeedback(btn) {
+    var original = btn.textContent;
+    btn.textContent = "Copied!";
+    btn.classList.add("ta-copied");
+    setTimeout(function() {
+      btn.textContent = original;
+      btn.classList.remove("ta-copied");
+    }, 2000);
+  }
 
-  // === Step 1: Location validation ===
-  locationInput.addEventListener("input", function() {
-    nextBtn1.disabled = locationInput.value.trim().length < 2;
-  });
+  function showCard3State(state) {
+    // Hide all states
+    document.getElementById("ta-placeholder").style.display = "none";
+    document.getElementById("ta-loading").style.display = "none";
+    document.getElementById("ta-error").style.display = "none";
+    document.getElementById("ta-results").style.display = "none";
 
-  locationInput.addEventListener("keydown", function(e) {
-    if (e.key === "Enter" && !nextBtn1.disabled) {
-      e.preventDefault();
-      goToStep(2);
+    // Show requested state
+    if (state === "locked") {
+      document.getElementById("ta-placeholder").style.display = "block";
+      card3.classList.add("ta-card-locked");
+    } else if (state === "loading") {
+      card3.classList.remove("ta-card-locked");
+      document.getElementById("ta-loading").style.display = "block";
+    } else if (state === "error") {
+      card3.classList.remove("ta-card-locked");
+      document.getElementById("ta-error").style.display = "block";
+    } else if (state === "results") {
+      card3.classList.remove("ta-card-locked");
+      document.getElementById("ta-results").style.display = "block";
     }
+  }
+
+  // === Card 1: Location validation ===
+  locationInput.addEventListener("input", function() {
+    updateCardStates();
   });
 
-  nextBtn1.addEventListener("click", function() {
-    goToStep(2);
-  });
-
-  // === Step 2: Priority selection ===
+  // === Card 2: Priority selection ===
   priorityCheckboxes.forEach(function(cb) {
     cb.addEventListener("change", function() {
       updateCheckboxCardStyles();
@@ -349,18 +358,11 @@
 
   customPriority.addEventListener("input", updateGenerateBtn);
 
-  backBtn2.addEventListener("click", function() {
-    goToStep(1);
-  });
-
   // === Generate letter ===
   generateBtn.addEventListener("click", function() {
-    goToStep(3);
-
-    // Show loading, hide others
-    document.getElementById("ta-loading").style.display = "block";
-    document.getElementById("ta-error").style.display = "none";
-    document.getElementById("ta-results").style.display = "none";
+    // Show loading in Card 3, scroll to it
+    showCard3State("loading");
+    card3.scrollIntoView({ behavior: "smooth", block: "center" });
 
     var payload = {
       session_id: sessionId,
@@ -387,22 +389,48 @@
       currentReps = data.representatives || [];
       letterTextarea.value = data.letter || "";
 
-      document.getElementById("ta-loading").style.display = "none";
-      document.getElementById("ta-results").style.display = "block";
-
+      showCard3State("results");
       renderRepCards();
     })
     .catch(function(err) {
       console.error("Generate error:", err);
-      document.getElementById("ta-loading").style.display = "none";
-      document.getElementById("ta-error").style.display = "block";
+      showCard3State("error");
       document.getElementById("ta-error-message").textContent = err.message || "We couldn't generate your letter. Please try again.";
     });
   });
 
   // === Retry ===
   retryBtn.addEventListener("click", function() {
-    goToStep(2);
+    generateBtn.click();
+  });
+
+  // === Unified action buttons ===
+  sendAllEmailBtn.addEventListener("click", function() {
+    if (!currentReps.length) return;
+    window.location.href = buildMailtoUrl();
+    trackEvent("click_mailto_all", currentReps.map(function(r) { return r.email; }).join(","));
+  });
+
+  sendAllGmailBtn.addEventListener("click", function() {
+    if (!currentReps.length) return;
+    window.open(buildGmailUrl(), "_blank");
+    trackEvent("click_gmail_all", currentReps.map(function(r) { return r.email; }).join(","));
+  });
+
+  copyLetterBtn.addEventListener("click", function() {
+    navigator.clipboard.writeText(letterTextarea.value).then(function() {
+      copiedFeedback(copyLetterBtn);
+    });
+    trackEvent("click_copy", "");
+  });
+
+  copyRepsBtn.addEventListener("click", function() {
+    var text = currentReps.map(function(rep) {
+      return rep.name + ", " + rep.title + ", " + rep.organization + " - " + rep.email;
+    }).join("\n");
+    navigator.clipboard.writeText(text).then(function() {
+      copiedFeedback(copyRepsBtn);
+    });
   });
 
   // === Start Over ===
@@ -415,10 +443,11 @@
     currentReps = [];
     priorityCheckboxes.forEach(function(cb) { cb.checked = false; });
     updateCheckboxCardStyles();
-    nextBtn1.disabled = true;
     generateBtn.disabled = true;
     sessionId = generateUUID();
-    goToStep(1);
+    showCard3State("locked");
+    updateCardStates();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
 })();

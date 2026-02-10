@@ -46,14 +46,52 @@ title = "Photometrics AI | Street Lighting Optimization"
   weight = 3
 
 [[menus.main]]
+  name = "Best Practices"
+  url = "/best-practices/"
+  weight = 4
+  identifier = "best-practices"
+
+[[menus.main]]
+  name = "For Utilities"
+  url = "/best-practices/utilities/"
+  weight = 1
+  parent = "best-practices"
+
+[[menus.main]]
+  name = "For Birds"
+  url = "/best-practices/birds/"
+  weight = 2
+  parent = "best-practices"
+
+[[menus.main]]
+  name = "For Public Safety"
+  url = "/best-practices/public-safety/"
+  weight = 3
+  parent = "best-practices"
+
+[[menus.main]]
+  name = "For Transportation Safety"
+  url = "/best-practices/transportation-safety/"
+  weight = 4
+  parent = "best-practices"
+
+[[menus.main]]
   name = "About"
   url = "/about/"
-  weight = 4
+  weight = 5
+  identifier = "about"
+
+[[menus.main]]
+  name = "News"
+  url = "/press/"
+  weight = 1
+  parent = "about"
 
 [[menus.main]]
   name = "Contact"
   url = "/contact/"
-  weight = 5
+  weight = 2
+  parent = "about"
 
 # Footer navigation
 [[menus.footer]]

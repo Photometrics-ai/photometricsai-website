@@ -18,10 +18,10 @@
     <div class="features-grid">
       {{ range .Pages }}
       <article class="glass-card">
-        <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+        <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
         {{ with .Params.date }}<p class="stat-label">{{ . | time.Format "January 2, 2006" }}</p>{{ end }}
         {{ with .Summary }}<p>{{ . }}</p>{{ end }}
-        <a href="{{ .Permalink }}" class="btn btn-secondary">Read More</a>
+        <a href="{{ .RelPermalink }}" class="btn btn-secondary">Read More</a>
       </article>
       {{ end }}
     </div>

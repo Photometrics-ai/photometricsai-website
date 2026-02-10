@@ -76,24 +76,18 @@ Status: [VERIFIED/DERIVED/ESTIMATE]
 
 ### Source Files
 
-When deeper verification is needed, read files in `references/sources/`:
+When deeper verification is needed, check `references/sources-index.md` for S3 links to source PDFs.
 
-| File | Use For |
-|------|---------|
-| `ledsmaster-street-light-costs.pdf` | LED maintenance costs ($20-$50/yr) |
-| `cps-lighting-street-light-costs-2024.pdf` | Generic maintenance (secondary source) |
-| `osram-led-reliability-lifetime-2013.pdf` | Thermal/Arrhenius relationship |
-| `pge-ls2-streetlight-tariff-2026.pdf` | 4,100 operating hours source |
-| `cpuc-acc-documentation-2024.pdf` | California avoided cost methodology |
-| `nhtsa-crash-costs-2019.pdf` | NHTSA Table 15-5: $10.948B state/local crash costs |
-| `fhwa-lighting-safety-countermeasure.pdf` | FHWA crash reduction: 28-42% |
-| `sce-cbp-tariff-2024.pdf` | CBP capacity payment rates ($79/kW/yr) |
-| `cpuc-elrp-program-2024.pdf` | ELRP payment rate ($2/kWh) |
-| `streetlighting-demand-response-stockton-ca.pdf` | DR methodology example |
-| `bjs-justice-expenditures-employment-2017.pdf` | BJS Table 1: $246.7B crime spending |
-| `lapd-crime-data-2010-2019-open-data-portal.pdf` | LAPD 2.13M records: 17.1% treatable |
-| `Lighting the Way for Next-Generation Streetlight Efficiency _ Energized by Edison.pdf` | SCE utility-owned count: 450,000 lights |
-| `gis_analysis/streetlight_estimation_results.json` | CA IOU territory totals vs utility-owned |
+**Key sources by topic:**
+- **Maintenance costs:** LEDSmaster, CPS Lighting, OSRAM reliability
+- **Utility rates:** PG&E LS-2 tariff, EIA Electric Power Monthly
+- **Avoided costs:** CPUC ACC Documentation
+- **Safety:** NHTSA crash costs, FHWA lighting safety
+- **Crime:** BJS justice expenditures, LAPD crime data
+- **Market data:** LA Lights Strategic Plan, SCE streetlight efficiency
+
+**Local files (not externalized):**
+- `gis_analysis/streetlight_estimation_results.json` — CA IOU territory totals vs utility-owned
 
 ### Customer-Specific Calculations
 

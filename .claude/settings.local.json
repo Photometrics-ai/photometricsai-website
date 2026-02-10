@@ -7,7 +7,10 @@
       "Bash(timeout /t 3 /nobreak)",
       "Bash(find:*)",
       "Bash(sort:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(aws lambda update-function-code:*)",
+      "Bash(curl:*)"
     ]
   }
 }

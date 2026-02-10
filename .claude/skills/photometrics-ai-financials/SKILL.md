@@ -136,6 +136,7 @@ Source PDFs and images are in `references/sources/`:
 
 | File | Content |
 |------|---------|
+| `AB 719 Assembly Bill - Bill Analysis.pdf` | CPUC streetlight counts by IOU territory (2013 baseline) |
 | `ledsmaster-street-light-costs.pdf` | LED-specific maintenance costs ($20-$50/yr) |
 | `cps-lighting-street-light-costs-2024.pdf` | General street light costs (secondary source) |
 | `osram-led-reliability-lifetime-2013.pdf` | OSRAM "Reliability and Lifetime of LEDs" — thermal/Arrhenius |
@@ -265,6 +266,7 @@ The most defensible single source for IOU streetlight counts is the AB 719 bill 
 | **IOU Total** | **856,775** | **788,929** | **1,645,704** | ✅ VERIFIED |
 
 **Source:** [AB 719 Assembly Bill Analysis (April 2013)](http://www.leginfo.ca.gov/pub/13-14/bill/asm/ab_0701-0750/ab_719_cfa_20130405_164252_asm_comm.html) — data provided by the CPUC.
+- File: `references/sources/AB 719 Assembly Bill - Bill Analysis.pdf`
 
 #### Cross-References
 
@@ -272,7 +274,7 @@ The most defensible single source for IOU streetlight counts is the AB 719 bill 
 |--------|-------|------|--------|
 | [Edison "Lighting the Way"](https://energized.edison.com/stories/lighting-the-way-for-next-generation-streetlight-efficiency) | SCE owns/operates ~450,000 city streetlights | ~2024 | ✅ VERIFIED |
 | [PG&E Streetlight Reporting Page](https://www.pge.com/en/contact-us/report-an-issue/report-streetlight-issue.html) | ~670,000 streetlights in PG&E territory | ~2025 | ✅ VERIFIED |
-| [LA Bureau of Street Lighting](https://lalights.lacity.org/) | City of LA has ~220,000 streetlights | ~2025 | ✅ VERIFIED |
+| LA Lights Strategic Plan 2020-2025 | City of LA has 223,000 streetlights | 2020 | ✅ VERIFIED |
 | [LA County Public Works](https://pw.lacounty.gov/tnl/streetlights/) | LA County maintains ~99,700 streetlights | ~2025 | ✅ VERIFIED |
 
 **SCE note:** The Edison article states SCE owns ~450,000; cities own a comparable number in SCE territory. This implies ~900,000 total in SCE territory today — above the 2013 CPUC baseline of 768,669, suggesting growth and/or broader counting methodology.
@@ -294,7 +296,7 @@ To estimate current streetlight counts from the 2013 CPUC baseline, a GIS analys
 - **Utility territories:** CEC ElectricLoadServingEntities_IOU_POU (ArcGIS FeatureServer, 50 retail utilities after removing 3 non-retail overlays)
 - **Census tracts:** Census TIGERweb ACS2023 boundaries (9,129 tracts)
 - **Population:** ACS 2023 5-year (tract level), ACS 2013 5-year (county level for growth factors)
-- **Streetlight baseline:** AB 719 Bill Analysis (April 2013), CPUC data
+- **Streetlight baseline:** AB 719 Bill Analysis (April 2013), CPUC data — File: `references/sources/AB 719 Assembly Bill - Bill Analysis.pdf`
 
 **Data cleaning:** Three non-retail overlay entities were removed to prevent double-counting: Power and Water Resource Pooling Authority (wholesale, overlaps PG&E), Metropolitan Water District of So. Cal (water district, overlaps LADWP), Eastside Power Authority (JPA, overlaps PG&E). After removal, 255 tracts still had dual matches (San Francisco tracts in both PG&E and Hetch Hetchy territory); these were assigned to the first match.
 
@@ -347,14 +349,14 @@ To estimate current streetlight counts from the 2013 CPUC baseline, a GIS analys
 | City of Anaheim | 334,774 | 18,948 | ⚠️ ESTIMATE |
 | City of Riverside | 304,697 | 17,245 | ⚠️ ESTIMATE |
 
-**Validation:** LADWP estimate of ~216K matches the known ~220K from the LA Bureau of Street Lighting, supporting the lights-per-capita ratio.
+**Validation:** LADWP estimate of ~216K matches the known 223K from the LA Lights Strategic Plan 2020-2025, supporting the lights-per-capita ratio.
 
 #### Known Limitations
 
 - **Population ≠ streetlights:** The assumption that streetlight density scales linearly with population is a simplification. Urban cores have more lights per capita; rural areas fewer. Highway lighting adds lights without corresponding residential population.
 - **2013 baseline age:** The AB 719 data is from 2013. Since then, cities have acquired utility-owned lights (AB 719 programs), new developments have added lights, and some areas may have consolidated. Population growth is a proxy for net new infrastructure.
 - **SCE gap:** The SCE estimate (~792K) is below the Edison article's implied ~900K total. This may reflect SCE territory having above-average lighting density, or the Edison figure capturing lights not in the 2013 CPUC count.
-- **Non-IOU assumption:** Applying the IOU ratio to munis is approximate. Where known data exists (LADWP ~220K), it should override the estimate.
+- **Non-IOU assumption:** Applying the IOU ratio to munis is approximate. Where known data exists (LADWP 223K), it should override the estimate.
 
 ---
 

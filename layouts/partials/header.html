@@ -12,9 +12,20 @@
 
     <ul class="nav-links" id="nav-links">
       {{ range .Site.Menus.main }}
-      <li><a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }}class="active"{{ end }}>{{ .Name }}</a></li>
+        {{ if .HasChildren }}
+        <li class="nav-dropdown">
+          <a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }}class="active"{{ end }}>{{ .Name }}</a>
+          <ul class="nav-dropdown-menu">
+            {{ range .Children }}
+            <li><a href="{{ .URL }}">{{ .Name }}</a></li>
+            {{ end }}
+          </ul>
+        </li>
+        {{ else }}
+        <li><a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }}class="active"{{ end }}>{{ .Name }}</a></li>
+        {{ end }}
       {{ end }}
-      <li><a href="https://beta.photometrics.ai" class="nav-cta" target="_blank" rel="noopener">Try Beta</a></li>
+      <li><a href="https://beta.photometrics.ai" class="nav-cta" target="_blank" rel="noopener">Use Beta</a></li>
     </ul>
   </nav>
 </header>

@@ -128,9 +128,11 @@ Estimated Jan 2026: 7.2% + (2.56 × 3.1) = 15.1%
 
 **Sources:**
 - AB 719 Bill Analysis (April 2013), data provided by CPUC
+  - File: `sources/AB 719 Assembly Bill - Bill Analysis.pdf`
+  - URL: http://www.leginfo.ca.gov/pub/13-14/bill/asm/ab_0701-0750/ab_719_cfa_20130405_164252_asm_comm.html
 - Census ACS 2013/2023 population at tract level
 - CEC ElectricLoadServingEntities boundary data
-- File: `sources/gis_analysis/streetlight_estimation_results.json`
+- GIS analysis results: `sources/gis_analysis/streetlight_estimation_results.json`
 
 **Status:** 🔶 DERIVED — Verified baseline with documented growth methodology
 

@@ -1,0 +1,48 @@
+{{ define "main" }}
+<div class="press-release-header" data-theme="dark">
+  <div class="container">
+    <div class="press-release-doc">
+
+      <div class="press-release-topbar">
+        <p class="press-release-label">FOR IMMEDIATE RELEASE</p>
+        {{ with .Params.pdf }}<a href="{{ . }}" class="btn btn-primary" target="_blank" rel="noopener">Download PDF</a>{{ end }}
+      </div>
+
+      <h1 class="press-release-title">{{ .Title }}</h1>
+
+      {{ with .Params.subtitle }}
+      <p class="press-release-subtitle">{{ . }}</p>
+      {{ end }}
+
+    </div>
+  </div>
+</div>
+
+<div class="page-content press-release-page" data-theme="light">
+  <div class="container">
+    <div class="press-release-doc">
+
+      <div class="press-release-body">
+        {{ .Content }}
+      </div>
+
+      <div class="press-release-actions">
+        {{ with .Params.pdf }}<a href="{{ . }}" class="btn btn-primary" target="_blank" rel="noopener">Download PDF</a>{{ end }}
+        <a href="/press/" class="btn btn-secondary">All News</a>
+      </div>
+
+      {{ with .Params.keywords }}
+      <div class="press-release-topics">
+        <p class="press-release-topics-label">Topics:</p>
+        <div class="press-release-tags">
+          {{ range . }}<span class="press-release-tag">{{ . }}</span>{{ end }}
+        </div>
+      </div>
+      {{ end }}
+
+    </div>
+  </div>
+</div>
+
+{{ partial "cta.html" . }}
+{{ end }}

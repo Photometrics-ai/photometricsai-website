@@ -1,0 +1,56 @@
+{{ define "main" }}
+<div class="page-header" data-theme="dark">
+  <div class="container">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.subtitle }}<p class="lead">{{ . }}</p>{{ end }}
+  </div>
+</div>
+
+<div class="page-content" data-theme="light">
+  <div class="container">
+    {{ if .Content }}
+    <div class="prose" style="margin-bottom: var(--space-lg);">
+      {{ .Content }}
+    </div>
+    {{ end }}
+
+    {{ if .Pages }}
+    <div class="press-list">
+      {{ range .Pages.ByDate.Reverse }}
+      <article class="glass-card press-card">
+        <div class="press-card-content">
+          <p class="eyebrow">{{ .Date.Format "January 2, 2006" }}</p>
+          <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+          {{ with .Params.description }}<p>{{ . }}</p>{{ end }}
+          <div class="press-card-actions">
+            <a href="{{ .RelPermalink }}" class="btn btn-primary">Read More</a>
+            {{ with .Params.pdf }}<a href="{{ . }}" class="btn btn-secondary" target="_blank" rel="noopener">Download PDF</a>{{ end }}
+          </div>
+        </div>
+      </article>
+      {{ end }}
+    </div>
+    {{ end }}
+  </div>
+</div>
+
+{{ if .Pages }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Photometrics AI Press Releases",
+  "itemListElement": [{{ range $i, $page := .Pages.ByDate.Reverse }}{{ if $i }},{{ end }}
+    {
+      "@type": "ListItem",
+      "position": {{ add $i 1 }},
+      "url": "{{ $page.Permalink }}",
+      "name": "{{ $page.Title }}"
+    }{{ end }}
+  ]
+}
+</script>
+{{ end }}
+
+{{ partial "cta.html" . }}
+{{ end }}
