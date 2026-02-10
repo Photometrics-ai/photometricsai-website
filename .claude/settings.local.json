@@ -11,7 +11,8 @@
       "Bash(powershell -Command:*)",
       "Bash(aws lambda update-function-code:*)",
       "Bash(curl:*)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "WebFetch(domain:www.photometrics.ai)"
     ]
   }
 }
