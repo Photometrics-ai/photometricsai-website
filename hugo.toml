@@ -52,25 +52,25 @@ title = "Photometrics AI | Street Lighting Optimization"
   identifier = "best-practices"
 
 [[menus.main]]
-  name = "For Utilities"
+  name = "Utilities"
   url = "/best-practices/utilities/"
   weight = 1
   parent = "best-practices"
 
 [[menus.main]]
-  name = "For Birds"
+  name = "Birds"
   url = "/best-practices/birds/"
   weight = 2
   parent = "best-practices"
 
 [[menus.main]]
-  name = "For Public Safety"
+  name = "Public Safety"
   url = "/best-practices/public-safety/"
   weight = 3
   parent = "best-practices"
 
 [[menus.main]]
-  name = "For Transportation Safety"
+  name = "Transportation Safety"
   url = "/best-practices/transportation-safety/"
   weight = 4
   parent = "best-practices"

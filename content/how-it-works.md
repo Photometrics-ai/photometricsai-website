@@ -1,14 +1,32 @@
 ---
 title: "How It Works"
-subtitle: "Four integrated components deliver precision lighting optimization"
+subtitle: "Every light has a story. We read it."
 description: "Discover how to reduce streetlight energy by 35% without hardware changes. Photometrics AI uses GIS-based Target Lighting Layers and AI optimization to deliver precision dimming through your existing networked lighting controls."
 ---
+
+## The Core Idea
+
+Today, most street lights run on simple timers — full brightness from dusk to dawn, regardless of what's actually happening on the ground. A light over a busy crosswalk runs at the same level as one illuminating an empty field. A residential cul-de-sac blazes at the same intensity as a six-lane highway interchange.
+
+Photometrics AI changes that. We analyze the **unique context of every single light** — its height, optic type, the road geometry it serves, nearby land use, adjacent fixtures whose beams overlap — and calculate the precise dimming level that delivers the right amount of light, in the right place, at the right time.
+
+This isn't blanket dimming. It's not "reduce everything by 30% after midnight." It's **per-luminaire optimization** — a custom instruction for each fixture, grounded in physics and real-world GIS data, verified against IES lighting standards.
+
+The result: energy savings of 25-50% while *maintaining or improving* lighting quality where it matters most.
+
+<div style="border-top: 1px solid var(--border-dark); margin: var(--space-xl) 0 var(--space-lg);"></div>
+
+<div style="margin: 0 0 var(--space-xl); text-align: center;">
+  <img src="/images/how-it-works-system.png" alt="Photometrics AI system diagram showing four integrated components: Target Lighting Layer mapping, AI-accelerated Optimization Engine, Dynamic Scheduling, and Lighting Controls System Integration" style="max-width: 100%;">
+  <p style="font-size: 0.85rem; color: var(--text-subtle); margin-top: var(--space-sm);">Four integrated components — from GIS mapping to your existing lighting controls</p>
+</div>
+
+<h2 style="margin-top: 0; padding-top: 0; border-top: none;">The Four Components</h2>
 
 <div class="features-grid" style="margin-bottom: var(--space-xl);">
   <div class="feature-card glass-card">
     <div class="feature-icon">1</div>
     <h3>Target Lighting Layer</h3>
-    <p><strong>Patent: US9894736B2</strong></p>
     <p>GIS-based maps specifying desired illumination levels for every zone in your coverage area.</p>
     <ul>
       <li>Crosswalks: 20 lux</li>
@@ -23,7 +41,6 @@ description: "Discover how to reduce streetlight energy by 35% without hardware 
   <div class="feature-card glass-card">
     <div class="feature-icon">2</div>
     <h3>Optimization Engine</h3>
-    <p><strong>Patent Pending: 18/660,680</strong></p>
     <p>AI-accelerated system that finds the optimal dimming level (0-100%) for each luminaire.</p>
     <ul>
       <li>Tests thousands of configurations in minutes</li>
