@@ -1378,9 +1378,23 @@ section {
 
 .footer-row {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: var(--space-md);
+}
+
+.footer-icon {
+  height: 2.2rem;
+  width: auto;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  justify-self: end;
 }
 
 .footer-left {
