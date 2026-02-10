@@ -3,6 +3,7 @@ title: "Frequently Asked Questions"
 subtitle: "Everything you need to know about Photometrics AI"
 description: "Common questions about Photometrics AI street lighting optimization, including how it works, energy savings, implementation, and compatibility."
 type: "faq"
+cta: "demo-both"
 faq:
   - question: "What is Photometrics AI?"
     answer: "Photometrics AI is a software platform that optimizes public lighting performance through networked lighting controls. It determines the optimal operating parameters for each luminaire based on real-world geography, lighting standards, and configurable priorities—delivering approximately 35% energy savings without any hardware installation or field activity."

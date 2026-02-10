@@ -3,6 +3,7 @@ title: "Best Practices for Transportation Safety"
 linkTitle: "Transportation Safety"
 subtitle: "Nearly half of all traffic crashes happen at night. Only 25% of driving does."
 description: "How intelligent street lighting reduces nighttime crashes and pedestrian fatalities by ensuring optimal illumination at intersections, crosswalks, and high-crash locations."
+cta: "take-action"
 ---
 
 ## Three Times More Dangerous After Dark

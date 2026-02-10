@@ -1,3 +1,28 @@
+{{ $cta := .Params.cta | default "demo" }}
+
+{{ if eq $cta "none" }}
+{{/* No CTA */}}
+{{ else if eq $cta "take-action" }}
+<section class="cta-section" data-theme="light">
+  <div class="cta-content">
+    <h2>Your city officials<br>can change this.</h2>
+    <p class="lead">We'll find the right people and help you write the letter.</p>
+    <a href="/take-action/" class="btn btn-primary btn-lg">Take Action</a>
+    <p class="cta-alt">Or <a href="https://bit.ly/30MinMeetWAri" target="_blank" rel="noopener">schedule a conversation</a></p>
+  </div>
+</section>
+
+{{ else if eq $cta "demo-both" }}
+<section class="cta-section" data-theme="light">
+  <div class="cta-content">
+    <h2>Ready to stop<br>wasting energy?</h2>
+    <p class="lead">See what 35% savings looks like for your system.</p>
+    <a href="https://bit.ly/30MinMeetWAri" class="btn btn-primary btn-lg" target="_blank" rel="noopener">Schedule a Demo</a>
+    <p class="cta-alt">Or <a href="/take-action/">take action in your community</a></p>
+  </div>
+</section>
+
+{{ else }}
 <section class="cta-section" data-theme="light">
   <div class="cta-content">
     <h2>Ready to stop<br>wasting energy?</h2>
@@ -6,3 +31,4 @@
     <p class="cta-alt">Or email <a href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }}</a></p>
   </div>
 </section>
+{{ end }}

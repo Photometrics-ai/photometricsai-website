@@ -3,6 +3,7 @@ title: "Best Practices for Public Safety"
 linkTitle: "Public Safety"
 subtitle: "More light isn't the answer. The right light is."
 description: "How intelligent street lighting enhances public safety through targeted crime deterrence, emergency response integration, and evidence-based lighting strategies."
+cta: "take-action"
 ---
 
 ## The Folly of Easy Answers

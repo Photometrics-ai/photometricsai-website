@@ -1,8 +1,9 @@
 ---
 title: "Best Practices for Birds"
-linkTitle: "Birds"
+linkTitle: "Migratory Birds"
 subtitle: "Every spring and fall, billions of birds fly over our cities at night. They navigate by the stars, the Earth's magnetic field, and other sensory cues. We're drowning out the signals."
 description: "How intelligent street lighting protects migratory birds by automatically dimming lights during peak migration events, reducing fatal light attraction and building collisions."
+cta: "take-action"
 ---
 
 ## The Problem We Created

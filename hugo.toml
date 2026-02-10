@@ -58,7 +58,7 @@ title = "Photometrics AI | Street Lighting Optimization"
   parent = "best-practices"
 
 [[menus.main]]
-  name = "Birds"
+  name = "Migratory Birds"
   url = "/best-practices/birds/"
   weight = 2
   parent = "best-practices"

@@ -2,6 +2,7 @@
 title: "Best Practices"
 subtitle: "A new way to illuminate our roads"
 description: "How Photometrics AI uses Target Lighting Layers to design every streetlight for multiple contexts — and lets you decide what matters most."
+cta: "demo-both"
 ---
 
 ## A Fundamentally Different Approach
