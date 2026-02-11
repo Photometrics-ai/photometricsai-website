@@ -12,11 +12,9 @@ Photometrics AI changes that. We analyze the **unique context of every single li
 
 This isn't blanket dimming. It's not "reduce everything by 30% after midnight." It's **per-luminaire optimization** — a custom instruction for each fixture, grounded in physics and real-world GIS data, verified against IES lighting standards.
 
-The result: energy savings of 25-50% while *maintaining or improving* lighting quality where it matters most.
+The result: energy savings of 25-50% while *maintaining or improving* lighting quality where it matters most.[^1]
 
-<div style="border-top: 1px solid var(--border-dark); margin: var(--space-xl) 0 var(--space-lg);"></div>
-
-<div style="margin: 0 0 var(--space-xl); text-align: center;">
+<div style="margin: var(--space-xl) 0; text-align: center;">
   <img src="/images/how-it-works-system.png" alt="Photometrics AI system diagram showing four integrated components: Target Lighting Layer mapping, AI-accelerated Optimization Engine, Dynamic Scheduling, and Lighting Controls System Integration" style="max-width: 100%;">
   <p style="font-size: 0.85rem; color: var(--text-subtle); margin-top: var(--space-sm);">Four integrated components — from GIS mapping to your existing lighting controls</p>
 </div>
@@ -92,7 +90,7 @@ The result: energy savings of 25-50% while *maintaining or improving* lighting q
 
 For a 2,000-light project:
 - **Traditional method:** Days to weeks
-- **Photometrics AI:** 3-5 minutes
+- **Photometrics AI:** 3-5 minutes[^2]
 
 ## Standards Compliance
 
@@ -101,7 +99,7 @@ Photometrics AI optimizes to meet:
 - **CIE 115** (International)
 - **AS/NZS 1158** (Australia/New Zealand)
 
-Typical compliance rate: **91-97%** of calculation points meet or exceed standards.
+Typical compliance rate: **91-97%** of calculation points meet or exceed standards.[^3]
 
 ## What Photometrics AI Adds (vs. NLCs alone)
 
@@ -113,3 +111,7 @@ Photometrics AI adds the **intelligence**:
 - Standards compliance verification
 - Dynamic context-aware scheduling
 - Multi-priority resolution
+
+[^1]: 25% savings from per-luminaire optimization during standard evening operation; up to 50% during low-traffic early-morning hours (1–5 AM). Based on Photometrics AI pilot modeling.
+[^2]: Photometrics AI internal benchmarking on a 2,000-luminaire dataset.
+[^3]: Photometrics AI internal pilot modeling. Compliance measured against ANSI/IES RP-8 calculation points.

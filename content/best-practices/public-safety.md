@@ -10,11 +10,11 @@ cta: "take-action"
 
 The instinct is understandable: a neighborhood has a crime problem, so the city turns up the lights. More brightness, more safety. It feels right.
 
-But crime is not a monolith. It is a collection of acts, each with its own choreography. Approximately **50% of crimes occur during daylight hours**. Only about **20% happen in public right-of-way spaces** - the overwhelming majority occur indoors, where streetlights provide no benefit at all.
+But crime is not a monolith. It is a collection of acts, each with its own choreography. Approximately **50% of crimes occur during daylight hours**.[^1] Only about **20% happen in public right-of-way spaces**[^2] — the overwhelming majority occur indoors, where streetlights provide no benefit at all.
 
 And lighting affects different crimes differently. Auto theft may be deterred by bright illumination that increases the risk of detection. But some crimes actually **thrive in overly bright environments** where offenders can quickly assess valuables in parked vehicles. Other crimes require complete darkness to operate. Blanket brightness treats all of these the same way - and gets most of them wrong.
 
-Research demonstrates that strategic lighting can reduce crime by up to 20%. But that word - *strategic* - is doing all the work. Effectiveness depends on precise placement and appropriate lighting characteristics for specific criminal behaviors. The question is never "how much light?" It's "what light, where, for what purpose?"
+Research demonstrates that strategic lighting can reduce crime by up to 20%.[^3] But that word - *strategic* - is doing all the work. Effectiveness depends on precise placement and appropriate lighting characteristics for specific criminal behaviors. The question is never "how much light?" It's "what light, where, for what purpose?"
 
 <h2 style="border-top: none; padding-top: 0;">Targeted Deterrence, Not Blanket Brightness</h2>
 
@@ -56,3 +56,7 @@ Strategic lighting saves lives and prevents crime. The goal is to ensure light r
 ## How to Apply
 
 *Coming soon - practical guidance for public safety agencies on implementing evidence-based lighting strategies.*
+
+[^1]: [BJS, Justice Expenditure and Employment Extracts, 2017](https://claude-sources.s3.us-west-2.amazonaws.com/bjs-justice-expenditures-employment-2017.pdf)
+[^2]: [LAPD Crime Data, 2010–2019 (Open Data Portal analysis)](https://claude-sources.s3.us-west-2.amazonaws.com/lapd-crime-data-2010-2019-open-data-portal.pdf)
+[^3]: [LAPD Crime Data, 2010–2019 (Open Data Portal analysis)](https://claude-sources.s3.us-west-2.amazonaws.com/lapd-crime-data-2010-2019-open-data-portal.pdf) — analysis of crime density in lit vs. unlit public right-of-way areas.

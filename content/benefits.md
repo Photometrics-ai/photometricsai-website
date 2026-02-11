@@ -27,15 +27,15 @@ type: page
 
 ## For Municipalities
 
-**Asset Management Benefits ($30.44/light/year):**
+**Asset Management Benefits ($30.44/light/year):**[^1]
 - Extend luminaire life through optimized dimming
 - Reduce maintenance truck rolls and costs
-- 35% energy savings while maintaining lighting quality
+- 35% energy savings while maintaining lighting quality[^2]
 - Better long-term budgeting and asset planning
 
-**Quality of Life Benefits ($20.65/light/year):**
+**Quality of Life Benefits ($20.65/light/year):**[^3]
 - Crime reduction through CPTED principles
-- Traffic incident reduction (FHWA Proven Safety Countermeasure)
+- Traffic incident reduction (FHWA Proven Safety Countermeasure)[^4]
 - Grid stability and demand response capability
 - Support for Vision Zero and climate action goals
 
@@ -45,7 +45,7 @@ type: page
 
 ## For Utilities
 
-**Avoided Costs ($10.18/light/year):**
+**Avoided Costs ($10.18/light/year):**[^5]
 - Energy savings reduce wholesale procurement costs
 - Generation capacity avoidance defers investment
 - T&D capacity avoidance extends equipment life
@@ -58,9 +58,9 @@ type: page
 - Street lighting = 1-3% of total demand, higher share at night when active
 
 **California Example:**
-- 4.1M streetlights consuming 205 MW during peak
+- 4.1M streetlights consuming 205 MW during peak[^6]
 - 145 MW controllable demand reduction every summer evening
-- Equivalent battery storage: ~$174M + years of permitting
+- Equivalent battery storage: ~$174M + years of permitting[^7]
 - **Photometrics AI: <1% of cost, deploy in under 1 month**
 
 > "Street lighting is one of the largest predictable evening loads on distribution networks that can be managed without customer impact, field activity, or infrastructure changes."
@@ -109,3 +109,11 @@ type: page
 - Climate Action Plans
 - DarkSky Recognized Codes
 - Local outdoor lighting ordinances
+
+[^1]: Derived from [LEDSmaster street light cost data](https://claude-sources.s3.us-west-2.amazonaws.com/ledsmaster-street-light-costs.pdf), [OSRAM LED reliability data](https://claude-sources.s3.us-west-2.amazonaws.com/osram-led-reliability-lifetime-2013.pdf), and [EIA Electric Power Monthly](https://claude-sources.s3.us-west-2.amazonaws.com/eia-electric-power-monthly-oct2025.pdf).
+[^2]: 35% is the weighted average of 25% savings during evening hours and 50% savings during early-morning hours (1–5 AM). See methodology in footnote 5.
+[^3]: Derived from [BJS Justice Expenditure data](https://claude-sources.s3.us-west-2.amazonaws.com/bjs-justice-expenditures-employment-2017.pdf), [NHTSA crash cost data](https://claude-sources.s3.us-west-2.amazonaws.com/nhtsa-crash-costs-2019.pdf), and [CPUC ACC Documentation](https://claude-sources.s3.us-west-2.amazonaws.com/cpuc-acc-documentation-2024.pdf).
+[^4]: [FHWA, Lighting as a Proven Safety Countermeasure](https://claude-sources.s3.us-west-2.amazonaws.com/fhwa-lighting-safety-countermeasure.pdf)
+[^5]: [Calculating the Value of Street Light Optimization: Utilities](https://www.linkedin.com/pulse/calculating-value-street-light-optimization-utilities-1-hxohc/) — Ari Isaak, Photometrics AI. Based on [CPUC Avoided Cost Calculator, 2024](https://claude-sources.s3.us-west-2.amazonaws.com/cpuc-acc-documentation-2024.pdf).
+[^6]: [PG&E LS-2 Streetlight Tariff](https://claude-sources.s3.us-west-2.amazonaws.com/pge-ls2-streetlight-tariff-2026.pdf) and [AB 719 Assembly Bill Analysis](https://claude-sources.s3.us-west-2.amazonaws.com/AB%20719%20Assembly%20Bill%20-%20Bill%20Analysis.pdf).
+[^7]: [CPUC Avoided Cost Calculator Documentation, 2024](https://claude-sources.s3.us-west-2.amazonaws.com/cpuc-acc-documentation-2024.pdf) — battery storage equivalent based on ACC capacity cost assumptions.
