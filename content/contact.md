@@ -1,11 +1,11 @@
 ---
 title: "Contact"
-subtitle: "Let's discuss how Photometrics AI can help your municipality"
-description: "Schedule a demo of Photometrics AI street lighting optimization. Learn how municipalities and utilities achieve 35% energy savings through existing networked lighting controls—no hardware required."
+subtitle: "Let's talk about what smarter lighting can do for you"
+description: "Get in touch with Photometrics AI about street lighting optimization. Whether you're exploring a demo, a pilot, or a partnership, learn how we deliver 35% energy savings through existing networked lighting controls—no hardware required."
 layout: "contact"
 ---
 
-Ready to see how Photometrics AI can transform your street lighting?
+Whether you manage streetlights, sell energy solutions, or just want to learn more — we'd love to hear from you.
 
 ## Get in Touch
 
@@ -20,7 +20,7 @@ Ready to see how Photometrics AI can transform your street lighting?
 
 1. **Discovery call** — We'll learn about your lighting infrastructure, NLC system, and goals
 2. **Data review** — We'll assess your asset data and integration requirements
-3. **Pilot proposal** — Customized scope for your municipality or service territory
+3. **Pilot proposal** — Customized scope for your lighting system
 4. **Deployment** — Typically weeks, not months
 
 ---
