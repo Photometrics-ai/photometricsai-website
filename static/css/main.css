@@ -1415,6 +1415,20 @@ section {
   line-height: 1.4;
 }
 
+.footer-partner {
+  color: var(--text-subtle);
+  text-decoration: none;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  text-align: center;
+  align-self: center;
+  transition: color var(--duration) var(--ease);
+}
+
+.footer-partner:hover {
+  color: var(--text);
+}
+
 .footer-linkedin {
   display: flex;
   align-items: center;
