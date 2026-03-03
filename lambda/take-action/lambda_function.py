@@ -24,43 +24,34 @@ CLAUDE_MODEL = "claude-sonnet-4-20250514"
 HAIKU_MODEL = "claude-haiku-4-5-20251001"
 
 PRODUCT_CONTEXT = """
-PHOTOMETRICS AI - VERIFIED PRODUCT KNOWLEDGE
-You MUST reference these specific facts when writing the letter. Do not make generic claims about "intelligent lighting" - cite the actual product mechanisms below.
+THE PROBLEM (THE GAP):
+Street lighting today is trapped in a false binary: more light (for safety) vs. less light (for the environment). This is a false choice. The real answer is precision -- delivering exactly the light needed for safety, nothing more. Municipalities over-light to avoid political risk. Advocates demand lights-off because they have no other lever. Both sides lose. The technology to resolve this impasse exists now.
 
-CORE TECHNOLOGY:
-- Software-only solution, no hardware changes required. Works via API with existing networked lighting controls (Itron, Signify, Acuity, etc.)
-- Patent US9894736B2: "Target Lighting Layers" - GIS-based maps specifying desired illumination levels by zone, time, and condition
-- Patent Pending 18/660,680: AI training data methodology for lighting optimization
-- Optimization engine tests thousands of configurations in minutes, finding the optimal dimming level (0-100%) for each individual luminaire
-- Processes approximately 7 lights per second, or about 18 minutes for an average city of 2,000 street lights
-- Human eyes cannot perceive brightness changes under 20%, especially at night, so precision dimming maintains perceived safety
+Human eyes cannot perceive brightness changes under 20% at night. Most street lighting operates far above what safety standards require. The over-illumination being removed was never perceptible in the first place.
 
-DYNAMIC SCHEDULING:
-- Priority hierarchy system: dispatch response > demand response > transportation safety > crime prevention > special events > migratory birds > default schedule
-- Each luminaire can follow a different schedule based on its location, road type, and surrounding land use
+THE BRIDGE (PHOTOMETRICS AI):
+Photometrics AI is a software-only platform that works with existing networked lighting controls -- no new hardware, no infrastructure changes. It designs lighting levels for each individual luminaire based on published safety standards (IES RP-8), road classification, and real-time conditions. The system replaces static, worst-case lighting with precision engineering that adapts.
 
-BIRDCAST INTEGRATION (for Migratory Birds priority):
-- Integrates with Cornell Lab of Ornithology's BirdCast migration forecast data
-- Dims lights only on high-migration nights (typically 20 or fewer nights per year)
-- Minimal impact on other priorities since it affects so few nights annually
+A strict priority hierarchy ensures safety is never compromised: dispatch response > demand response > transportation safety > crime prevention > special events > migratory birds > default schedule. The system cannot dim for energy savings or conservation when an active safety need exists.
 
-ENERGY & FINANCIAL VALUE (per light per year):
-- 35% overall energy savings (25% from precision design + additional 50% early-morning dimming compounding with precision design)
-- Combined value: $61.27/light/year ($51.09 municipal savings + $10.18 utility cost avoidance)
-  - Energy savings: $9.78/light/year (35% reduction)
-  - Maintenance savings: $4.90/light/year (reduced thermal stress from dimming)
-  - Luminaire life extension: $15.76/light/year
-  - Crime reduction value: $10.81/light/year (LAPD data shows 39% crime reduction with improved lighting)
-  - Traffic safety value: $7.82/light/year (FHWA documents 28-42% crash reduction potential with proper lighting)
-  - DSM/demand response revenue: $2.02/light/year (California benchmark)
+Energy savings compound: 25% from precision design (eliminating over-illumination) + 50% early-morning dimming (when standards permit lower levels) = 35% overall reduction.
 
-STANDARDS-BASED DESIGN:
-- In contrast to typical layouts, Photometrics AI chooses dimming levels based upon published standards like IES RP-8, ensuring each road segment receives the recommended illumination for its classification and traffic volume
+PRIORITY-SPECIFIC FACTS:
 
-PILOT PROGRAM:
-- 100-500 luminaires, 4-6 weeks, approximately $10,000
-- Measurable before/after results on energy, light levels, and scheduling
-- Software-only means fully reversible with no infrastructure risk
+Crime & Safety: LAPD data shows 39% crime reduction with improved lighting. "Improved" means properly designed -- better uniformity and appropriate levels -- not simply brighter. Over-illumination creates harsh shadows and glare that reduce visibility. Precision design produces lighting that actually deters crime. The priority hierarchy hardcodes safety above all other objectives.
+
+Transportation Safety: FHWA documents 28-42% crash reduction potential with proper roadway lighting (varies by road type: intersection, midblock, interchange). Static lighting ignores weather and traffic changes. Precision design adjusts for rain, fog, and wet pavement -- conditions that change visibility requirements. RP-8 defines different lighting levels for different conditions; Photometrics AI applies them dynamically.
+
+Migratory Birds: Integrates with Cornell Lab of Ornithology's BirdCast migration forecasts. Dims lights only on high-migration nights (approximately 20 or fewer per year). Minimal impact on other priorities. The priority hierarchy ensures transportation safety and crime prevention always take precedence over bird migration dimming.
+
+Light Pollution: Eliminates unnecessary over-illumination that contributes to skyglow. Precision design delivers light where it is needed and reduces it where it is not. Every luminaire can follow a different schedule based on its location and surroundings.
+
+Energy Waste: 35% overall energy savings. Combined value of $61.27 per light per year including energy reduction, extended luminaire life, reduced maintenance, and avoided utility costs. For a city with 2,000 streetlights, that translates to over $120,000 annually.
+
+Environmental Impact: Reduces light pollution, energy consumption, and ecological disruption simultaneously. BirdCast integration protects migratory birds. Precision dimming reduces the carbon footprint of street lighting without compromising any safety standard.
+
+THE ASK -- A PILOT PROGRAM:
+100-500 luminaires, 4-6 weeks, approximately $10,000. Produces measurable before-and-after results on energy consumption, light levels, and scheduling. Software-only means fully reversible with zero infrastructure risk. The pilot proves the value before any broader commitment.
 """
 
 dynamodb = boto3.client("dynamodb")
@@ -429,7 +420,6 @@ CRITICAL RULES:
 - Each representative MUST be from a DIFFERENT category. Never return two people from the same type of role or agency. Pick one from each of 4 different categories.
 - Match representatives to the citizen's priorities. For example:
   - "Crime & Safety" -> police chief, public safety director
-  - "Children's Safety" -> school board transportation director, pedestrian safety officer
   - "Migratory Birds" or "Environmental Impact" -> environmental affairs director, fish & wildlife regional contact
   - "Light Pollution" -> planning commission member, dark sky advocate in local government
   - "Energy Waste" -> sustainability officer, public utility commission member
@@ -438,7 +428,7 @@ CRITICAL RULES:
 - Fill the remaining 3 slots with officials whose portfolio aligns with the citizen's specific priorities.
 - Use real government office email formats (e.g., mayor@cityof__.gov, firstname.lastname@state.gov). Do NOT make up personal email addresses."""
 
-    prompt = f"""You are helping a citizen write a letter to local officials about improving street lighting in their area using Photometrics AI, a software-only street lighting optimization platform.
+    prompt = f"""You are helping a citizen write a persuasive letter to local officials about street lighting in their area.
 
 {PRODUCT_CONTEXT}
 
@@ -449,7 +439,7 @@ Their priorities: {priorities_text}
 Return a JSON object with exactly this structure (no markdown, no code blocks, just raw JSON):
 
 {{
-  "letter": "A letter addressed to [Official Name] (this placeholder will be replaced per recipient). Structure:\n\n1. Opening paragraph: Introduce yourself as a resident of the location. Do NOT invent personal anecdotes, stories, or events. You do not know what happened to this person. Simply state that you are a concerned resident writing about street lighting.\n\n2. One paragraph per priority the citizen selected. Each paragraph MUST:\n   - Describe the real, documented problem (use widely known facts, not fabricated personal experiences)\n   - Connect to a SPECIFIC Photometrics AI capability from the product knowledge above\n   - Cite actual numbers where relevant (e.g., 35% energy savings, $61.27/light/year value, 39% crime reduction from LAPD data, 28-42% crash reduction per FHWA)\n   - Reference specific product mechanisms (Target Lighting Layers patent, BirdCast integration, priority hierarchy scheduling, optimization engine)\n   - Do NOT use generic phrases like 'intelligent lighting solutions' or 'smart city technology' without connecting to a specific Photometrics AI feature\n\n3. Closing paragraph: Ask the official to run a Photometrics AI pilot program. Cite specifics: 100-500 luminaires, 4-6 weeks, approximately $10,000, measurable before/after results. Frame it as low-risk (software-only, works with existing infrastructure, fully reversible) and high-reward.\n\n4. Sign off with the appropriate signature.\n\nTone: Professional, factual, and earnest. Do NOT fabricate any personal stories or events.\n\nFORMATTING RULE: NEVER use em-dashes (the long dash character). Use commas, periods, semicolons, or parentheses instead. This is a strict formatting requirement.",
+  "letter": "A letter addressed to [Official Name] (this placeholder will be replaced per recipient). Structure:\n\n1. Opening paragraph: Introduce yourself as a resident of the location concerned about street lighting. Do NOT invent personal anecdotes, stories, or events. State the core problem: street lighting in most communities is stuck in a false choice between safety and the environment. There is a better way.\n\n2. One paragraph per priority the citizen selected. Each paragraph MUST:\n   - Open with the human cost of the current state (the gap): what is broken, who is affected, what the real-world consequence is\n   - Name the false assumption behind the status quo (e.g., 'brighter means safer' when LAPD data shows properly designed lighting reduces crime 39%)\n   - Show how precision closes the gap: connect to a specific Photometrics AI capability from the context above\n   - Cite sourced numbers where relevant (35% energy savings, 39% crime reduction, 28-42% crash reduction per FHWA, 20% perception threshold, $61.27/light/year value)\n   - Do NOT lead with product features. Lead with the problem, then show how precision solves it.\n\n3. Closing paragraph: The gap between what exists and what is possible is large, but the fix is small. Ask the official to run a pilot program: 100-500 luminaires, 4-6 weeks, approximately $10,000, measurable before-and-after results. Software-only, works with existing infrastructure, fully reversible. Frame it as low-risk proof, not a commitment.\n\n4. Sign off with the appropriate signature.\n\nTone: An earnest, informed citizen making a case, not a salesperson pitching a product. Professional and factual. The letter should make the official feel the distance between what their community has and what it could have.\n\nFORMATTING RULE: NEVER use em-dashes (the long dash character). Use commas, periods, semicolons, or parentheses instead. This is a strict formatting requirement.",
   "representatives": [
     {{
       "name": "Full Name",
