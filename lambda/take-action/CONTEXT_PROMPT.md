@@ -16,6 +16,10 @@ This prompt generates the `PRODUCT_CONTEXT` block used in `lambda_function.py`. 
 > - Be written for the audience: a citizen persuading a local official to act
 > - Target approximately 1,500-2,000 tokens to balance richness with API cost
 > - End with the ask: a pilot program (include specifics)
+> - Include "right light, right place, right time" as the core principle in THE BRIDGE section, but instruct Sonnet to express this concept in the citizen's natural voice — not as a quoted tagline. The letter should sound like a resident articulating common sense (e.g. "the right amount of light where and when it's needed"), not repeating marketing copy.
+> - When migratory birds is a priority, reference the Cornell Lab of Ornithology partnership and include the full URL: https://www.birds.cornell.edu/home/photometrics-ai-uses-bird-data-to-adjust-streetlights/
+> - The ask must NOT include pilot pricing, scope, or dollar amounts — keep it to "evaluate the technology and reach out to Photometrics AI"
+> - Do NOT cite specific dollar-per-light values or annual savings totals — use qualitative language ("significant cost savings", "benefits easily outweigh costs"). Publicly available percentage stats (35% energy savings, 39% crime reduction, 28-42% crash reduction) are fine.
 
 ## How to Use
 
