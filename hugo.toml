@@ -109,6 +109,11 @@ title = "Photometrics AI | Street Lighting Optimization"
   home = ["HTML", "RSS", "sitemap"]
 
 # Markup settings
+[minify]
+  [minify.tdewolff]
+    [minify.tdewolff.html]
+      keepQuotes = true
+
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
