@@ -437,6 +437,10 @@ section {
     opacity: 1;
   }
 
+  .nav-dropdown {
+    text-align: center;
+  }
+
   .nav-dropdown-menu {
     position: static;
     transform: none;
@@ -450,7 +454,7 @@ section {
   }
 
   .nav-dropdown-menu a {
-    padding-left: var(--space-md);
+    padding-left: 0;
     font-size: 0.85rem;
   }
 }
