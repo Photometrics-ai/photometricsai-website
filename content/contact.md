@@ -7,6 +7,8 @@ layout: "contact"
 
 Whether you manage streetlights, sell energy solutions, or just want to learn more — we'd love to hear from you.
 
+Based in San Diego, CA. Serving municipalities and utilities nationwide.
+
 ## Get in Touch
 
 **Ari Isaak, Founder**

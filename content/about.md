@@ -35,9 +35,9 @@ Photometrics AI is a product of **EvariLABS LLC**, headquartered in the United S
 
 ## Founder
 
-### Ari Isaak, GISP
+### Ari Isaak, GISP, CFLC
 
-Ari Isaak is a nationally recognized pioneer in geospatial technologies and street lighting optimization, with over 25 years of experience leveraging GIS to improve public infrastructure.
+Ari Isaak is a nationally recognized pioneer in geospatial technologies and street lighting optimization, with 25 years of experience in GIS and 17 years focused on public lighting. IES member since 2013.
 
 Ari is currently building and commercializing Photometrics AI, which uses AI, mapping, and lighting controls to deliver the right light at the right place at the right time.
 

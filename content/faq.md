@@ -42,7 +42,7 @@ faq:
     answer: "Unlike capital projects with payback periods, Photometrics AI uses a subscription model ($3-12/light/year) that costs less than the value delivered ($61.27/light/year) from day one. This means ROI is immediate; you're net positive from month one, not waiting years to break even. The 5-20× return ratio depends on your pricing tier: at $3/light you get 20× return, at $12/light you get 5× return. Compare this to LED retrofits, which require upfront capital expenditure and typically have 3-5 year payback periods before generating positive returns."
 
   - question: "Who owns Photometrics AI?"
-    answer: "Photometrics AI is a product of EvariLABS LLC. The company was founded by Ari Isaak, GISP, who has over 25 years of experience in GIS-based street lighting optimization and has worked on some of the nation's most complex street lighting projects including Chicago, San Francisco, Philadelphia, Boston, and Honolulu."
+    answer: "Photometrics AI is a product of EvariLABS LLC. The company was founded by Ari Isaak, GISP, CFLC, who has 25 years of experience in GIS and 17 years focused on public lighting and has worked on some of the nation's most complex street lighting projects including Chicago, San Francisco, Philadelphia, Boston, and Honolulu."
 
   - question: "What patents does Photometrics AI hold?"
     answer: "Photometrics AI holds two patents: US Patent 9894736B2 (granted 2018) covering Target Lighting Layers, and patent application 18/660,680 covering our AI training data methodology. Our proprietary labeled training dataset represents years of development that cannot be easily replicated."

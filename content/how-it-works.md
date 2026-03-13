@@ -12,9 +12,9 @@ Today, most street lights run on simple timers — full brightness from dusk to 
 
 Photometrics AI changes that. We analyze the **unique context of every single light** — its height, optic type, the road geometry it serves, nearby land use, adjacent fixtures whose beams overlap — and calculate the precise dimming level that delivers the right amount of light, in the right place, at the right time.
 
-This isn't blanket dimming. It's not "reduce everything by 30% after midnight." It's **per-luminaire optimization** — a custom instruction for each fixture, grounded in physics and real-world GIS data, verified against IES lighting standards. This is [civil lighting design](/concepts/#civil-lighting-design) at scale.
+This isn't blanket dimming. It's not "reduce everything by 30% after midnight." It's **per-luminaire optimization** — a custom instruction for each fixture, grounded in physics and real-world GIS data, verified against IES lighting standards.
 
-The result: energy savings of 25-50% while *maintaining or improving* lighting quality where it matters most.[^1]
+This is [civil lighting design](/concepts/#civil-lighting-design) at scale. The result: energy savings of 25-50% while *maintaining or improving* lighting quality where it matters most.[^1]
 
 <div style="margin: var(--space-xl) 0; text-align: center;">
   <img src="/images/how-it-works-system.png" alt="Photometrics AI system diagram showing four integrated components: Target Lighting Layer mapping, AI-accelerated Optimization Engine, Dynamic Scheduling, and Lighting Controls System Integration" style="max-width: 100%;">
