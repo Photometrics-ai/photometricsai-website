@@ -1,7 +1,7 @@
 ---
 title: "The Concepts Behind Precision Lighting"
 subtitle: "The ideas driving the next era of street lighting"
-description: "Civil lighting design. The false binary. Target Lighting Layers. The duck curve's blind spot. The concepts driving the next era of street lighting, defined and explained."
+description: "Civil lighting design. The false binary. Target Lighting Layers. The duck curve's blind spot. Key concepts in precision street lighting, defined."
 keywords: ["civil lighting design", "false binary street lighting", "target lighting layer", "duck curve street lighting", "LED victory lap", "standards-practice gap", "photometry at the speed of controls", "context-aware lighting", "event-driven optimization", "avoided cost street lighting"]
 lastmod: 2026-03-13
 ---

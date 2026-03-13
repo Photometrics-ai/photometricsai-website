@@ -1,7 +1,7 @@
 ---
 title: "The Numbers"
 subtitle: "Quantified value for municipalities, utilities, and communities"
-description: "The LED conversion optimized for the wrong variable. Photometrics AI delivers $61.27 combined value per light per year through precision optimization, closing the gap between efficient hardware and intelligent operations."
+description: "Photometrics AI delivers $61.27 combined value per light per year. Quantified savings for municipalities, utilities, and communities."
 keywords: ["street lighting ROI", "LED victory lap", "duck curve street lighting", "avoided cost street lighting", "streetlight energy savings"]
 layout: benefits
 type: page
