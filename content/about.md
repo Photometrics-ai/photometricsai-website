@@ -3,6 +3,7 @@ title: "About"
 subtitle: "The team behind Photometrics AI"
 description: "Learn about Photometrics AI, a product of EvariLABS LLC, and founder Ari Isaak's 25+ years of experience in GIS-based street lighting optimization."
 keywords: ["civil lighting design", "GIS street lighting", "street lighting optimization pioneer"]
+lastmod: 2026-03-13
 ---
 
 ## Our Mission

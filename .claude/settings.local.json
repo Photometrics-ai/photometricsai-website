@@ -12,7 +12,9 @@
       "Bash(aws lambda update-function-code:*)",
       "Bash(curl:*)",
       "WebFetch(domain:localhost)",
-      "WebFetch(domain:www.photometrics.ai)"
+      "WebFetch(domain:www.photometrics.ai)",
+      "Bash(gh api repos/coreyhaines31/marketingskills/contents/skills/content-strategy/SKILL.md --jq '.content')",
+      "Bash(gh api repos/coreyhaines31/marketingskills/contents/skills/social-content/SKILL.md --jq '.content')"
     ]
   }
 }

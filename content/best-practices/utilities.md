@@ -4,6 +4,7 @@ linkTitle: "Utilities"
 subtitle: "Your streetlights are already grid assets. They just don't know it yet."
 description: "How utilities can unlock energy savings, demand response revenue, and grid flexibility from existing street lighting infrastructure using Photometrics AI's precision optimization."
 keywords: ["duck curve street lighting", "LED victory lap", "avoided cost lighting", "street lighting demand response"]
+lastmod: 2026-03-13
 ---
 
 ## The LED Victory Lap's Overlooked Asset

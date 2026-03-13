@@ -57,6 +57,11 @@
 {{ partial "schema-person.html" $ }}
 {{ end }}{{ end }}
 
+<!-- Concepts/glossary schema -->
+{{ with .File }}{{ if eq .BaseFileName "concepts" }}
+{{ partial "schema-concepts.html" $ }}
+{{ end }}{{ end }}
+
 <!-- Press release schema -->
 {{ if and (eq .Section "press") (not .IsSection) }}
 {{ partial "schema-newsarticle.html" . }}

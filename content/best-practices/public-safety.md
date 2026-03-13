@@ -5,6 +5,7 @@ subtitle: "More light isn't the answer. The right light is."
 description: "How intelligent street lighting enhances public safety through targeted crime deterrence, emergency response integration, and evidence-based lighting strategies."
 keywords: ["false binary street lighting", "precision lighting safety", "CPTED street lighting", "street lighting crime reduction"]
 cta: "take-action"
+lastmod: 2026-03-13
 ---
 
 ## The False Binary: More Light Does Not Mean More Safety

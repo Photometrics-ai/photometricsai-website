@@ -5,6 +5,7 @@ subtitle: "Every spring and fall, billions of birds fly over our cities at night
 description: "How intelligent street lighting protects migratory birds by automatically dimming lights during peak migration events, reducing fatal light attraction and building collisions."
 keywords: ["BirdCast street lighting", "migratory bird light pollution", "lights out automation", "context-aware lighting"]
 cta: "take-action"
+lastmod: 2026-03-13
 ---
 
 ## The Problem We Created

@@ -5,6 +5,7 @@ subtitle: "Nearly half of all traffic crashes happen at night. Only 25% of drivi
 description: "How intelligent street lighting reduces nighttime crashes and pedestrian fatalities by ensuring optimal illumination at intersections, crosswalks, and high-crash locations."
 keywords: ["RP-8 street lighting", "standards-practice gap lighting", "wet pavement visibility", "street lighting crash reduction"]
 cta: "take-action"
+lastmod: 2026-03-13
 ---
 
 ## Three Times More Dangerous After Dark

@@ -5,6 +5,7 @@ description: "What is a Target Lighting Layer? What is civil lighting design? Ho
 keywords: ["false binary street lighting", "target lighting layer", "networked lighting controls optimization", "blanket dimming alternative", "civil lighting design"]
 type: "faq"
 cta: "demo-both"
+lastmod: 2026-03-13
 faq:
   - question: "What is Photometrics AI?"
     answer: "Photometrics AI is a software platform that optimizes public lighting performance through networked lighting controls. It determines the optimal operating parameters for each luminaire based on real-world geography, lighting standards, and configurable priorities, delivering approximately 35% energy savings without any hardware installation or field activity."

@@ -76,12 +76,6 @@ title = "Photometrics AI | Street Lighting Optimization"
   parent = "best-practices"
 
 [[menus.main]]
-  name = "Take Action"
-  url = "/take-action/"
-  weight = 5
-  parent = "best-practices"
-
-[[menus.main]]
   name = "About"
   url = "/about/"
   weight = 5
@@ -100,9 +94,15 @@ title = "Photometrics AI | Street Lighting Optimization"
   parent = "about"
 
 [[menus.main]]
+  name = "Take Action"
+  url = "/take-action/"
+  weight = 3
+  parent = "about"
+
+[[menus.main]]
   name = "Contact"
   url = "/contact/"
-  weight = 3
+  weight = 4
   parent = "about"
 
 # Footer navigation

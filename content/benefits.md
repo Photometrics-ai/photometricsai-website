@@ -5,6 +5,7 @@ description: "The LED conversion optimized for the wrong variable. Photometrics 
 keywords: ["street lighting ROI", "LED victory lap", "duck curve street lighting", "avoided cost street lighting", "streetlight energy savings"]
 layout: benefits
 type: page
+lastmod: 2026-03-13
 ---
 
 <div class="stats-grid" style="margin-bottom: var(--space-xl);">

@@ -1,0 +1,41 @@
+# Photometrics AI
+
+> Photometrics AI is a software platform that optimizes street lighting performance through networked lighting controls. It determines the optimal output for every luminaire based on real-world geography, lighting standards, and configurable priorities, delivering approximately 35% energy savings without any hardware changes.
+
+The company is a product of EvariLABS LLC, founded by Ari Isaak with 25+ years of experience in GIS-based street lighting optimization. The core technology is protected by US Patent 9894736B2.
+
+## How It Works
+
+Photometrics AI analyzes the unique context of every luminaire (height, optic type, road geometry, land use, adjacent fixtures) and calculates the precise dimming level that delivers the right illumination for each location. This is per-luminaire optimization, not blanket dimming. The system uses Target Lighting Layers (GIS-based raster maps specifying desired illuminance) and event-driven scheduling to respond to real-world conditions in real time.
+
+## Site Pages
+
+- [Homepage](https://photometrics.ai/): Overview of the precision lighting platform and the gap between current street lighting and what is possible.
+- [How It Works](https://photometrics.ai/how-it-works/): Technical explanation of per-luminaire optimization, Target Lighting Layers, and event-driven scheduling.
+- [Benefits](https://photometrics.ai/benefits/): Quantified value for municipalities ($51.09/light/year) and utilities ($10.18/light/year in avoided costs).
+- [FAQ](https://photometrics.ai/faq/): Answers to common questions about the platform, integration, deployment, and standards compliance.
+- [Concepts](https://photometrics.ai/concepts/): Glossary of key terms including civil lighting design, the false binary, Target Lighting Layers, the duck curve's blind spot, and more.
+- [About](https://photometrics.ai/about/): Company background, team, and mission.
+- [Contact](https://photometrics.ai/contact/): Get in touch with the team.
+
+## Best Practices
+
+- [Utilities](https://photometrics.ai/best-practices/utilities/): How utilities can unlock energy savings, demand response revenue, and grid flexibility from existing street lighting.
+- [Migratory Birds](https://photometrics.ai/best-practices/birds/): How intelligent street lighting protects migratory birds by automatically dimming during peak migration events.
+- [Public Safety](https://photometrics.ai/best-practices/public-safety/): How targeted lighting enhances public safety through evidence-based strategies rather than blanket brightness.
+- [Transportation Safety](https://photometrics.ai/best-practices/transportation-safety/): How precision lighting reduces nighttime crashes and pedestrian fatalities at high-risk locations.
+
+## Key Concepts
+
+- **Civil Lighting Design**: Treating every luminaire as a site-specific engineering problem, like civil engineering does for roads and bridges.
+- **The False Binary**: The incorrect assumption that cities must choose between more light for safety or less light for the environment.
+- **Target Lighting Layer (TLL)**: A GIS-based raster map specifying desired horizontal illuminance for every location in a coverage area.
+- **The Duck Curve's Blind Spot**: Street lighting activates during the steepest part of the evening demand ramp yet is absent from demand-side management programs.
+- **The Standards-Practice Gap**: The disconnect between what lighting standards specify and what is actually delivered in the field.
+- **Avoided Cost**: The value of resources a utility does not have to procure because street lighting demand has been reduced.
+
+## Contact
+
+- Email: ari@photometrics.ai
+- Phone: 858-633-6447
+- Website: https://photometrics.ai

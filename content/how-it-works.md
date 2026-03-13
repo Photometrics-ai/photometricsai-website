@@ -3,6 +3,7 @@ title: "How It Works"
 subtitle: "Every light has a story. We read it."
 description: "Photometrics AI closes the design gap in street lighting. Per-luminaire optimization using Target Lighting Layers, delivering photometry at the speed of controls. 35% energy savings, no hardware changes, RP-8 standards compliance maintained dynamically."
 keywords: ["target lighting layer", "civil lighting design", "photometry at the speed of controls", "street lighting optimization", "event-driven optimization", "context-aware lighting", "RP-8 compliance"]
+lastmod: 2026-03-13
 ---
 
 ## Closing the Design Gap: Per-Luminaire Precision
