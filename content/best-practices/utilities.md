@@ -3,9 +3,10 @@ title: "Best Practices for Utilities"
 linkTitle: "Utilities"
 subtitle: "Your streetlights are already grid assets. They just don't know it yet."
 description: "How utilities can unlock energy savings, demand response revenue, and grid flexibility from existing street lighting infrastructure using Photometrics AI's precision optimization."
+keywords: ["duck curve street lighting", "LED victory lap", "avoided cost lighting", "street lighting demand response"]
 ---
 
-## The Overlooked Asset
+## The LED Victory Lap's Overlooked Asset
 
 Utilities spend millions enrolling individual customers in demand response programs -smart thermostats, water heaters, EV chargers -one household at a time. Meanwhile, street lighting sits right there on their own books: **one of the largest predictable, controllable loads on the grid**, operating during the exact hours when demand peaks.
 
@@ -13,7 +14,7 @@ Roughly **50% of U.S. streetlights are utility-owned**.[^1] The other half belon
 
 Yet nearly all of these lights run at full power from dusk to dawn, every night, regardless of conditions. It's the streetlight effect in reverse: utilities are searching everywhere for demand flexibility *except* under the lights they already own.
 
-Street lighting contributes approximately **2.3% of global electricity consumption**.[^2] That's not a rounding error -it's a massive, untapped demand-side management opportunity hiding in plain sight.
+Street lighting contributes approximately **2.3% of global electricity consumption**.[^2] That's not a rounding error -it's a massive, untapped demand-side management opportunity hiding in plain sight. It is [the duck curve's blind spot](/concepts/#duck-curve).
 
 <h2 style="border-top: none; padding-top: 0;">Energy Savings Through Precision</h2>
 
@@ -41,7 +42,7 @@ This demand response capability opens access to:
 
 Unlike residential demand response, there's no customer pushback. Nobody calls to complain that their streetlight dimmed from 100% to 80% at 2 AM. It's the most frictionless demand response resource available.
 
-<h2 style="border-top: none; padding-top: 0;">The Financial Case</h2>
+<h2 style="border-top: none; padding-top: 0;">The Duck Curve's Blind Spot: Street Lighting at Sunset</h2>
 
 Using California's **Avoided Cost Calculator (ACC)** methodology[^4] —which accounts for generation energy, capacity costs, transmission and distribution infrastructure, greenhouse gas compliance, grid stability services, and system losses —Photometrics AI delivers **$10.18 per streetlight per year** in utility cost avoidance.[^5]
 

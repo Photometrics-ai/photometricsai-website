@@ -3,10 +3,11 @@ title: "Best Practices for Public Safety"
 linkTitle: "Public Safety"
 subtitle: "More light isn't the answer. The right light is."
 description: "How intelligent street lighting enhances public safety through targeted crime deterrence, emergency response integration, and evidence-based lighting strategies."
+keywords: ["false binary street lighting", "precision lighting safety", "CPTED street lighting", "street lighting crime reduction"]
 cta: "take-action"
 ---
 
-## The Folly of Easy Answers
+## The False Binary: More Light Does Not Mean More Safety
 
 The instinct is understandable: a neighborhood has a crime problem, so the city turns up the lights. More brightness, more safety. It feels right.
 
@@ -14,7 +15,7 @@ But crime is not a monolith. It is a collection of acts, each with its own chore
 
 And lighting affects different crimes differently. Auto theft may be deterred by bright illumination that increases the risk of detection. But some crimes actually **thrive in overly bright environments** where offenders can quickly assess valuables in parked vehicles. Other crimes require complete darkness to operate. Blanket brightness treats all of these the same way - and gets most of them wrong.
 
-Research demonstrates that strategic lighting can reduce crime by up to 20%.[^3] But that word - *strategic* - is doing all the work. Effectiveness depends on precise placement and appropriate lighting characteristics for specific criminal behaviors. The question is never "how much light?" It's "what light, where, for what purpose?"
+Research demonstrates that strategic lighting can reduce crime by up to 20%.[^3] But that word, *strategic*, is doing all the work. Effectiveness depends on precise placement and appropriate lighting characteristics for specific criminal behaviors. The question is never "how much light?" It's "what light, where, for what purpose?"
 
 <h2 style="border-top: none; padding-top: 0;">Targeted Deterrence, Not Blanket Brightness</h2>
 
@@ -26,7 +27,7 @@ This means different responses for different situations:
 - **Elimination of dark pockets** that create hiding places adjacent to pedestrian routes
 - **Reduced over-lighting** in areas where excessive brightness actually facilitates property crime
 
-Crime Prevention Through Environmental Design (CPTED) principles guide the system's approach - strategically shaping the lit environment so that potential offenders feel observed and legitimate users feel safe. Not more light everywhere. The right light in the right places.
+Crime Prevention Through Environmental Design (CPTED) principles guide the system's approach - strategically shaping the lit environment so that potential offenders feel observed and legitimate users feel safe. Not more light everywhere. The right light in the right places. This is [precision lighting that dissolves the false binary](/concepts/#false-binary).
 
 <h2 style="border-top: none; padding-top: 0;">Emergency Response Integration</h2>
 

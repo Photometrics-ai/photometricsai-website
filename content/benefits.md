@@ -1,7 +1,8 @@
 ---
 title: "The Numbers"
 subtitle: "Quantified value for municipalities, utilities, and communities"
-description: "Calculate your street lighting savings: Photometrics AI delivers $61.27 combined value per light per year ($51.09 municipal + $10.18 utility). 35% energy reduction, immediate ROI, zero hardware costs."
+description: "The LED conversion optimized for the wrong variable. Photometrics AI delivers $61.27 combined value per light per year through precision optimization, closing the gap between efficient hardware and intelligent operations."
+keywords: ["street lighting ROI", "LED victory lap", "duck curve street lighting", "avoided cost street lighting", "streetlight energy savings"]
 layout: benefits
 type: page
 ---
@@ -43,7 +44,9 @@ type: page
 
 ---
 
-## For Utilities
+## For Utilities: The Duck Curve's Blind Spot
+
+Street lighting load arrives at sunset, the exact hours when energy is most expensive and most carbon-intensive.
 
 **Avoided Costs ($10.18/light/year):**[^5]
 - Energy savings reduce wholesale procurement costs

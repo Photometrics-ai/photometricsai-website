@@ -3,6 +3,7 @@ title: "Best Practices for Transportation Safety"
 linkTitle: "Transportation Safety"
 subtitle: "Nearly half of all traffic crashes happen at night. Only 25% of driving does."
 description: "How intelligent street lighting reduces nighttime crashes and pedestrian fatalities by ensuring optimal illumination at intersections, crosswalks, and high-crash locations."
+keywords: ["RP-8 street lighting", "standards-practice gap lighting", "wet pavement visibility", "street lighting crash reduction"]
 cta: "take-action"
 ---
 
@@ -14,11 +15,11 @@ The Federal Highway Administration recognizes effective street lighting as a **P
 
 And yet nighttime crash rates have **increased sharply since 2010** - coinciding with the widespread adoption of LED street lighting that often follows outdated design approaches.
 
-<h2 style="border-top: none; padding-top: 0;">The LED Paradox</h2>
+<h2 style="border-top: none; padding-top: 0;">The Standards-Practice Gap: Better Fixtures, Same Design</h2>
 
 LED technology offers superior energy efficiency. But many installations simply replaced existing fixtures one-for-one without optimizing light placement for transportation safety. The result: adequate illumination for general visibility, but **insufficient lighting exactly where crashes occur most frequently** - at intersections, crosswalks, and areas where vehicles and vulnerable road users interact.
 
-A crosswalk needs substantially more illumination than the roadway beside it. A driver approaching an intersection at 40 mph needs to see a pedestrian in time to stop. Traditional lighting design frequently fails to deliver the right light levels at these critical decision points - not because the technology is inadequate, but because the design approach treats every location the same.
+A crosswalk needs substantially more illumination than the roadway beside it. A driver approaching an intersection at 40 mph needs to see a pedestrian in time to stop. Traditional lighting design frequently fails to deliver the right light levels at these critical decision points, not because the technology is inadequate, but because the design approach treats every location the same. This is the [standards-practice gap](/concepts/#standards-practice-gap) in action.
 
 <h2 style="border-top: none; padding-top: 0;">Light Where Crashes Happen</h2>
 

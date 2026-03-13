@@ -1,7 +1,8 @@
 ---
 title: "Frequently Asked Questions"
 subtitle: "Everything you need to know about Photometrics AI"
-description: "Common questions about Photometrics AI street lighting optimization, including how it works, energy savings, implementation, and compatibility."
+description: "What is a Target Lighting Layer? What is civil lighting design? How does street lighting optimization work? Answers to common questions about precision lighting, the false binary, and closing the design gap."
+keywords: ["false binary street lighting", "target lighting layer", "networked lighting controls optimization", "blanket dimming alternative", "civil lighting design"]
 type: "faq"
 cta: "demo-both"
 faq:
@@ -15,10 +16,10 @@ faq:
     answer: "Street lighting is one of the largest untapped strategic assets a city owns, and almost nobody is using it. Most cities have networked controls on their lights but treat them like glorified on/off switches. The lights don't respond to weather, traffic, safety incidents, migratory bird seasons, grid emergencies, or community events. They burn the same watts at 3 AM on a quiet Tuesday as they do during a Friday night festival. Photometrics AI is the software layer that closes that gap. It connects to existing networked lighting controls via API and makes the entire system intelligent, automatically adjusting every luminaire based on real conditions to deliver energy savings, transportation safety, dark sky protection, climate progress, and grid stability. No new hardware. Deploys in weeks."
 
   - question: "How does street lighting optimization work?"
-    answer: "Photometrics AI uses four integrated components: (1) Target Lighting Layers that specify desired illumination levels for each zone, (2) an AI-powered optimization engine that calculates the ideal dimming level for each luminaire, (3) dynamic scheduling that handles priorities like emergencies and events, and (4) API integration with your existing networked lighting controls. The system accounts for overlapping beam spreads, real-world geometry, and lighting standards to find the optimal configuration."
+    answer: "Photometrics AI uses four integrated components: (1) [Target Lighting Layers](/concepts/#target-lighting-layer) that specify desired illumination levels for each zone, (2) an AI-powered optimization engine that calculates the ideal dimming level for each luminaire, (3) [dynamic scheduling](/concepts/#event-driven-optimization) that handles priorities like emergencies and events, and (4) API integration with your existing networked lighting controls. The system accounts for overlapping beam spreads, real-world geometry, and lighting standards to find the optimal configuration."
 
   - question: "What is a Target Lighting Layer?"
-    answer: "A Target Lighting Layer (TLL) is a GIS-based raster map that specifies the desired horizontal illuminance (in lux) for every location in a coverage area. For example: crosswalks might be set to 20 lux, streets to 7-11 lux, sidewalks to 2 lux, and building footprints to 0 lux. Different TLLs can be created for different conditions: Halloween, late night, migratory bird protection, or demand response events. The TLL concept is protected by US Patent 9894736B2."
+    answer: "A [Target Lighting Layer](/concepts/#target-lighting-layer) (TLL) is a GIS-based raster map that specifies the desired horizontal illuminance (in lux) for every location in a coverage area. For example: crosswalks might be set to 20 lux, streets to 7-11 lux, sidewalks to 2 lux, and building footprints to 0 lux. Different TLLs can be created for different conditions: Halloween, late night, migratory bird protection, or demand response events. The TLL concept is protected by US Patent 9894736B2."
 
   - question: "What are networked lighting controls (NLCs)?"
     answer: "Networked lighting controls are systems that allow remote management of streetlights via wireless communication. They provide capabilities like on/off control, dimming, utility-grade metering, and health monitoring. Photometrics AI works with existing NLC systems. We add the photometric intelligence while your NLC provides the communication infrastructure. We're currently integrated with 2 major lighting control platforms."
@@ -33,7 +34,7 @@ faq:
     answer: "Implementation typically takes weeks, not years. Unlike LED retrofit projects that require physical installation, Photometrics AI can be deployed as soon as we have access to your asset data and NLC API. For a 2,000-light system, optimization processing takes just 3-5 minutes."
 
   - question: "Which lighting standards does Photometrics AI meet?"
-    answer: "Photometrics AI optimizes to meet ANSI/IES RP-8 (US roadway lighting), CIE 115 (international), and AS/NZS 1158 (Australia/New Zealand). Our typical compliance rate is 91-97% of calculation points meeting or exceeding standards, often better than traditional 'typical layout' designs that ignore real-world conditions."
+    answer: "Photometrics AI optimizes to meet ANSI/IES RP-8 (US roadway lighting), CIE 115 (international), and AS/NZS 1158 (Australia/New Zealand). Our typical compliance rate is 91-97% of calculation points meeting or exceeding standards, often better than traditional 'typical layout' designs that ignore real-world conditions. Learn more about the [standards-practice gap](/concepts/#standards-practice-gap)."
 
   - question: "What does 'Immediate ROI' mean?"
     id: "immediate-roi"

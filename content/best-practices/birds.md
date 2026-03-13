@@ -3,6 +3,7 @@ title: "Best Practices for Birds"
 linkTitle: "Migratory Birds"
 subtitle: "Every spring and fall, billions of birds fly over our cities at night. They navigate by the stars, the Earth's magnetic field, and other sensory cues. We're drowning out the signals."
 description: "How intelligent street lighting protects migratory birds by automatically dimming lights during peak migration events, reducing fatal light attraction and building collisions."
+keywords: ["BirdCast street lighting", "migratory bird light pollution", "lights out automation", "context-aware lighting"]
 cta: "take-action"
 ---
 
@@ -36,7 +37,7 @@ Photometrics AI uses these alerts to identify high-risk nights. **Between 2:00 A
 - **Quiet, low-speed, low-crime areas** dim to minimize ecological disruption
 - **Timing targets peak vulnerability** - late night and pre-dawn hours when birds fly at their lowest altitudes
 
-This runs automatically, every migration season, without anyone needing to remember to turn it on. It's not a one-time "lights out" campaign. It's an ongoing operational capability that also enables cities to actively participate in organized lights-out programs.
+This runs automatically, every migration season, without anyone needing to remember to turn it on. It's not a one-time "lights out" campaign. It's an ongoing operational capability that also enables cities to actively participate in organized lights-out programs. This is [context-aware lighting](/concepts/#context-aware-lighting) and [event-driven optimization](/concepts/#event-driven-optimization) in action.
 
 <h2 style="border-top: none; padding-top: 0;">Why Street Lighting Matters</h2>
 

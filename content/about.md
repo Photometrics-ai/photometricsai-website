@@ -2,6 +2,7 @@
 title: "About"
 subtitle: "The team behind Photometrics AI"
 description: "Learn about Photometrics AI, a product of EvariLABS LLC, and founder Ari Isaak's 25+ years of experience in GIS-based street lighting optimization."
+keywords: ["civil lighting design", "GIS street lighting", "street lighting optimization pioneer"]
 ---
 
 ## Our Mission
@@ -49,7 +50,7 @@ His leadership in aligning technology with transportation safety, crime preventi
 
 ---
 
-## Why We Built This
+## Why We Built This: The LED Victory Lap Left a Gap
 
 Traditional street lighting design uses "typical layouts"—cookie-cutter approaches that apply the same fixtures and spacing across entire roadway types, ignoring the unique geometry of each location.
 

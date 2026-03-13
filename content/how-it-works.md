@@ -1,16 +1,17 @@
 ---
 title: "How It Works"
 subtitle: "Every light has a story. We read it."
-description: "Discover how to reduce streetlight energy by 35% without hardware changes. Photometrics AI uses GIS-based Target Lighting Layers and AI optimization to deliver precision dimming through your existing networked lighting controls."
+description: "Photometrics AI closes the design gap in street lighting. Per-luminaire optimization using Target Lighting Layers, delivering photometry at the speed of controls. 35% energy savings, no hardware changes, RP-8 standards compliance maintained dynamically."
+keywords: ["target lighting layer", "civil lighting design", "photometry at the speed of controls", "street lighting optimization", "event-driven optimization", "context-aware lighting", "RP-8 compliance"]
 ---
 
-## The Core Idea
+## Closing the Design Gap: Per-Luminaire Precision
 
 Today, most street lights run on simple timers — full brightness from dusk to dawn, regardless of what's actually happening on the ground. A light over a busy crosswalk runs at the same level as one illuminating an empty field. A residential cul-de-sac blazes at the same intensity as a six-lane highway interchange.
 
 Photometrics AI changes that. We analyze the **unique context of every single light** — its height, optic type, the road geometry it serves, nearby land use, adjacent fixtures whose beams overlap — and calculate the precise dimming level that delivers the right amount of light, in the right place, at the right time.
 
-This isn't blanket dimming. It's not "reduce everything by 30% after midnight." It's **per-luminaire optimization** — a custom instruction for each fixture, grounded in physics and real-world GIS data, verified against IES lighting standards.
+This isn't blanket dimming. It's not "reduce everything by 30% after midnight." It's **per-luminaire optimization** — a custom instruction for each fixture, grounded in physics and real-world GIS data, verified against IES lighting standards. This is [civil lighting design](/concepts/#civil-lighting-design) at scale.
 
 The result: energy savings of 25-50% while *maintaining or improving* lighting quality where it matters most.[^1]
 
@@ -86,22 +87,22 @@ The result: energy savings of 25-50% while *maintaining or improving* lighting q
   </div>
 </div>
 
-## Processing Speed
+## Photometry at the Speed of Controls
 
 For a 2,000-light project:
 - **Traditional method:** Days to weeks
 - **Photometrics AI:** 3-5 minutes[^2]
 
-## Standards Compliance
+## Closing the Standards-Practice Gap
 
 Photometrics AI optimizes to meet:
 - **ANSI/IES RP-8** (US roadway lighting)
 - **CIE 115** (International)
 - **AS/NZS 1158** (Australia/New Zealand)
 
-Typical compliance rate: **91-97%** of calculation points meet or exceed standards.[^3]
+Typical compliance rate: **91-97%** of calculation points meet or exceed standards.[^3] Learn more about the [standards-practice gap](/concepts/#standards-practice-gap).
 
-## What Photometrics AI Adds (vs. NLCs alone)
+## The Intelligence Layer: Why the Network Is Not Enough
 
 Your networked lighting controls provide the infrastructure—communications, metering, health monitoring, on/off control.
 

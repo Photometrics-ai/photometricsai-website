@@ -94,9 +94,15 @@ title = "Photometrics AI | Street Lighting Optimization"
   parent = "about"
 
 [[menus.main]]
+  name = "Concepts"
+  url = "/concepts/"
+  weight = 2
+  parent = "about"
+
+[[menus.main]]
   name = "Contact"
   url = "/contact/"
-  weight = 2
+  weight = 3
   parent = "about"
 
 # Footer navigation
