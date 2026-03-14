@@ -1,0 +1,53 @@
+{{ define "main" }}
+<div class="page-header" data-theme="dark">
+  <div class="container">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.tags }}
+    <div class="press-release-tags" style="margin-top: var(--space-sm); justify-content: center;">
+      {{ range . }}
+      <a href="/insights/?tag={{ . }}" class="insight-tag" style="text-decoration: none;">{{ . }}</a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </div>
+</div>
+
+<div class="page-content" data-theme="light">
+  <div class="container">
+    <p style="margin-bottom: var(--space-md);"><a href="/insights/">&larr; Back to all insights</a></p>
+    <div class="prose">
+      {{ .Content }}
+    </div>
+
+    {{/* Related insights: same tags, exclude current, limit 3 */}}
+    {{ $currentTags := .Params.tags | default slice }}
+    {{ $current := . }}
+    {{ $related := slice }}
+    {{ range where .Site.RegularPages "Section" "insights" }}
+      {{ if ne .File.UniqueID $current.File.UniqueID }}
+        {{ $pageTags := .Params.tags | default slice }}
+        {{ if intersect $pageTags $currentTags }}
+          {{ $related = $related | append . }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+    {{ $related = $related | first 3 }}
+
+    {{ if $related }}
+    <div class="insight-related">
+      <h2 style="text-align: center; margin-bottom: var(--space-md); border: none; padding: 0;">Related Insights</h2>
+      <div class="features-grid">
+        {{ range $related }}
+        <a href="{{ .RelPermalink }}" class="glass-card feature-card" style="text-decoration: none;">
+          <h3>{{ .Title }}</h3>
+          {{ with .Params.description }}<p>{{ . }}</p>{{ end }}
+        </a>
+        {{ end }}
+      </div>
+    </div>
+    {{ end }}
+  </div>
+</div>
+
+{{ partial "cta.html" . }}
+{{ end }}

@@ -1,0 +1,113 @@
+{{ define "main" }}
+<div class="page-header" data-theme="dark">
+  <div class="container">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.subtitle }}<p class="lead">{{ . }}</p>{{ end }}
+  </div>
+</div>
+
+<div class="page-content" data-theme="light">
+  <div class="container">
+    {{ if .Content }}
+    <div class="prose" style="margin-bottom: var(--space-lg);">
+      {{ .Content }}
+    </div>
+    {{ end }}
+
+    {{/* Collect all tags from insight pages */}}
+    {{ $allTags := slice }}
+    {{ range .Pages }}
+      {{ with .Params.tags }}
+        {{ range . }}
+          {{ $allTags = $allTags | append . }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+    {{ $allTags = $allTags | uniq | sort }}
+
+    {{ if $allTags }}
+    <div class="insight-filters" role="group" aria-label="Filter by tag">
+      {{ range $allTags }}
+      <button class="insight-tag" data-tag="{{ . }}">{{ . }}</button>
+      {{ end }}
+    </div>
+    {{ end }}
+
+    {{ if .Pages }}
+    <div class="insight-list">
+      {{ range .Pages }}
+      <article class="glass-card insight-card" data-tags="{{ delimit .Params.tags "," }}">
+        <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+        {{ with .Params.description }}<p>{{ . }}</p>{{ end }}
+        {{ with .Params.tags }}
+        <div class="press-release-tags">
+          {{ range . }}
+          <span class="press-release-tag">{{ . }}</span>
+          {{ end }}
+        </div>
+        {{ end }}
+      </article>
+      {{ end }}
+    </div>
+    {{ end }}
+  </div>
+</div>
+
+{{ partial "cta.html" . }}
+
+<script>
+(function() {
+  var pills = document.querySelectorAll('.insight-tag[data-tag]');
+  var cards = document.querySelectorAll('.insight-card');
+  if (!pills.length) return;
+
+  function getSelectedTags() {
+    var tags = [];
+    pills.forEach(function(p) {
+      if (p.classList.contains('active')) tags.push(p.getAttribute('data-tag'));
+    });
+    return tags;
+  }
+
+  function filterCards() {
+    var selected = getSelectedTags();
+    cards.forEach(function(card) {
+      if (selected.length === 0) {
+        card.style.display = '';
+        return;
+      }
+      var cardTags = (card.getAttribute('data-tags') || '').split(',');
+      var match = selected.some(function(t) { return cardTags.indexOf(t) !== -1; });
+      card.style.display = match ? '' : 'none';
+    });
+  }
+
+  function updateURL() {
+    var selected = getSelectedTags();
+    var url = new URL(window.location);
+    url.searchParams.delete('tag');
+    selected.forEach(function(t) { url.searchParams.append('tag', t); });
+    history.replaceState(null, '', url);
+  }
+
+  // Init from URL params
+  var params = new URLSearchParams(window.location.search);
+  var initTags = params.getAll('tag');
+  initTags.forEach(function(t) {
+    pills.forEach(function(p) {
+      if (p.getAttribute('data-tag') === t) p.classList.add('active');
+    });
+  });
+  filterCards();
+
+  // Click handlers
+  pills.forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      this.classList.toggle('active');
+      filterCards();
+      updateURL();
+    });
+  });
+})();
+</script>
+{{ end }}
