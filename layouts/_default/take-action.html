@@ -262,6 +262,7 @@
     var subject = "Intelligent Street Lighting for " + locationInput.value;
     return "mailto:" + emails +
       "?subject=" + encodeURIComponent(subject) +
+      "&cc=advocacy@photometrics.ai" +
       "&body=" + encodeURIComponent(body);
   }
 
@@ -272,6 +273,7 @@
     return "https://mail.google.com/mail/?view=cm" +
       "&to=" + encodeURIComponent(emails) +
       "&su=" + encodeURIComponent(subject) +
+      "&cc=advocacy@photometrics.ai" +
       "&body=" + encodeURIComponent(body);
   }
 
