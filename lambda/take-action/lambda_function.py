@@ -12,6 +12,7 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import re
+import concurrent.futures
 
 import boto3
 from boto3.dynamodb.types import TypeSerializer
@@ -397,7 +398,71 @@ Output ONLY a JSON array. No text before or after it. No markdown fences.
     return officials
 
 
-def call_claude(location, priorities, name, verified_reps=None):
+def research_location(location, priorities):
+    """Use Haiku + web search to find 2-3 local facts relevant to the citizen's priorities."""
+    priorities_text = ", ".join(priorities) if priorities else "street lighting"
+    city, region = parse_location(location)
+
+    prompt = f"""Search for 2-3 specific, recent facts about {priorities_text} in {location} that relate to street lighting or outdoor lighting. Look for:
+- Local statistics (crime rates, traffic accidents, energy costs)
+- Recent news stories or government initiatives
+- Geographic/ecological facts (migration flyways, dark sky designations)
+- Local government lighting projects or complaints
+
+RULES:
+- Every fact MUST include its source (organization name, publication, or government agency that published it).
+- Format each fact as: "fact (Source: organization/publication name)"
+- Only include facts you found in web search results. Do NOT extrapolate, round, or paraphrase loosely.
+- If a search result gives a range, report the range, not a single number.
+- If you cannot find anything specific to this location with a clear source, return 'No local context found.'
+
+Do NOT include opinions or recommendations."""
+
+    tool_def = {
+        "type": "web_search_20250305",
+        "name": "web_search",
+        "max_uses": 3,
+    }
+    if city and region:
+        tool_def["user_location"] = {
+            "type": "approximate",
+            "city": city,
+            "region": region,
+            "country": "US",
+        }
+
+    request_body = json.dumps({
+        "model": HAIKU_MODEL,
+        "max_tokens": 1024,
+        "tools": [tool_def],
+        "messages": [{"role": "user", "content": prompt}],
+    })
+
+    req = urllib.request.Request(
+        "https://api.anthropic.com/v1/messages",
+        data=request_body.encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "x-api-key": ANTHROPIC_API_KEY,
+            "anthropic-version": "2023-06-01",
+        },
+        method="POST",
+    )
+
+    with urllib.request.urlopen(req, timeout=30) as response:
+        result = json.loads(response.read().decode("utf-8"))
+
+    text_blocks = [
+        block["text"] for block in result.get("content", [])
+        if block.get("type") == "text" and block.get("text", "").strip()
+    ]
+
+    local_context = "\n".join(text_blocks).strip() if text_blocks else ""
+    print(f"Local research for {location}: {local_context[:500]}")
+    return local_context
+
+
+def call_claude(location, priorities, name, verified_reps=None, local_context=""):
     """Call Anthropic Claude API to generate letter (and optionally find representatives)."""
     priorities_text = ", ".join(priorities) if priorities else "general street lighting improvements"
     name_instruction = f'The letter should be signed by "{name}".' if name else 'Use "[Your Name]" as the signature since no name was provided.'
@@ -444,13 +509,27 @@ CRITICAL RULES:
 - Fill the remaining 3 slots with officials whose portfolio aligns with the citizen's specific priorities.
 - Use real government office email formats (e.g., mayor@cityof__.gov, firstname.lastname@state.gov). Do NOT make up personal email addresses."""
 
+    local_context_section = ""
+    if local_context and "No local context found" not in local_context:
+        local_context_section = f"""
+
+LOCAL CONTEXT (sourced facts from web search — each includes its source):
+{local_context}
+
+RULES FOR USING LOCAL CONTEXT:
+- You may weave these facts into the letter to make it specific to this location.
+- When using a fact, mention the source naturally (e.g. "according to the FBI's Uniform Crime Report" or "data from the California Energy Commission shows").
+- Only use facts that appear above AND have a named source. If a fact above has no source attribution, skip it.
+- Do NOT invent, embellish, or extrapolate beyond what is stated above. Do NOT round numbers or change dates.
+- Do NOT invent local statistics, news stories, events, or sources that do not appear in the LOCAL CONTEXT."""
+
     prompt = f"""You are helping a citizen write a persuasive letter to local officials about street lighting in their area.
 
 {PRODUCT_CONTEXT}
 
 Location: {location}
 Their priorities: {priorities_text}
-{name_instruction}{reps_section}
+{name_instruction}{reps_section}{local_context_section}
 
 Return a JSON object with exactly this structure (no markdown, no code blocks, just raw JSON):
 
@@ -609,16 +688,28 @@ def handle_generate(body):
     civic_officials = get_civic_officials(location)
     boosted_officials = get_boosted_officials(location)
 
-    # Step 2: Haiku + web search finds verified officials
-    try:
-        verified_reps = search_officials(location, priorities, civic_officials, boosted_officials)
-    except Exception as e:
-        print(f"Official search error: {e}")
-        return respond(502, {"error": f"Failed to verify representatives: {e}"})
+    # Step 2: Haiku searches for officials + local context in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        officials_future = executor.submit(search_officials, location, priorities, civic_officials, boosted_officials)
+        research_future = executor.submit(research_location, location, priorities)
 
-    # Step 3: Sonnet writes the letter using verified reps
+        # Officials are required — propagate errors
+        try:
+            verified_reps = officials_future.result()
+        except Exception as e:
+            print(f"Official search error: {e}")
+            return respond(502, {"error": f"Failed to verify representatives: {e}"})
+
+        # Research is optional — swallow errors
+        try:
+            local_context = research_future.result()
+        except Exception as e:
+            print(f"Local research error: {e}")
+            local_context = ""
+
+    # Step 3: Sonnet writes the letter using verified reps + local context
     try:
-        result = call_claude(location, priorities, name, verified_reps)
+        result = call_claude(location, priorities, name, verified_reps, local_context)
     except Exception as e:
         print(f"Claude API error: {e}")
         return respond(502, {"error": f"Failed to generate letter: {e}"})
