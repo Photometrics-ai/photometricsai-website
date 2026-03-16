@@ -403,7 +403,11 @@ def research_location(location, priorities):
     priorities_text = ", ".join(priorities) if priorities else "street lighting"
     city, region = parse_location(location)
 
-    prompt = f"""Search for 2-3 specific, recent facts about {priorities_text} in {location} that relate to street lighting or outdoor lighting. Look for:
+    prompt = f"""Search for 2-3 specific, recent facts about {priorities_text} in {location} that relate to street lighting or outdoor lighting.
+
+If the location is a zip code, first identify the city and county it belongs to, then search using the city/county name.
+
+Look for:
 - Local statistics (crime rates, traffic accidents, energy costs)
 - Recent news stories or government initiatives
 - Geographic/ecological facts (migration flyways, dark sky designations)
@@ -421,7 +425,7 @@ Do NOT include opinions or recommendations."""
     tool_def = {
         "type": "web_search_20250305",
         "name": "web_search",
-        "max_uses": 3,
+        "max_uses": 5,
     }
     if city and region:
         tool_def["user_location"] = {
@@ -435,22 +439,54 @@ Do NOT include opinions or recommendations."""
         "model": HAIKU_MODEL,
         "max_tokens": 1024,
         "tools": [tool_def],
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [
+            {"role": "user", "content": prompt},
+            {"role": "assistant", "content": "I'll search for local facts now."},
+            {"role": "user", "content": "Go ahead. Return ONLY the sourced facts when done. No preamble."},
+        ],
     })
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+    }
 
     req = urllib.request.Request(
         "https://api.anthropic.com/v1/messages",
         data=request_body.encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "x-api-key": ANTHROPIC_API_KEY,
-            "anthropic-version": "2023-06-01",
-        },
+        headers=headers,
         method="POST",
     )
 
     with urllib.request.urlopen(req, timeout=30) as response:
         result = json.loads(response.read().decode("utf-8"))
+
+    stop_reason = result.get("stop_reason", "unknown")
+    block_types = [b.get("type") for b in result.get("content", [])]
+    print(f"Research response: stop_reason={stop_reason}, block_types={block_types}")
+
+    # Handle pause_turn: Haiku paused mid-turn to do web searches, continue
+    if stop_reason == "pause_turn":
+        continue_body = json.dumps({
+            "model": HAIKU_MODEL,
+            "max_tokens": 1024,
+            "tools": [tool_def],
+            "messages": [
+                {"role": "user", "content": prompt},
+                {"role": "assistant", "content": result["content"]},
+                {"role": "user", "content": "Continue. Return ONLY the sourced facts. No preamble."},
+            ],
+        })
+        continue_req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=continue_body.encode("utf-8"),
+            headers=headers,
+            method="POST",
+        )
+        with urllib.request.urlopen(continue_req, timeout=30) as response2:
+            result = json.loads(response2.read().decode("utf-8"))
+        print(f"Research continue: stop_reason={result.get('stop_reason')}, blocks={[b.get('type') for b in result.get('content', [])]}")
 
     text_blocks = [
         block["text"] for block in result.get("content", [])
