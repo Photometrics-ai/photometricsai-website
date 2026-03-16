@@ -23,6 +23,16 @@ GOOGLE_CIVIC_API_KEY = os.environ.get("GOOGLE_CIVIC_API_KEY", "")
 CLAUDE_MODEL = "claude-sonnet-4-20250514"
 HAIKU_MODEL = "claude-haiku-4-5-20251001"
 
+PRIORITY_URLS = {
+    "Crime & Safety": "https://www.photometrics.ai/best-practices/public-safety/",
+    "Transportation Safety": "https://www.photometrics.ai/best-practices/transportation-safety/",
+    "Migratory Birds": "https://www.photometrics.ai/best-practices/birds/",
+    "Energy Waste": "https://www.photometrics.ai/best-practices/utilities/",
+    "Light Pollution": "https://www.photometrics.ai/best-practices/",
+    "Environmental Impact": "https://www.photometrics.ai/best-practices/",
+}
+BEST_PRACTICES_DEFAULT = "https://www.photometrics.ai/best-practices/"
+
 PRODUCT_CONTEXT = """
 THE PROBLEM (THE GAP):
 Street lighting today is trapped in a false binary: more light (for safety) vs. less light (for the environment). This is a false choice. The real answer is precision -- delivering exactly the light needed for safety, nothing more. Municipalities over-light to avoid political risk. Advocates demand lights-off because they have no other lever. Both sides lose. The technology to resolve this impasse exists now.
@@ -392,6 +402,12 @@ def call_claude(location, priorities, name, verified_reps=None):
     priorities_text = ", ".join(priorities) if priorities else "general street lighting improvements"
     name_instruction = f'The letter should be signed by "{name}".' if name else 'Use "[Your Name]" as the signature since no name was provided.'
 
+    # Determine best practices URL: specific page if exactly 1 priority, general page otherwise
+    if len(priorities) == 1:
+        best_practices_url = PRIORITY_URLS.get(priorities[0], BEST_PRACTICES_DEFAULT)
+    else:
+        best_practices_url = BEST_PRACTICES_DEFAULT
+
     # Build representatives section based on whether we have verified reps
     if verified_reps:
         reps_lines = []
@@ -439,7 +455,7 @@ Their priorities: {priorities_text}
 Return a JSON object with exactly this structure (no markdown, no code blocks, just raw JSON):
 
 {{
-  "letter": "A letter addressed to [Official Name] (this placeholder will be replaced per recipient). Structure:\n\n1. Opening paragraph: Introduce yourself as a resident of the location concerned about street lighting. Do NOT invent personal anecdotes, stories, or events. State the core problem: street lighting in most communities is stuck in a false choice between safety and the environment. There is a better way.\n\n2. One paragraph per priority the citizen selected. Each paragraph MUST:\n   - Open with the human cost of the current state (the gap): what is broken, who is affected, what the real-world consequence is\n   - Name the false assumption behind the status quo (e.g., 'brighter means safer' when LAPD data shows properly designed lighting reduces crime 39%)\n   - Show how precision closes the gap: connect to a specific Photometrics AI capability from the context above\n   - Cite sourced numbers where relevant (35% energy savings, 39% crime reduction, 28-42% crash reduction per FHWA, 20% perception threshold). Do NOT cite dollar-per-light values or annual savings totals.\n   - Do NOT lead with product features. Lead with the problem, then show how precision solves it.\n\n3. Closing paragraph: The gap between what exists and what is possible is large, but closing it starts with a conversation. Ask the official to evaluate Photometrics AI as a solution and reach out to the company to learn more. Do NOT mention pricing, pilot costs, number of luminaires, or any dollar amounts — a citizen would not know these details. Frame it as pointing a leader toward a technology worth investigating, not prescribing a specific program.\n\n4. Sign off with the appropriate signature.\n\nTone: An earnest, informed citizen making a case, not a salesperson pitching a product. Professional and factual. The letter should make the official feel the distance between what their community has and what it could have.\n\nFORMATTING RULE: NEVER use em-dashes (the long dash character). Use commas, periods, semicolons, or parentheses instead. This is a strict formatting requirement.\n\nCORE CONCEPT: Every letter must express the idea of 'right light, right place, right time' — but in the citizen's own voice, not as a branded tagline. It should sound like a resident articulating common sense, e.g. 'It just makes sense to have the right amount of light where and when it is needed' or 'Why would we not light our streets based on what is actually needed?' Do NOT use the exact phrase 'right light, right place, right time' as if quoting marketing copy.",
+  "letter": "A letter addressed to [Official Name] (this placeholder will be replaced per recipient). Structure:\n\n1. Opening paragraph: Introduce yourself as a resident of the location concerned about street lighting. Do NOT invent personal anecdotes, stories, or events. State the core problem: street lighting in most communities is stuck in a false choice between safety and the environment. There is a better way.\n\n2. One paragraph per priority the citizen selected. Each paragraph MUST:\n   - Open with the human cost of the current state (the gap): what is broken, who is affected, what the real-world consequence is\n   - Name the false assumption behind the status quo (e.g., 'brighter means safer' when LAPD data shows properly designed lighting reduces crime 39%)\n   - Show how precision closes the gap: connect to a specific Photometrics AI capability from the context above\n   - Cite sourced numbers where relevant (35% energy savings, 39% crime reduction, 28-42% crash reduction per FHWA, 20% perception threshold). Do NOT cite dollar-per-light values or annual savings totals.\n   - Do NOT lead with product features. Lead with the problem, then show how precision solves it.\n\n3. Closing paragraph: The gap between what exists and what is possible is large, but closing it starts with a conversation. Ask the official to evaluate Photometrics AI as a solution and reach out to the company to learn more. Do NOT mention pricing, pilot costs, number of luminaires, or any dollar amounts — a citizen would not know these details. Frame it as pointing a leader toward a technology worth investigating, not prescribing a specific program. Near the closing, include a link to the Photometrics AI website where the official can learn more. Since Photometrics AI is already mentioned earlier in the letter, do NOT re-introduce the company. Instead, frame the link as pointing to additional detail, e.g. 'You can read more about how this works here:' or 'Their best practices page has more detail:'. Include this exact URL: {best_practices_url}. Do NOT use marketing language around the link.\n\n4. Sign off with the appropriate signature.\n\nTone: An earnest, informed citizen making a case, not a salesperson pitching a product. Professional and factual. The letter should make the official feel the distance between what their community has and what it could have.\n\nFORMATTING RULE: NEVER use em-dashes (the long dash character). Use commas, periods, semicolons, or parentheses instead. This is a strict formatting requirement.\n\nCORE CONCEPT: Every letter must express the idea of 'right light, right place, right time' — but in the citizen's own voice, not as a branded tagline. It should sound like a resident articulating common sense, e.g. 'It just makes sense to have the right amount of light where and when it is needed' or 'Why would we not light our streets based on what is actually needed?' Do NOT use the exact phrase 'right light, right place, right time' as if quoting marketing copy.",
   "representatives": [
     {{
       "name": "Full Name",
