@@ -28,6 +28,7 @@ title = "Photometrics AI | Street Lighting Optimization"
   # Social/SEO
   ogImage = "/images/og-image.png"
   twitterHandle = "@PhotometricsAI"
+  googleAnalytics = "G-10FLC6K72Z"
 
 # Main navigation menu
 [[menus.main]]
