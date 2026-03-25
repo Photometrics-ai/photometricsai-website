@@ -73,7 +73,7 @@ title = "Photometrics AI | Street Lighting Optimization"
   identifier = "resources"
 
 [[menus.main]]
-  name = "Benefits"
+  name = "ROI"
   url = "/benefits/"
   weight = 1
   parent = "resources"
