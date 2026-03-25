@@ -56,7 +56,7 @@
 <!-- ========== 3. VIGNETTES - THE VISION ========== -->
 
 <!-- Vignette: Weather (rain + snow alternating) -->
-<section class="vignette" data-theme="dark">
+<section class="vignette" data-theme="dark" data-vignette="weather">
   <video class="vignette-video vignette-weather" autoplay muted playsinline data-lazy id="weather-rain">
     <source src="/videos/rain-driving.webm" type="video/webm">
     <source src="/videos/rain-driving.mp4" type="video/mp4">
@@ -86,7 +86,7 @@
 </section>
 
 <!-- Vignette: Crosswalk -->
-<section class="vignette" data-theme="dark">
+<section class="vignette" data-theme="dark" data-vignette="crosswalk">
   <video class="vignette-video" autoplay muted loop playsinline data-lazy>
     <source src="/videos/crosswalk.webm" type="video/webm">
     <source src="/videos/crosswalk.mp4" type="video/mp4">
@@ -98,7 +98,7 @@
 </section>
 
 <!-- Vignette: Child Sleeping -->
-<section class="vignette" data-theme="dark">
+<section class="vignette" data-theme="dark" data-vignette="child_sleeping">
   <video class="vignette-video" autoplay muted loop playsinline data-lazy>
     <source src="/videos/child-sleeping.webm" type="video/webm">
     <source src="/videos/child-sleeping.mp4" type="video/mp4">
@@ -110,7 +110,7 @@
 </section>
 
 <!-- Vignette: Concert Exit -->
-<section class="vignette" data-theme="dark">
+<section class="vignette" data-theme="dark" data-vignette="concert_exit">
   <video class="vignette-video" autoplay muted loop playsinline data-lazy>
     <source src="/videos/concert-exit.webm" type="video/webm">
     <source src="/videos/concert-exit.mp4" type="video/mp4">
@@ -122,7 +122,7 @@
 </section>
 
 <!-- Vignette: Bus Stop -->
-<section class="vignette" data-theme="dark">
+<section class="vignette" data-theme="dark" data-vignette="bus_stop">
   <video class="vignette-video" autoplay muted loop playsinline data-lazy>
     <source src="/videos/bus-stop.mp4" type="video/mp4">
   </video>
@@ -133,7 +133,7 @@
 </section>
 
 <!-- Vignette: Birds -->
-<section class="vignette" data-theme="dark">
+<section class="vignette" data-theme="dark" data-vignette="birds">
   <video class="vignette-video" autoplay muted loop playsinline data-lazy>
     <source src="/videos/birds-migrating.webm" type="video/webm">
     <source src="/videos/birds-migrating.mp4" type="video/mp4">
@@ -145,7 +145,7 @@
 </section>
 
 <!-- Vignette: Cyclist -->
-<section class="vignette" data-theme="dark">
+<section class="vignette" data-theme="dark" data-vignette="cyclist">
   <video class="vignette-video" autoplay muted loop playsinline data-lazy>
     <source src="/videos/cyclist.webm" type="video/webm">
     <source src="/videos/cyclist.mp4" type="video/mp4">
@@ -223,6 +223,88 @@
 
   videos.forEach(video => {
     videoObserver.observe(video);
+  });
+})();
+</script>
+
+<!-- GA4 custom event tracking -->
+<script>
+(function() {
+  if (!('IntersectionObserver' in window) || typeof gtag !== 'function') return;
+
+  // --- Vignette view tracking (50% visible, 2s dwell) ---
+  var vignetteFired = {};
+  var vignetteTimers = {};
+
+  var vignetteObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      var name = entry.target.getAttribute('data-vignette');
+      if (!name || vignetteFired[name]) return;
+
+      if (entry.isIntersecting) {
+        vignetteTimers[name] = setTimeout(function() {
+          vignetteFired[name] = true;
+          gtag('event', 'vignette_view', { vignette_name: name });
+        }, 2000);
+      } else {
+        clearTimeout(vignetteTimers[name]);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('section[data-vignette]').forEach(function(el) {
+    vignetteObserver.observe(el);
+  });
+
+  // --- Section view tracking (25% visible, fires once) ---
+  var sectionFired = {};
+  var sectionMap = {
+    'hero-vision': 'hero',
+    'gap-section': 'gap',
+    'how-section': 'how',
+    'cta-vision': 'cta'
+  };
+
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      var classes = entry.target.className;
+      var sectionName = null;
+
+      for (var cls in sectionMap) {
+        if (classes.indexOf(cls) !== -1) {
+          sectionName = sectionMap[cls];
+          break;
+        }
+      }
+
+      // Check if this is a vignette section (first one triggers 'vignettes')
+      if (!sectionName && entry.target.getAttribute('data-vignette')) {
+        sectionName = 'vignettes';
+      }
+
+      if (sectionName && !sectionFired[sectionName]) {
+        sectionFired[sectionName] = true;
+        gtag('event', 'section_view', { section_name: sectionName });
+      }
+    });
+  }, { threshold: 0.25 });
+
+  // Observe named sections
+  ['hero-vision', 'gap-section', 'how-section', 'cta-vision'].forEach(function(cls) {
+    var el = document.querySelector('.' + cls);
+    if (el) sectionObserver.observe(el);
+  });
+
+  // Observe first vignette only (to trigger 'vignettes' section event)
+  var firstVignette = document.querySelector('section[data-vignette]');
+  if (firstVignette) sectionObserver.observe(firstVignette);
+
+  // --- CTA click tracking ---
+  document.querySelectorAll('.cta-buttons a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      gtag('event', 'cta_click', { cta_text: this.textContent.trim() });
+    });
   });
 })();
 </script>
