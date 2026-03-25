@@ -1303,6 +1303,22 @@ section {
   font-weight: 600;
 }
 
+.prose img {
+  display: block;
+  margin: var(--space-lg) auto;
+  width: 100%;
+  height: auto;
+}
+
+.prose p > img + em {
+  display: block;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-subtle);
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
 .prose blockquote {
   border-left: 2px solid var(--accent);
   padding-left: var(--space-md);

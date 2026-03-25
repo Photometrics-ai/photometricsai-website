@@ -7,7 +7,7 @@ tags:
   - optimization
 ---
 
-There is substantial waste in street lighting today. The transition to LED saved money by providing more lumens per watt, but it didn't lead to better lighting. Most cities simply swapped fixtures one-for-one without rethinking what the right light is, where it should go, or when it should be on. This series explores the quantifiable financial benefits of getting it right. Utility cost avoidance is the first of seven components we'll cover. Together, these benefits outweigh the costs by 10x.
+*There is substantial waste in street lighting today. The transition to LED saved money by providing more lumens per watt, but it didn't lead to better lighting. Most cities simply swapped fixtures one-for-one without rethinking what the right light is, where it should go, or when it should be on. This series explores the quantifiable financial benefits of getting it right. Utility cost avoidance is the first of seven components we'll cover. Together, these benefits outweigh the costs by 10x.*
 
 Most people think energy savings from dimming streetlights is simple math: fewer watts times your electric rate equals dollars saved. That's true, but it's only part of the story.
 
@@ -24,7 +24,7 @@ The ACC produces hourly rates that vary by season (winter and summer) and time o
 
 ## The Calculation Step by Step
 
-We model a representative fleet of 20,000 streetlights at 50W average, a total connected load of 1 MW. Street lights should turn on at the beginning of nautical dusk and the end of nautical dawn, when the sun is 6 degrees below the horizon after sunset and before sunrise. We determine exactly which hours the lights operate every day throughout the year for the City of Riverside, CA (33.95°N, 117.40°W) in Southern California Edison (SCE) territory. The grey line in the chart above shows these operating hours: full coverage during core nighttime hours, tapering at dusk and dawn as twilight shifts through the seasons.
+We model a representative fleet of 20,000 streetlights at 50W average, a total connected load of 1 MW. Street lights should turn on at the beginning of nautical dusk and the end of nautical dawn, when the sun is 6 degrees below the horizon after sunset and before sunrise. Determining the exact operating window for every day of the year is not trivial — it shifts with latitude, longitude, and season, and getting it wrong by even 30 minutes changes the avoided cost calculation meaningfully because those edge-of-darkness hours coincide with the highest ACC rates. We use our [Twilight Calculator](https://tools.photometrics.ai/#twilight) to compute precise nautical dusk and dawn times for the City of Riverside, CA (33.95°N, 117.40°W) in Southern California Edison (SCE) territory. The grey line in the chart above shows these operating hours: full coverage during core nighttime hours, tapering at dusk and dawn as twilight shifts through the seasons.
 
 If streetlights turn on early, especially during summer, they waste energy precisely when the ACC has the highest value and the grid is most unstable. Our $10.18/year calculation assumes lights are already operating correctly, even though we can see with our eyes that they are not. More precise control could bring substantially more value to utilities.
 
