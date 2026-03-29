@@ -1,3 +1,4 @@
+buildFuture = true
 baseURL = "https://photometrics.ai/"
 languageCode = "en-us"
 title = "Photometrics AI | Street Lighting Optimization"
