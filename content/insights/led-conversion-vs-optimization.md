@@ -137,7 +137,7 @@ At $5/light/year, municipal optimization delivers a higher 10-year net benefit t
 
 The conversion replaced the hardware. Optimization replaces the thinking. Every street gets the right light level for its classification, geometry, and usage patterns. Every hour of every night, adjusted by season. Lighting that responds to APIs from electric grid emergencies to a major league baseball game.
 
-The fixtures are already in the ground. The question is whether anyone is using them to their potential.
+The fixtures are already in the ground. The question is whether anyone is using them to their full potential.
 
 [^1]: LED conversion cost ranges based on [Maryland Municipal LED Streetlight Program data](https://energy.maryland.gov/govt/Documents/NEWSLETTER%20Formatted%20Jul%202021.pdf) and [DOE Better Buildings Outdoor Lighting Toolkit](https://betterbuildingssolutioncenter.energy.gov/solutions-at-a-glance/cost-savings-analysis-led-street-lighting-ownership). Audit and data management costs from direct project experience across 100+ municipal clients.
 
