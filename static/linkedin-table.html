@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #182e4f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  .card {
+    background: #1a1a2e;
+    border-radius: 16px;
+    padding: 48px;
+    width: 1080px;
+    color: #fff;
+  }
+  .card h2 {
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #8a9bb5;
+    font-size: 15px;
+    margin-bottom: 36px;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  thead th {
+    padding: 16px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    color: #8a9bb5;
+    border-bottom: 1px solid #2a2a4a;
+  }
+  thead th:first-child {
+    text-align: left;
+    color: #8a9bb5;
+  }
+  thead th.led {
+    color: #e8984a;
+  }
+  thead th.muni {
+    color: #4ea3dc;
+  }
+  thead th.utility {
+    color: #6bcb9a;
+  }
+  tbody td {
+    padding: 14px 20px;
+    font-size: 16px;
+    text-align: center;
+    color: #c8d0dc;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  tbody td:first-child {
+    text-align: left;
+    color: #8a9bb5;
+    font-size: 14px;
+  }
+  tbody tr:last-child td {
+    border-bottom: none;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  tbody tr:last-child td:first-child {
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+  }
+  .highlight-row td {
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+  }
+  .val-led {
+    color: #e8984a;
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .val-muni {
+    color: #4ea3dc;
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .val-utility {
+    color: #6bcb9a;
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .big {
+    font-size: 28px;
+    font-weight: 700;
+  }
+  .footer {
+    text-align: center;
+    margin-top: 28px;
+    color: #4a5568;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>10-Year Comparison (Per Light)</h2>
+  <p class="subtitle">LED Conversion vs. Street Lighting Optimization</p>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th class="led">LED Conversion</th>
+        <th class="muni">Optimization<br>(Municipal)</th>
+        <th class="utility">Optimization<br>(Utility-Owned)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Upfront cost</td>
+        <td class="val-led">$650</td>
+        <td class="val-muni">$0</td>
+        <td class="val-utility">$0</td>
+      </tr>
+      <tr>
+        <td>Annual cost</td>
+        <td class="val-led">$0</td>
+        <td class="val-muni">$5</td>
+        <td class="val-utility">$5</td>
+      </tr>
+      <tr>
+        <td>10-year cost</td>
+        <td class="val-led">$650</td>
+        <td class="val-muni">$50</td>
+        <td class="val-utility">$50</td>
+      </tr>
+      <tr>
+        <td>Annual value</td>
+        <td class="val-led">$100</td>
+        <td class="val-muni">$41</td>
+        <td class="val-utility">$33</td>
+      </tr>
+      <tr>
+        <td>10-year value</td>
+        <td class="val-led">$1,000</td>
+        <td class="val-muni">$413</td>
+        <td class="val-utility">$329</td>
+      </tr>
+      <tr class="highlight-row">
+        <td>10-Year Net Benefit</td>
+        <td class="val-led big">$350</td>
+        <td class="val-muni big">$363</td>
+        <td class="val-utility big">$279</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="footer">photometrics.ai</p>
+</div>
+</body>
+</html>

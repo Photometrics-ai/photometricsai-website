@@ -9,8 +9,6 @@ tags:
 date: 2026-04-01
 ---
 
-# LED Conversion vs. Optimization: Comparing the ROI
-
 Large-scale municipal LED conversions cost $400-900 per streetlight. They cut energy costs roughly in half, saving roughly $100/light/year in energy costs. 4-9 year payback. The fixtures got more efficient. The lighting didn't get any smarter. Cities loved it.
 
 Here's a better investment.
