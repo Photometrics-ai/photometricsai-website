@@ -39,52 +39,9 @@ The LED conversion answered one question: how do we use less energy per fixture?
 
 It did not answer a harder set of questions: Is this the right amount of light for this street? Should it be different at midnight than at 9 PM? Should a residential cul-de-sac run at the same output as a four-lane arterial? Should the lighting change when a major event lets out three blocks away?
 
-Most LED conversions were one-for-one replacements. Same output, same schedule, every street, all night, all year. The fixtures got more efficient. The lighting itself stayed exactly the same.
+Most LED conversions were one-for-one replacements. Same output, same schedule, every street, all night, all year. The lighting itself stayed the same. LED conversions were about energy savings. Not better lighting.
 
-For organizations that also invested in networked lighting controls, the picture is even more frustrating. The hardware to do all of this is already on the pole. Nobody is using it.
-
-## What Optimization Delivers
-
-Street lighting optimization starts where the LED conversion left off. The fixtures are in the ground. The controls may already be on the network. What's missing is the engineering intelligence to operate them.
-
-Optimization means designing a specific dimming profile for each light on each street based on the roadway classification, the geometry of the poles and fixtures, the light output of adjacent fixtures, and the time of night. Instead of running every light at 100% from dusk to dawn, each fixture runs at exactly the output required to meet lighting standards for the conditions at that hour.
-
-The value is significant, but it depends on who owns and manages the lights. No hardware. No installation crews. No truck rolls. No capital budget. Just per-light-per-year software pricing on the networked controls you already own.
-
-### If Your Municipality Owns the Lights
-
-| Component | Value Per Light Per Year |
-|-----------|------------------------|
-| Extended luminaire life | $15.76 |
-| Reduced maintenance | $4.90 |
-| Crime reduction | $10.81 |
-| Traffic safety | $7.82 |
-| Demand response revenue | $2.02 |
-| Energy savings | $9.78 (metered rate only) |
-| **Total (fixed rate)** | **$41.31** |
-| **Total (metered rate)** | **$51.09** |
-
-Municipalities capture the public safety benefits because crime reduction and traffic safety are municipal responsibilities. Extended luminaire life and reduced maintenance accrue to whoever owns the asset, which in this case is the city. Demand response is a revenue opportunity: the city gets paid for participating.[^2]
-
-One important caveat: most municipalities pay a flat rate per streetlight regardless of energy consumption. If your city is on a flat-rate tariff, dimming does not reduce your electric bill. You still capture over $41/light/year in value from the other components. If your city is on a metered rate, add $9.78 in direct energy savings.
-
-### If Your Utility Owns the Lights
-
-| Component | Value Per Light Per Year |
-|-----------|------------------------|
-| Extended luminaire life | $15.76 |
-| Reduced maintenance | $4.90 |
-| Utility cost avoidance | $10.18 |
-| Demand response (grid flexibility) | $2.02 |
-| **Total** | **$32.86** |
-
-Utilities capture the grid-level value. The $10.18 in utility cost avoidance represents what the utility system avoids spending when load is reduced: generation, transmission and distribution infrastructure, GHG compliance, and ancillary services. This is calculated using the CPUC's Avoided Cost Calculator and represents value to the utility and its ratepayers.[^3]
-
-Energy savings is not listed separately because it is already captured in the $10.18 avoided cost figure. Counting both would be double-counting the same kilowatt-hours.
-
-Crime reduction and traffic safety do not appear here because they are not utility concerns.
-
-Utilities have a significant advantage: they own the infrastructure. They do not need a municipal procurement process, a city council vote, or a capital budget to implement optimization on their own lights. Roughly half the streetlights in America are utility-owned.[^4] The utility can act unilaterally.
+For organizations that also invested in networked lighting controls, the picture is even more frustrating. While parking, gun-shot and environmental sensors and cameras may work, lighting is run at 100% power. The hardware to do all of this is already on the pole. Nobody is using it.
 
 ## Side-by-Side Comparison
 
@@ -98,6 +55,36 @@ Utilities have a significant advantage: they own the infrastructure. They do not
 | **Timeline to value** | 12–24 months | Weeks |
 | **Risk** | Stranded capital investment | Cancel anytime. Lights return to full power. |
 
+## What Optimization Delivers
+
+Street lighting optimization starts where the LED conversion left off. The fixtures are in the ground. The controls may already be on the network. What's missing is the engineering intelligence to operate them.
+
+Optimization means designing a specific dimming profile for each light on each street based on the roadway classification, the geometry of the poles and fixtures, the light output of adjacent fixtures, and the time of night. Instead of running every light at 100% from dusk to dawn, each fixture runs at exactly the output required to meet lighting standards for the conditions at that hour.
+
+The value is significant, but it depends on who owns and manages the lights. No hardware. No installation crews. No truck rolls. No capital budget. Just per-light-per-year software pricing on the networked controls you already own.
+
+### Value by Ownership Model
+
+| Component | Municipal-Owned | Utility-Owned |
+|-----------|----------------|---------------|
+| Extended luminaire life | $15.76 | $15.76 |
+| Reduced maintenance | $4.90 | $4.90 |
+| Crime reduction | $10.81 | — |
+| Traffic safety | $7.82 | — |
+| Utility cost avoidance | — | $10.18 |
+| Demand response | $2.02 | $2.02 |
+| Energy savings | $9.78 (metered rate only) | — |
+| **Total (fixed rate)** | **$41.31** | **$32.86** |
+| **Total (metered rate)** | **$51.09** | **$32.86** |
+
+Municipalities capture the public safety benefits because crime reduction and traffic safety are municipal responsibilities. Extended luminaire life and reduced maintenance accrue to whoever owns the asset. Demand response is a revenue opportunity: the owner gets paid for participating.[^2]
+
+One important caveat: most municipalities pay a flat rate per streetlight regardless of energy consumption. If your city is on a flat-rate tariff, dimming does not reduce your electric bill. You still capture over $41/light/year in value from the other components. If your city is on a metered rate, add $9.78 in direct energy savings.
+
+Utilities capture the grid-level value instead. The $10.18 in utility cost avoidance represents what the utility system avoids spending when load is reduced: generation, transmission and distribution infrastructure, GHG compliance, and ancillary services. This is calculated using the CPUC's Avoided Cost Calculator and represents value to the utility and its ratepayers.[^3] Energy savings is not listed separately for utilities because it is already captured in the avoided cost figure — counting both would be double-counting the same kilowatt-hours.
+
+Utilities have a significant advantage: they own the infrastructure. They do not need a municipal procurement process, a city council vote, or a capital budget to implement optimization on their own lights. Roughly half the streetlights in America are utility-owned.[^4] The utility can act unilaterally.
+
 ## How to Pay for It
 
 The LED conversion typically required capital budget authority: bonds, equipment leases, energy performance contracts, or utility programs. Most organizations had one path.
@@ -106,7 +93,7 @@ Optimization is more flexible. It can be funded as an operating budget line item
 
 The point is not where it sits in your budget. The point is that it doesn't require the financial structure of a capital infrastructure project.
 
-## The Conversation with Your Decision Maker
+## Getting Buy-In
 
 Whether you're a municipal public works director talking to your city manager or a utility program manager building a business case, the questions are the same:
 
