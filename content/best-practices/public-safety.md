@@ -59,6 +59,6 @@ Strategic lighting saves lives and prevents crime. The goal is to ensure light r
 
 *Coming soon - practical guidance for public safety agencies on implementing evidence-based lighting strategies.*
 
-[^1]: [BJS, Justice Expenditure and Employment Extracts, 2017](https://claude-sources.s3.us-west-2.amazonaws.com/bjs-justice-expenditures-employment-2017.pdf)
-[^2]: [LAPD Crime Data, 2010–2019 (Open Data Portal analysis)](https://claude-sources.s3.us-west-2.amazonaws.com/lapd-crime-data-2010-2019-open-data-portal.pdf)
-[^3]: [LAPD Crime Data, 2010–2019 (Open Data Portal analysis)](https://claude-sources.s3.us-west-2.amazonaws.com/lapd-crime-data-2010-2019-open-data-portal.pdf) — analysis of crime density in lit vs. unlit public right-of-way areas.
+[^1]: [BJS, Justice Expenditure and Employment Extracts, 2017](https://claude-sources.s3.us-west-2.amazonaws.com/public/bjs-justice-expenditures-employment-2017.pdf)
+[^2]: [LAPD Crime Data, 2010–2019 (Open Data Portal analysis)](https://claude-sources.s3.us-west-2.amazonaws.com/public/lapd-crime-data-2010-2019-open-data-portal.pdf)
+[^3]: [LAPD Crime Data, 2010–2019 (Open Data Portal analysis)](https://claude-sources.s3.us-west-2.amazonaws.com/public/lapd-crime-data-2010-2019-open-data-portal.pdf) — analysis of crime density in lit vs. unlit public right-of-way areas.
