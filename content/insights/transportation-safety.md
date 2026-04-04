@@ -18,13 +18,13 @@ The nighttime fatality rate on U.S. roadways is three times the daytime rate, de
 
 An analysis of 2024 FARS data shows that fatal crashes spike at the exact moment of the evening darkness transition, and that peak tracks sunset through the seasons, shifting earlier in winter and later in summer. The highlighted bands mark the earliest and latest times streetlights turn on and off at the US population-weighted centroid.<sup><a href="#fn4" id="fnref4">4</a></sup><sup><a href="#fn9" id="fnref9">9</a></sup>
 
-<iframe src="/insights/transportation-safety/fars_analysis.html" class="chart-embed" style="width:100%; border:none; background:#0D1117; overflow:hidden;"></iframe>
+<iframe src="/insights/transportation-safety/fars_analysis.html" class="chart-embed" scrolling="no" style="width:100%; height:820px; border:none; background:#0D1117; overflow:hidden;"></iframe>
 
 The numbers are alarming on their own. But the trend is more alarming: between 2010 and 2023, nighttime pedestrian fatalities nearly doubled, rising 84% from 3,030 to 5,578, while daytime pedestrian fatalities rose 28%.<sup><a href="#fn2" id="fnref2b">2</a></sup> Pedestrian deaths now account for 18% of all U.S. traffic fatalities, up from 12% in 2009.<sup><a href="#fn2" id="fnref2c">2</a></sup> Nearly 90% of the increase in U.S. pedestrian fatalities since 2009 occurred in darkness.<sup><a href="#fn3" id="fnref3">3</a></sup> The proportion of pedestrian fatalities occurring in darkness has risen steadily since the late 1970s, from approximately 63% in the early 1980s to over 76% today.<sup><a href="#fn3" id="fnref3b">3</a></sup>
 
 An analysis of FARS data from 2001 to 2024, with each crash classified by actual solar phase at its location, reveals a diverging trend: in-vehicle nighttime fatalities have declined over two decades as vehicle safety technology improved, while non-motorist nighttime fatalities have nearly doubled over the same period.<sup><a href="#fn4" id="fnref4b">4</a></sup>
 
-<iframe src="/insights/transportation-safety/nighttime_analysis.html" class="chart-embed" style="width:100%; border:none; background:#0D1117; overflow:hidden;"></iframe>
+<iframe src="/insights/transportation-safety/nighttime_analysis.html" class="chart-embed" scrolling="no" style="width:100%; height:660px; border:none; background:#0D1117; overflow:hidden;"></iframe>
 
 This worsening trend coincides with the largest street lighting replacement program in history. Cities across the country swapped millions of fixtures from high-pressure sodium to LED. The hardware improved. The safety outcomes did not. When Pacific Northwest National Laboratory (PNNL) studied whether LED conversions in the Philadelphia region improved crash outcomes, they found no statistically significant difference between municipalities that had converted and those that had not.<sup><a href="#fn5" id="fnref5">5</a></sup> Hardware requiring less maintenance with brighter light is not the same as better lighting.
 
