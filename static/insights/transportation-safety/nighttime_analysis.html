@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Traffic Fatalities When Street Lights Are On — FARS 2001-2024</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Work+Sans:wght@300;400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0f14;
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 28px;
+    font-weight: 300;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.95);
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 6px;
+    font-weight: 300;
+  }
+
+  .source {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 30px;
+  }
+
+  .source a { color: #4ea3dc; text-decoration: none; }
+  .source a:hover { text-decoration: underline; color: #7dbde8; }
+
+  .tooltip {
+    position: absolute;
+    background: rgba(26, 34, 45, 0.95);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 11px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: 'Work Sans', sans-serif;
+    z-index: 10;
+    line-height: 1.6;
+    backdrop-filter: blur(12px);
+  }
+
+  .annotation {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 20px;
+    line-height: 1.5;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 16px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-line {
+    width: 24px;
+    height: 3px;
+    border-radius: 1px;
+  }
+
+  .axis text {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 11px;
+    fill: rgba(255, 255, 255, 0.5);
+  }
+
+  .axis line, .axis path {
+    stroke: rgba(255, 255, 255, 0.08);
+  }
+
+  .grid line {
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-opacity: 0.5;
+  }
+  .grid path { stroke: none; }
+</style>
+</head>
+<body>
+
+<h1>Traffic Fatalities When Street Lights Are On</h1>
+<p class="subtitle">Total fatalities during streetlight operating hours, 2001-2024</p>
+<p class="source">
+  Source: NHTSA FARS, enriched with solar phase data via
+  <a href="https://tools.photometrics.ai/#phase">Photometrics AI Phase Calculator</a>
+</p>
+
+<div id="chart"></div>
+
+<div class="legend-row">
+  <span class="legend-item">
+    <span class="legend-line" style="background: #4ea3dc;"></span>
+    All fatalities
+  </span>
+  <span class="legend-item">
+    <svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="#4ea3dc" stroke="#0a0f14" stroke-width="1.5"/></svg>
+    <span>Time-adjusted % of fatalities when streetlights on<br>(normalized to equal hours)</span>
+  </span>
+  <span class="legend-item">
+    <span class="legend-line" style="background: #7EE787;"></span>
+    Motorist
+  </span>
+  <span class="legend-item">
+    <span class="legend-line" style="background: #F0883E;"></span>
+    Non-motorist
+  </span>
+</div>
+
+<p class="annotation">
+  "Streetlights on" determined by solar phase at each crash's GPS coordinates and timestamp.
+  Streetlights operate from nautical dusk to end of nautical dawn (sun > 12° below horizon).
+</p>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const DATA = {
+  "years": [
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "data": {
+    "2001": {
+      "total_fatals": 42196,
+      "sl_fatals": 15319,
+      "sl_nonmotorist_fatals": 2876,
+      "sl_motorist_fatals": 12443,
+      "adj_pct": 49.4,
+      "population_millions": 284.97
+    },
+    "2002": {
+      "total_fatals": 43005,
+      "sl_fatals": 17978,
+      "sl_nonmotorist_fatals": 3375,
+      "sl_motorist_fatals": 14603,
+      "adj_pct": 50.4,
+      "population_millions": 287.63
+    },
+    "2003": {
+      "total_fatals": 42884,
+      "sl_fatals": 17645,
+      "sl_nonmotorist_fatals": 3343,
+      "sl_motorist_fatals": 14302,
+      "adj_pct": 49.4,
+      "population_millions": 290.11
+    },
+    "2004": {
+      "total_fatals": 42836,
+      "sl_fatals": 18063,
+      "sl_nonmotorist_fatals": 3366,
+      "sl_motorist_fatals": 14697,
+      "adj_pct": 49.3,
+      "population_millions": 292.81
+    },
+    "2005": {
+      "total_fatals": 43510,
+      "sl_fatals": 18851,
+      "sl_nonmotorist_fatals": 3560,
+      "sl_motorist_fatals": 15291,
+      "adj_pct": 49.9,
+      "population_millions": 295.52
+    },
+    "2006": {
+      "total_fatals": 42708,
+      "sl_fatals": 18909,
+      "sl_nonmotorist_fatals": 3583,
+      "sl_motorist_fatals": 15326,
+      "adj_pct": 50.8,
+      "population_millions": 298.38
+    },
+    "2007": {
+      "total_fatals": 41259,
+      "sl_fatals": 18474,
+      "sl_nonmotorist_fatals": 3428,
+      "sl_motorist_fatals": 15046,
+      "adj_pct": 51.0,
+      "population_millions": 301.23
+    },
+    "2008": {
+      "total_fatals": 37423,
+      "sl_fatals": 17107,
+      "sl_nonmotorist_fatals": 3390,
+      "sl_motorist_fatals": 13717,
+      "adj_pct": 51.3,
+      "population_millions": 304.09
+    },
+    "2009": {
+      "total_fatals": 33883,
+      "sl_fatals": 15311,
+      "sl_nonmotorist_fatals": 3108,
+      "sl_motorist_fatals": 12203,
+      "adj_pct": 50.7,
+      "population_millions": 306.77
+    },
+    "2010": {
+      "total_fatals": 32999,
+      "sl_fatals": 14642,
+      "sl_nonmotorist_fatals": 3263,
+      "sl_motorist_fatals": 11379,
+      "adj_pct": 49.8,
+      "population_millions": 308.75
+    },
+    "2011": {
+      "total_fatals": 32479,
+      "sl_fatals": 14490,
+      "sl_nonmotorist_fatals": 3465,
+      "sl_motorist_fatals": 11025,
+      "adj_pct": 50.1,
+      "population_millions": 311.59
+    },
+    "2012": {
+      "total_fatals": 33782,
+      "sl_fatals": 15296,
+      "sl_nonmotorist_fatals": 3802,
+      "sl_motorist_fatals": 11494,
+      "adj_pct": 50.7,
+      "population_millions": 313.99
+    },
+    "2013": {
+      "total_fatals": 32893,
+      "sl_fatals": 14903,
+      "sl_nonmotorist_fatals": 3718,
+      "sl_motorist_fatals": 11185,
+      "adj_pct": 50.7,
+      "population_millions": 316.13
+    },
+    "2014": {
+      "total_fatals": 32744,
+      "sl_fatals": 14971,
+      "sl_nonmotorist_fatals": 3832,
+      "sl_motorist_fatals": 11139,
+      "adj_pct": 50.9,
+      "population_millions": 318.39
+    },
+    "2015": {
+      "total_fatals": 35484,
+      "sl_fatals": 16260,
+      "sl_nonmotorist_fatals": 4481,
+      "sl_motorist_fatals": 11779,
+      "adj_pct": 51.0,
+      "population_millions": 320.74
+    },
+    "2016": {
+      "total_fatals": 37806,
+      "sl_fatals": 17574,
+      "sl_nonmotorist_fatals": 4918,
+      "sl_motorist_fatals": 12656,
+      "adj_pct": 51.6,
+      "population_millions": 323.07
+    },
+    "2017": {
+      "total_fatals": 37473,
+      "sl_fatals": 17093,
+      "sl_nonmotorist_fatals": 4860,
+      "sl_motorist_fatals": 12233,
+      "adj_pct": 50.8,
+      "population_millions": 325.15
+    },
+    "2018": {
+      "total_fatals": 36835,
+      "sl_fatals": 17077,
+      "sl_nonmotorist_fatals": 5262,
+      "sl_motorist_fatals": 11815,
+      "adj_pct": 51.5,
+      "population_millions": 327.1
+    },
+    "2019": {
+      "total_fatals": 36355,
+      "sl_fatals": 16762,
+      "sl_nonmotorist_fatals": 5143,
+      "sl_motorist_fatals": 11619,
+      "adj_pct": 51.1,
+      "population_millions": 328.24
+    },
+    "2020": {
+      "total_fatals": 39007,
+      "sl_fatals": 18529,
+      "sl_nonmotorist_fatals": 5435,
+      "sl_motorist_fatals": 13094,
+      "adj_pct": 52.7,
+      "population_millions": 331.45
+    },
+    "2021": {
+      "total_fatals": 43230,
+      "sl_fatals": 20720,
+      "sl_nonmotorist_fatals": 6269,
+      "sl_motorist_fatals": 14451,
+      "adj_pct": 53.0,
+      "population_millions": 332.03
+    },
+    "2022": {
+      "total_fatals": 42721,
+      "sl_fatals": 20730,
+      "sl_nonmotorist_fatals": 6533,
+      "sl_motorist_fatals": 14197,
+      "adj_pct": 53.7,
+      "population_millions": 333.29
+    },
+    "2023": {
+      "total_fatals": 41025,
+      "sl_fatals": 19943,
+      "sl_nonmotorist_fatals": 6319,
+      "sl_motorist_fatals": 13624,
+      "adj_pct": 53.7,
+      "population_millions": 334.91
+    },
+    "2024": {
+      "total_fatals": 39254,
+      "sl_fatals": 18774,
+      "sl_nonmotorist_fatals": 5978,
+      "sl_motorist_fatals": 12796,
+      "adj_pct": 52.9,
+      "population_millions": 336.49
+    }
+  }
+};
+
+const years = DATA.years;
+const margin = { top: 30, right: 90, bottom: 40, left: 60 };
+const width = 860;
+const height = 440;
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart").append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .style("max-width", "100%")
+  .style("height", "auto");
+
+const g = svg.append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Scales
+const x = d3.scaleLinear()
+  .domain([d3.min(years), d3.max(years)])
+  .range([0, innerW]);
+
+const allVals = years.map(y => DATA.data[y].sl_fatals);
+const yMax = d3.max(allVals) * 1.1;
+
+const y = d3.scaleLinear()
+  .domain([0, yMax])
+  .range([innerH, 0]);
+
+// Grid
+g.append("g")
+  .attr("class", "grid")
+  .call(d3.axisLeft(y)
+    .ticks(6)
+    .tickSize(-innerW)
+    .tickFormat("")
+  );
+
+// Axes
+g.append("g")
+  .attr("class", "axis")
+  .attr("transform", `translate(0,${innerH})`)
+  .call(d3.axisBottom(x)
+    .ticks(10)
+    .tickFormat(d3.format("d"))
+  );
+
+g.append("g")
+  .attr("class", "axis")
+  .call(d3.axisLeft(y).ticks(6));
+
+// Y axis label
+svg.append("text")
+  .attr("x", -(margin.top + innerH / 2))
+  .attr("y", 14)
+  .attr("transform", "rotate(-90)")
+  .attr("text-anchor", "middle")
+  .attr("fill", "rgba(255,255,255,0.5)")
+  .attr("font-size", "11px")
+  .attr("font-family", "'Work Sans', sans-serif")
+  .text("Fatalities");
+
+// LED streetlight annotation at 2010
+g.append("line")
+  .attr("x1", x(2010)).attr("x2", x(2010))
+  .attr("y1", 0).attr("y2", innerH)
+  .attr("stroke", "rgba(255,255,255,0.5)")
+  .attr("stroke-width", 1)
+  .attr("stroke-dasharray", "4,4");
+
+g.append("text")
+  .attr("x", x(2010) + 6)
+  .attr("y", innerH * 0.15)
+  .attr("fill", "rgba(255,255,255,0.5)")
+  .attr("font-size", "10px")
+  .attr("font-family", "'Work Sans', sans-serif")
+  .text("LED street lights enter market");
+
+g.append("text")
+  .attr("x", x(2010) + 6)
+  .attr("y", innerH * 0.15 + 14)
+  .attr("fill", "rgba(255,255,255,0.5)")
+  .attr("font-size", "9px")
+  .attr("font-family", "'Work Sans', sans-serif")
+  .text("(~1% penetration)");
+
+// Line generators
+const lineAll = d3.line()
+  .x(yr => x(yr))
+  .y(yr => y(DATA.data[yr].sl_fatals))
+  .curve(d3.curveMonotoneX);
+
+const lineMotorist = d3.line()
+  .x(yr => x(yr))
+  .y(yr => y(DATA.data[yr].sl_motorist_fatals))
+  .curve(d3.curveMonotoneX);
+
+const lineNonMotorist = d3.line()
+  .x(yr => x(yr))
+  .y(yr => y(DATA.data[yr].sl_nonmotorist_fatals))
+  .curve(d3.curveMonotoneX);
+
+// Draw lines
+g.append("path")
+  .datum(years)
+  .attr("d", lineAll)
+  .attr("fill", "none")
+  .attr("stroke", "#4ea3dc")
+  .attr("stroke-width", 2.5)
+  .attr("stroke-linejoin", "round");
+
+g.append("path")
+  .datum(years)
+  .attr("d", lineMotorist)
+  .attr("fill", "none")
+  .attr("stroke", "#7EE787")
+  .attr("stroke-width", 2.5)
+  .attr("stroke-linejoin", "round");
+
+g.append("path")
+  .datum(years)
+  .attr("d", lineNonMotorist)
+  .attr("fill", "none")
+  .attr("stroke", "#F0883E")
+  .attr("stroke-width", 2.5)
+  .attr("stroke-linejoin", "round");
+
+// Adjusted % labels on blue line with dots
+// Place labels above or below based on local slope to avoid line overlap
+const ledLineX = x(2010);
+years.forEach((yr, i) => {
+  const d = DATA.data[yr];
+  const cx = x(yr);
+  const cy = y(d.sl_fatals);
+
+  // Dot on the line
+  g.append("circle")
+    .attr("cx", cx)
+    .attr("cy", cy)
+    .attr("r", 3)
+    .attr("fill", "#4ea3dc")
+    .attr("stroke", "#0a0f14")
+    .attr("stroke-width", 1.5);
+
+  // Determine if line is rising or falling to place label on the "outside"
+  const prev = i > 0 ? y(DATA.data[years[i-1]].sl_fatals) : cy;
+  const next = i < years.length - 1 ? y(DATA.data[years[i+1]].sl_fatals) : cy;
+  const goingUp = cy < prev; // line going up visually (y decreases)
+  const goingDown = cy > prev;
+
+  // Default: alternate, but prefer above when line slopes down, below when slopes up
+  let above;
+  if (i % 2 === 0) {
+    above = !goingUp; // even years: above unless line is rising steeply
+  } else {
+    above = goingDown; // odd years: below unless line is falling
+  }
+
+  // Avoid overlapping the LED dotted line at 2010
+  const nearLedLine = Math.abs(cx - ledLineX) < 12;
+  if (nearLedLine) above = true; // always above near the annotation
+
+  const labelY = above ? cy - 12 : cy + 16;
+
+  // Thin connector line from dot to label
+  g.append("line")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", above ? cy - 4 : cy + 4)
+    .attr("y2", above ? cy - 6 : cy + 8)
+    .attr("stroke", "#4ea3dc")
+    .attr("stroke-opacity", 0.3)
+    .attr("stroke-width", 0.5);
+
+  g.append("text")
+    .attr("x", cx)
+    .attr("y", labelY)
+    .attr("text-anchor", "middle")
+    .attr("fill", "#4ea3dc")
+    .attr("font-size", "8.5px")
+    .attr("font-weight", "500")
+    .attr("font-family", "'Work Sans', sans-serif")
+    .text(d.adj_pct + "%");
+});
+
+// Hover overlay
+const tooltip = document.getElementById("tooltip");
+
+const bisect = d3.bisector(d => d).left;
+
+g.append("rect")
+  .attr("width", innerW)
+  .attr("height", innerH)
+  .attr("fill", "transparent")
+  .on("mousemove", function(event) {
+    const [mx] = d3.pointer(event);
+    const yr0 = x.invert(mx);
+    const idx = bisect(years, yr0, 1);
+    const a = years[idx - 1], b = years[idx] || a;
+    const yr = (yr0 - a > b - yr0) ? b : a;
+    const d = DATA.data[yr];
+
+    // Vertical line
+    g.selectAll(".hover-line").remove();
+    g.append("line")
+      .attr("class", "hover-line")
+      .attr("x1", x(yr)).attr("x2", x(yr))
+      .attr("y1", 0).attr("y2", innerH)
+      .attr("stroke", "rgba(255,255,255,0.5)")
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "3,3");
+
+    // Dots
+    g.selectAll(".hover-dot").remove();
+    g.append("circle").attr("class", "hover-dot")
+      .attr("cx", x(yr)).attr("cy", y(d.sl_fatals))
+      .attr("r", 4).attr("fill", "#4ea3dc").attr("stroke", "#0a0f14").attr("stroke-width", 2);
+    g.append("circle").attr("class", "hover-dot")
+      .attr("cx", x(yr)).attr("cy", y(d.sl_motorist_fatals))
+      .attr("r", 4).attr("fill", "#7EE787").attr("stroke", "#0a0f14").attr("stroke-width", 2);
+    g.append("circle").attr("class", "hover-dot")
+      .attr("cx", x(yr)).attr("cy", y(d.sl_nonmotorist_fatals))
+      .attr("r", 4).attr("fill", "#F0883E").attr("stroke", "#0a0f14").attr("stroke-width", 2);
+
+    tooltip.style.opacity = 1;
+    tooltip.innerHTML = `<strong>${yr}</strong><br>`
+      + `Streetlights on: ${d.sl_fatals.toLocaleString()}<br>`
+      + `Motorist: ${d.sl_motorist_fatals.toLocaleString()}<br>`
+      + `Non-motorist: ${d.sl_nonmotorist_fatals.toLocaleString()}<br>`
+      + `Total (all hours): ${d.total_fatals.toLocaleString()}`;
+    tooltip.style.left = (event.pageX + 14) + "px";
+    tooltip.style.top = (event.pageY - 50) + "px";
+  })
+  .on("mouseout", function() {
+    g.selectAll(".hover-line").remove();
+    g.selectAll(".hover-dot").remove();
+    tooltip.style.opacity = 0;
+  });
+
+// End-of-line labels
+const lastYear = years[years.length - 1];
+const lastD = DATA.data[lastYear];
+
+g.append("text")
+  .attr("x", x(lastYear) + 5)
+  .attr("y", y(lastD.sl_fatals) + 4)
+  .attr("fill", "#4ea3dc")
+  .attr("font-size", "10px")
+  .attr("font-family", "'Work Sans', sans-serif")
+  .text("All");
+
+g.append("text")
+  .attr("x", x(lastYear) + 5)
+  .attr("y", y(lastD.sl_motorist_fatals) + 4)
+  .attr("fill", "#7EE787")
+  .attr("font-size", "10px")
+  .attr("font-family", "'Work Sans', sans-serif")
+  .text("Motorist");
+
+g.append("text")
+  .attr("x", x(lastYear) + 5)
+  .attr("y", y(lastD.sl_nonmotorist_fatals) + 4)
+  .attr("fill", "#F0883E")
+  .attr("font-size", "10px")
+  .attr("font-family", "'Work Sans', sans-serif")
+  .text("Non-motorist");
+
+</script>
+<script>
+window.addEventListener('load', function() {
+  requestAnimationFrame(function() {
+    parent.postMessage({ iframeHeight: document.body.scrollHeight, src: location.href }, '*');
+  });
+});
+</script>
+
+</body>
+</html>

@@ -419,6 +419,10 @@ RULES:
 - Only include facts you found in web search results. Do NOT extrapolate, round, or paraphrase loosely.
 - If a search result gives a range, report the range, not a single number.
 - If you cannot find anything specific to this location with a clear source, return 'No local context found.'
+- Every statistic MUST include the year it was published or refers to (e.g., "In 2023, the city reported...").
+- Strongly prefer data from the last 3 years (2024-2026). Data from 2020-2023 is acceptable if nothing newer exists.
+- Data older than 2020 should only be included if it is a landmark study or no newer data exists, and MUST be flagged with its year prominently.
+- If the only available data is old, say so: "The most recent data available is from [year]."
 
 Do NOT include opinions or recommendations."""
 
@@ -557,7 +561,9 @@ RULES FOR USING LOCAL CONTEXT:
 - When using a fact, mention the source naturally (e.g. "according to the FBI's Uniform Crime Report" or "data from the California Energy Commission shows").
 - Only use facts that appear above AND have a named source. If a fact above has no source attribution, skip it.
 - Do NOT invent, embellish, or extrapolate beyond what is stated above. Do NOT round numbers or change dates.
-- Do NOT invent local statistics, news stories, events, or sources that do not appear in the LOCAL CONTEXT."""
+- Do NOT invent local statistics, news stories, events, or sources that do not appear in the LOCAL CONTEXT.
+- RECENCY CHECK: If a statistic is from before 2021, do NOT use it unless no newer alternative exists. If you must use older data, explicitly note the year (e.g., "as of a 2018 study" or "based on 2019 data"). Never present old data as if it reflects current conditions.
+- Prefer statistics from 2023 or later. If the local context only contains old data, it is better to omit it than to make the sender appear out of touch."""
 
     prompt = f"""You are helping a citizen write a persuasive letter to local officials about street lighting in their area.
 

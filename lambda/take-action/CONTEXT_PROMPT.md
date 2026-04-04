@@ -20,6 +20,7 @@ This prompt generates the `PRODUCT_CONTEXT` block used in `lambda_function.py`. 
 > - When migratory birds is a priority, reference the Cornell Lab of Ornithology partnership and include the full URL: https://www.birds.cornell.edu/home/photometrics-ai-uses-bird-data-to-adjust-streetlights/
 > - The ask must NOT include pilot pricing, scope, or dollar amounts — keep it to "evaluate the technology and reach out to Photometrics AI"
 > - Do NOT cite specific dollar-per-light values or annual savings totals — use qualitative language ("significant cost savings", "benefits easily outweigh costs"). Publicly available percentage stats (35% energy savings, 39% crime reduction, 28-42% crash reduction) are fine.
+> - Instruct Sonnet to always attribute the year of any cited statistic and to reject or explicitly date local context data older than 3 years
 
 ## How to Use
 
