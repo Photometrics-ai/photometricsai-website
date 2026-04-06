@@ -89,3 +89,113 @@ If site doesn't update after deploy:
 1. Hard refresh browser: `Ctrl+Shift+R` (Windows) or `Cmd+Shift+R` (Mac)
 2. Check in incognito/private window
 3. Verify build succeeded: `aws amplify list-jobs --app-id d22p16j9j2s18f --branch-name master --max-results 1`
+
+## Sun Phase Tools (`tools/sun-phase/`)
+
+Astronomical sun calculation toolkit for streetlight operations. Contains CLI tools, a desktop GUI, and an AWS Lambda backend (SAM).
+
+### Architecture
+
+`sun_utils.py` is the core math library. Everything else builds on it:
+- **CLI tools**: `phase_calculator.py` (tag CSV records with twilight phase), `twilight_times.py` (yearly schedules)
+- **`core/`**: Wrapper modules (`phase_processor.py`, `twilight_processor.py`) used by CLI and GUI
+- **`gui/`**: Desktop app (`app.py` + `tabs/`) using CustomTkinter
+- **`web/`**: SAM stack — Lambda functions, shared layer, Step Functions state machine
+
+Code is intentionally duplicated across CLI and Lambda (`sun_utils.py` exists in both `tools/sun-phase/` and `tools/sun-phase/web/layers/deps/`) for deployment isolation. When you change `sun_utils.py`, you must update both copies.
+
+### Frontend
+
+The tools web UI lives in Hugo, not in `tools/sun-phase/`:
+- **Layout**: `layouts/_default/tools.html` (markup + inline JS)
+- **Styles**: inline `<style>` block in the template (no separate CSS file)
+- **Content**: `content/tools.md`
+
+The frontend calls the Lambda backend at `https://tools.photometrics.ai/api`. This is hardcoded in the inline JS (`var API = 'https://tools.photometrics.ai/api'`).
+
+### AWS Infrastructure (SAM stack: `tools/sun-phase/web/`)
+
+Stack name: `sun-phase-web` | Region: `us-east-2` | Config: `web/samconfig.toml`
+
+**S3 Buckets:**
+- **DataBucket** — Temp storage for user CSV uploads and processed chunks. Auto-expires after 3 days. CORS allows PUT/GET from `tools.photometrics.ai`.
+- **FrontendBucket** — Serves the old standalone frontend via CloudFront (will become unused after migration redirect). Private, CloudFront OAC only.
+- **LogBucket** — CloudFront access logs. Auto-expires after 30 days.
+
+**CloudFront Distribution** (`tools.photometrics.ai`):
+- Default behavior → FrontendBucket (S3 via OAC)
+- `/api/*` → API Gateway origin (cache disabled, all HTTP methods)
+- Custom domain with ACM cert (must be us-east-1 for CloudFront)
+
+**API Gateway** (Regional, stage: `prod`):
+Routes map to Lambda functions — all share the `DepsLayer` (pandas, pytz, timezonefinder, sun_utils, phase_calculator_core, twilight_core).
+
+**Lambda Functions (8 total):**
+
+| Function | Route / Trigger | What it does |
+|----------|----------------|--------------|
+| `twilight_api` | `GET /api/twilight` | Generates yearly twilight CSV for a lat/lon/year. Returns CSV blob. |
+| `phase_api` | `POST /api/phase` | Synchronous JSON endpoint — up to 10k rows, returns sun elevation + phase. |
+| `phase_csv_api` | `POST /api/phase/csv` | Synchronous CSV endpoint — send CSV text, get CSV back with phase columns appended. |
+| `upload_initiator` | `POST /api/phase/upload` | Creates job ID, returns presigned S3 PUT URL for direct browser→S3 upload. |
+| `detect_columns` | `POST /api/phase/detect-columns` | Reads first rows from S3, auto-detects lat/lon/date/time columns. |
+| `start_processing` | `POST /api/phase/start` | Writes job metadata to S3, starts Step Functions execution. |
+| `status_api` | `GET /api/phase/status` | Polls job metadata from S3, returns status + download URL when complete. |
+| `splitter` | Step Functions | Reads uploaded CSV from S3, splits into chunks, writes chunks back to S3. |
+| `chunk_processor` | Step Functions (Map, 10x parallel) | Processes one chunk: calculates sun elevation + phase for each row. |
+| `combiner` | Step Functions | Combines processed chunks into final CSV, writes result + presigned download URL. |
+
+**Step Functions State Machine** (`phase_processor.asl.json`):
+```
+Split → ProcessChunks (Map, 10 concurrent) → Combine
+```
+Handles large CSV files (up to 2.5M rows) by splitting into chunks processed in parallel. Each step catches errors and routes to FailState.
+
+**Data flow for Phase Calculator (large file upload):**
+1. Browser → `upload_initiator` → gets presigned URL
+2. Browser → PUT directly to S3 (DataBucket)
+3. Browser → `detect_columns` → reads S3 file header, returns column names
+4. Browser → `start_processing` → starts Step Functions
+5. Step Functions: `splitter` → `chunk_processor` (×N parallel) → `combiner`
+6. Browser polls `status_api` → gets download URL when complete
+
+### Running CLI Locally
+
+```bash
+cd tools/sun-phase
+pip install -r requirements.txt
+
+# Generate twilight schedule
+python twilight_times.py --lat 33.75 --lon -117.87 --year 2026 --output schedule.csv
+
+# Tag a CSV with sun phase
+python phase_calculator.py input.csv output.csv --lat LAT --lon LON --date DATE --time TIME
+```
+
+### Deploying Lambda Backend
+
+The SAM stack deploys separately from the Hugo site:
+
+```bash
+cd tools/sun-phase/web
+sam build
+sam deploy          # uses samconfig.toml defaults (us-east-2, sun-phase-web stack)
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `tools/sun-phase/sun_utils.py` | Core astronomical calculations (CLI copy) |
+| `tools/sun-phase/web/layers/deps/sun_utils.py` | Core astronomical calculations (Lambda copy — keep in sync) |
+| `tools/sun-phase/web/layers/deps/phase_calculator_core.py` | Shared phase calculation logic for Lambda |
+| `tools/sun-phase/web/layers/deps/twilight_core.py` | Shared twilight calculation logic for Lambda |
+| `tools/sun-phase/web/template.yaml` | SAM/CloudFormation — all AWS resources defined here |
+| `tools/sun-phase/web/samconfig.toml` | SAM deploy config (stack name, region) |
+| `tools/sun-phase/web/statemachine/phase_processor.asl.json` | Step Functions definition |
+| `tools/sun-phase/web/lambdas/*/handler.py` | Individual Lambda function handlers |
+| `tools/sun-phase/phase_calculator.py` | CLI: tag CSV records with twilight phase |
+| `tools/sun-phase/twilight_times.py` | CLI: generate yearly streetlight schedules |
+| `tools/sun-phase/main_gui.py` | Desktop GUI entry point |
+| `layouts/_default/tools.html` | Hugo layout (markup + inline JS) |
+| (inline `<style>` in tools.html) | Tool-specific component styles |

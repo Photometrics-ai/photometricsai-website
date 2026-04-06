@@ -11,8 +11,8 @@
 
   body {
     font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0a0f14;
-    color: rgba(255, 255, 255, 0.75);
+    background: #ffffff;
+    color: rgba(0, 0, 0, 0.65);
     max-width: 860px;
     margin: 0 auto;
     padding: 40px 20px;
@@ -23,20 +23,20 @@
     font-size: 28px;
     font-weight: 300;
     margin-bottom: 4px;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(0, 0, 0, 0.9);
     letter-spacing: -0.5px;
   }
 
   .subtitle {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.45);
     margin-bottom: 6px;
     font-weight: 300;
   }
 
   .source {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.45);
     margin-bottom: 30px;
   }
 
@@ -45,12 +45,12 @@
 
   .time-axis-label {
     font-size: 11px;
-    fill: rgba(255, 255, 255, 0.5);
+    fill: rgba(0, 0, 0, 0.45);
   }
 
   .month-label {
     font-size: 12px;
-    fill: rgba(255, 255, 255, 0.75);
+    fill: rgba(0, 0, 0, 0.65);
     font-weight: 400;
   }
 
@@ -62,8 +62,8 @@
 
   .tooltip {
     position: absolute;
-    background: rgba(26, 34, 45, 0.95);
-    color: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.97); box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    color: rgba(0, 0, 0, 0.9);
     padding: 8px 12px;
     border-radius: 12px;
     font-size: 11px;
@@ -71,7 +71,7 @@
     opacity: 0;
     transition: opacity 0.15s;
     white-space: nowrap;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     font-family: 'Work Sans', sans-serif;
     z-index: 10;
     backdrop-filter: blur(12px);
@@ -81,7 +81,7 @@
 
   .annotation {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.45);
     margin-top: 20px;
     line-height: 1.5;
   }
@@ -92,7 +92,7 @@
     gap: 16px;
     margin-top: 16px;
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(0, 0, 0, 0.65);
   }
 
   .legend-item {
@@ -213,7 +213,7 @@ timeLabels.forEach(t => {
       .attr("x2", margin.left + xScale(t.hour))
       .attr("y1", margin.top + 8)
       .attr("y2", margin.top + rowStep * 11 + curveHeight - 10)
-      .attr("stroke", "rgba(255,255,255,0.08)")
+      .attr("stroke", "rgba(0,0,0,0.1)")
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "2,4");
   }
@@ -247,7 +247,7 @@ for (let m = 1; m <= 12; m++) {
   g.append("path")
     .datum(counts)
     .attr("d", areaGen)
-    .attr("fill", "#0a0f14");
+    .attr("fill", "#ffffff");
 
   // Color fill
   g.append("path")
@@ -308,7 +308,7 @@ for (let m = 1; m <= 12; m++) {
   g.append("line")
     .attr("x1", 0).attr("x2", innerWidth)
     .attr("y1", 0).attr("y2", 0)
-    .attr("stroke", "rgba(255,255,255,0.06)")
+    .attr("stroke", "rgba(0,0,0,0.08)")
     .attr("stroke-width", 0.5);
 
   // Peak dot
@@ -321,7 +321,7 @@ for (let m = 1; m <= 12; m++) {
     .attr("cx", peakX).attr("cy", peakY)
     .attr("r", 3.5)
     .attr("fill", peakColor)
-    .attr("stroke", "#0a0f14")
+    .attr("stroke", "#ffffff")
     .attr("stroke-width", 1.5);
 
   g.append("text")
@@ -345,7 +345,7 @@ for (let m = 1; m <= 12; m++) {
       .attr("y", yOffset + 14)
       .attr("text-anchor", "end")
       .attr("font-size", "8px")
-      .attr("fill", "rgba(255,255,255,0.4)")
+      .attr("fill", "rgba(0,0,0,0.35)")
       .text(m === 3 ? "clocks +1 hr" : "clocks −1 hr");
   }
 

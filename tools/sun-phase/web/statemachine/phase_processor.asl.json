@@ -1,0 +1,81 @@
+{
+  "Comment": "Phase Calculator: Split CSV → parallel chunk processing → combine results",
+  "StartAt": "Split",
+  "States": {
+    "Split": {
+      "Type": "Task",
+      "Resource": "${SplitterFunctionArn}",
+      "ResultPath": "$",
+      "Next": "ProcessChunks",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "FailState",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "ProcessChunks": {
+      "Type": "Map",
+      "ItemsPath": "$.chunks",
+      "MaxConcurrency": 10,
+      "ResultPath": "$.chunkResults",
+      "Parameters": {
+        "jobId.$": "$.jobId",
+        "bucket.$": "$.bucket",
+        "columns.$": "$.columns",
+        "chunkKey.$": "$$.Map.Item.Value.chunkKey",
+        "chunkIndex.$": "$$.Map.Item.Value.chunkIndex",
+        "rowCount.$": "$$.Map.Item.Value.rowCount"
+      },
+      "Iterator": {
+        "StartAt": "ProcessOneChunk",
+        "States": {
+          "ProcessOneChunk": {
+            "Type": "Task",
+            "Resource": "${ChunkProcessorFunctionArn}",
+            "Retry": [
+              {
+                "ErrorEquals": ["Lambda.TooManyRequestsException", "Lambda.ServiceException"],
+                "IntervalSeconds": 5,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ],
+            "End": true
+          }
+        }
+      },
+      "Next": "Combine",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "FailState",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "Combine": {
+      "Type": "Task",
+      "Resource": "${CombinerFunctionArn}",
+      "Parameters": {
+        "jobId.$": "$.jobId",
+        "bucket.$": "$.bucket",
+        "chunkResults.$": "$.chunkResults"
+      },
+      "End": true,
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "FailState",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "FailState": {
+      "Type": "Fail",
+      "Error": "ProcessingFailed",
+      "Cause": "An error occurred during CSV processing"
+    }
+  }
+}

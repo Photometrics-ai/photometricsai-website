@@ -93,7 +93,7 @@ title = "Photometrics AI | Street Lighting Optimization"
 
 [[menus.main]]
   name = "Tools"
-  url = "https://tools.photometrics.ai"
+  url = "/tools/"
   weight = 4
   parent = "resources"
 

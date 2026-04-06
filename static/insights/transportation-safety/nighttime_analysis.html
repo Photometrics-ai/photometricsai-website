@@ -11,8 +11,8 @@
 
   body {
     font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0a0f14;
-    color: rgba(255, 255, 255, 0.75);
+    background: #ffffff;
+    color: rgba(0, 0, 0, 0.65);
     max-width: 900px;
     margin: 0 auto;
     padding: 40px 20px;
@@ -23,20 +23,20 @@
     font-size: 28px;
     font-weight: 300;
     margin-bottom: 4px;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(0, 0, 0, 0.9);
     letter-spacing: -0.5px;
   }
 
   .subtitle {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.45);
     margin-bottom: 6px;
     font-weight: 300;
   }
 
   .source {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.45);
     margin-bottom: 30px;
   }
 
@@ -45,8 +45,8 @@
 
   .tooltip {
     position: absolute;
-    background: rgba(26, 34, 45, 0.95);
-    color: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.97); box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    color: rgba(0, 0, 0, 0.9);
     padding: 10px 14px;
     border-radius: 12px;
     font-size: 11px;
@@ -54,7 +54,7 @@
     opacity: 0;
     transition: opacity 0.15s;
     white-space: nowrap;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     font-family: 'Work Sans', sans-serif;
     z-index: 10;
     line-height: 1.6;
@@ -63,7 +63,7 @@
 
   .annotation {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.45);
     margin-top: 20px;
     line-height: 1.5;
   }
@@ -74,7 +74,7 @@
     gap: 20px;
     margin-top: 16px;
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(0, 0, 0, 0.65);
   }
 
   .legend-item {
@@ -92,15 +92,15 @@
   .axis text {
     font-family: 'Work Sans', sans-serif;
     font-size: 11px;
-    fill: rgba(255, 255, 255, 0.5);
+    fill: rgba(0, 0, 0, 0.45);
   }
 
   .axis line, .axis path {
-    stroke: rgba(255, 255, 255, 0.08);
+    stroke: rgba(0, 0, 0, 0.1);
   }
 
   .grid line {
-    stroke: rgba(255, 255, 255, 0.08);
+    stroke: rgba(0, 0, 0, 0.1);
     stroke-opacity: 0.5;
   }
   .grid path { stroke: none; }
@@ -123,11 +123,11 @@
     All fatalities
   </span>
   <span class="legend-item">
-    <svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="#4ea3dc" stroke="#0a0f14" stroke-width="1.5"/></svg>
+    <svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="#4ea3dc" stroke="#ffffff" stroke-width="1.5"/></svg>
     <span>Time-adjusted % of fatalities when streetlights on<br>(normalized to equal hours)</span>
   </span>
   <span class="legend-item">
-    <span class="legend-line" style="background: #7EE787;"></span>
+    <span class="legend-line" style="background: #238b45;"></span>
     Motorist
   </span>
   <span class="legend-item">
@@ -424,7 +424,7 @@ svg.append("text")
   .attr("y", 14)
   .attr("transform", "rotate(-90)")
   .attr("text-anchor", "middle")
-  .attr("fill", "rgba(255,255,255,0.5)")
+  .attr("fill", "rgba(0,0,0,0.45)")
   .attr("font-size", "11px")
   .attr("font-family", "'Work Sans', sans-serif")
   .text("Fatalities");
@@ -433,14 +433,14 @@ svg.append("text")
 g.append("line")
   .attr("x1", x(2010)).attr("x2", x(2010))
   .attr("y1", 0).attr("y2", innerH)
-  .attr("stroke", "rgba(255,255,255,0.5)")
+  .attr("stroke", "rgba(0,0,0,0.45)")
   .attr("stroke-width", 1)
   .attr("stroke-dasharray", "4,4");
 
 g.append("text")
   .attr("x", x(2010) + 6)
   .attr("y", innerH * 0.15)
-  .attr("fill", "rgba(255,255,255,0.5)")
+  .attr("fill", "rgba(0,0,0,0.45)")
   .attr("font-size", "10px")
   .attr("font-family", "'Work Sans', sans-serif")
   .text("LED street lights enter market");
@@ -448,7 +448,7 @@ g.append("text")
 g.append("text")
   .attr("x", x(2010) + 6)
   .attr("y", innerH * 0.15 + 14)
-  .attr("fill", "rgba(255,255,255,0.5)")
+  .attr("fill", "rgba(0,0,0,0.45)")
   .attr("font-size", "9px")
   .attr("font-family", "'Work Sans', sans-serif")
   .text("(~1% penetration)");
@@ -482,7 +482,7 @@ g.append("path")
   .datum(years)
   .attr("d", lineMotorist)
   .attr("fill", "none")
-  .attr("stroke", "#7EE787")
+  .attr("stroke", "#238b45")
   .attr("stroke-width", 2.5)
   .attr("stroke-linejoin", "round");
 
@@ -508,7 +508,7 @@ years.forEach((yr, i) => {
     .attr("cy", cy)
     .attr("r", 3)
     .attr("fill", "#4ea3dc")
-    .attr("stroke", "#0a0f14")
+    .attr("stroke", "#ffffff")
     .attr("stroke-width", 1.5);
 
   // Determine if line is rising or falling to place label on the "outside"
@@ -574,7 +574,7 @@ g.append("rect")
       .attr("class", "hover-line")
       .attr("x1", x(yr)).attr("x2", x(yr))
       .attr("y1", 0).attr("y2", innerH)
-      .attr("stroke", "rgba(255,255,255,0.5)")
+      .attr("stroke", "rgba(0,0,0,0.45)")
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "3,3");
 
@@ -582,13 +582,13 @@ g.append("rect")
     g.selectAll(".hover-dot").remove();
     g.append("circle").attr("class", "hover-dot")
       .attr("cx", x(yr)).attr("cy", y(d.sl_fatals))
-      .attr("r", 4).attr("fill", "#4ea3dc").attr("stroke", "#0a0f14").attr("stroke-width", 2);
+      .attr("r", 4).attr("fill", "#4ea3dc").attr("stroke", "#ffffff").attr("stroke-width", 2);
     g.append("circle").attr("class", "hover-dot")
       .attr("cx", x(yr)).attr("cy", y(d.sl_motorist_fatals))
-      .attr("r", 4).attr("fill", "#7EE787").attr("stroke", "#0a0f14").attr("stroke-width", 2);
+      .attr("r", 4).attr("fill", "#238b45").attr("stroke", "#ffffff").attr("stroke-width", 2);
     g.append("circle").attr("class", "hover-dot")
       .attr("cx", x(yr)).attr("cy", y(d.sl_nonmotorist_fatals))
-      .attr("r", 4).attr("fill", "#F0883E").attr("stroke", "#0a0f14").attr("stroke-width", 2);
+      .attr("r", 4).attr("fill", "#F0883E").attr("stroke", "#ffffff").attr("stroke-width", 2);
 
     tooltip.style.opacity = 1;
     tooltip.innerHTML = `<strong>${yr}</strong><br>`
@@ -620,7 +620,7 @@ g.append("text")
 g.append("text")
   .attr("x", x(lastYear) + 5)
   .attr("y", y(lastD.sl_motorist_fatals) + 4)
-  .attr("fill", "#7EE787")
+  .attr("fill", "#238b45")
   .attr("font-size", "10px")
   .attr("font-family", "'Work Sans', sans-serif")
   .text("Motorist");

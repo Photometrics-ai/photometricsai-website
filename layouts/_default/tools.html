@@ -1,0 +1,384 @@
+{{ define "main" }}
+<style>
+/* Tool-specific components not in main.css */
+.tools-tabs { display: flex; justify-content: center; gap: 0.25rem; margin-bottom: var(--space-lg); }
+.tools-tab { background: transparent; font-family: var(--font-body); border: 1px solid var(--border-dark); color: var(--text-subtle); padding: 0.5rem 1.5rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all var(--duration) var(--ease); }
+.tools-tab:hover { color: var(--text-dark); border-color: rgba(0,0,0,0.2); }
+.tools-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tools-tab-content { display: none; }
+.tools-tab-content.active { display: block; }
+.tools-form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: var(--space-md); }
+.tools-upload-area { border: 2px dashed var(--border-dark); border-radius: var(--radius-sm); padding: 2.5rem 1.5rem; text-align: center; transition: border-color var(--duration) var(--ease); cursor: pointer; }
+.tools-upload-area.dragover { border-color: var(--accent); }
+.tools-upload-area .browse-link { background: none; border: none; color: var(--accent); cursor: pointer; font-family: var(--font-body); font-size: inherit; text-decoration: underline; padding: 0; }
+.tools-progress { height: 6px; background: rgba(0,0,0,0.06); border-radius: 3px; margin-top: var(--space-sm); overflow: hidden; }
+.tools-progress-fill { height: 100%; background: var(--accent); border-radius: 3px; width: 0%; transition: width 0.3s var(--ease); }
+.tools-status { margin-top: var(--space-sm); padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-size: 0.875rem; }
+.tools-status.info { background: rgba(78,163,220,0.08); color: var(--accent); }
+.tools-status.success { background: rgba(34,197,94,0.1); color: #22c55e; }
+.tools-status.error { background: rgba(239,68,68,0.1); color: #ef4444; }
+.tools-hidden { display: none !important; }
+.tools-step { display: none; margin-top: var(--space-md); }
+.tools-step.active { display: block; }
+.tools-step h3 { font-family: var(--font-body); font-size: 1rem; font-weight: 500; margin-bottom: var(--space-xs); color: var(--text-body); }
+.tools-mode-toggle { display: flex; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.tools-mode-option { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--text-body); cursor: pointer; }
+.tools-mode-option input[type="radio"] { accent-color: var(--accent); }
+.tools-spinner-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: var(--space-xs); }
+.tools-spinner { width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.06); border-top-color: var(--accent); border-radius: 50%; animation: tools-spin 0.8s linear infinite; }
+@keyframes tools-spin { to { transform: rotate(360deg); } }
+</style>
+
+<div class="page-header" data-theme="dark">
+  <div class="container">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.subtitle }}<p class="lead">{{ . }}</p>{{ end }}
+  </div>
+</div>
+
+<div class="page-content" data-theme="light">
+  <div class="container">
+    <div class="tools-app">
+
+      <nav class="tools-tabs" role="tablist">
+        <button class="tools-tab active" role="tab" aria-selected="true" data-tab="twilight">Twilight Times</button>
+        <button class="tools-tab" role="tab" aria-selected="false" data-tab="phase">Phase Calculator</button>
+      </nav>
+
+      <!-- Twilight Times Tab -->
+      <section id="tab-twilight" class="tools-tab-content active">
+        <div class="glass-card" style="padding: var(--space-lg);">
+          <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: var(--space-xs);">Nautical Twilight Schedule</h2>
+          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Generate a yearly streetlight operating schedule for any location. Returns daily nautical dusk (lights ON) and nautical dawn (lights OFF) times.</p>
+
+          <form id="twilight-form">
+            <div class="tools-form-row">
+              <div class="form-group">
+                <label for="tw-lat">Latitude</label>
+                <input type="number" id="tw-lat" step="any" min="-90" max="90" value="36.7456" required>
+              </div>
+              <div class="form-group">
+                <label for="tw-lon">Longitude</label>
+                <input type="number" id="tw-lon" step="any" min="-180" max="180" value="-93.4712" required>
+              </div>
+              <div class="form-group">
+                <label for="tw-year">Year</label>
+                <input type="number" id="tw-year" min="1900" max="2100" placeholder="2026" required>
+              </div>
+            </div>
+            <button type="submit" id="tw-submit" class="btn btn-primary">Generate CSV</button>
+          </form>
+
+          <p style="color: var(--text-subtle); font-size: 0.78rem; line-height: 1.5; margin-top: 0.75rem;">Default location: <a href="https://www.census.gov/library/visualizations/interactive/center-of-population-mean-center.html" target="_blank">US Census Mean Center of Population (2020)</a> — Hartville, MO. Streetlights turn ON when the sun drops to −6° elevation (end of civil twilight) and OFF when it rises back to −6° (start of civil twilight).</p>
+
+          <div id="tw-status" class="tools-status tools-hidden"></div>
+        </div>
+      </section>
+
+      <!-- Phase Calculator Tab -->
+      <section id="tab-phase" class="tools-tab-content">
+        <div class="glass-card" style="padding: var(--space-lg);">
+          <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: var(--space-xs);">Phase Calculator</h2>
+          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Upload a CSV with coordinates and timestamps. Each record gets tagged with sun elevation, twilight phase, and streetlight status.</p>
+
+          <!-- Step 1: Upload -->
+          <div id="phase-step-upload" class="tools-step active">
+            <h3>1. Upload CSV</h3>
+            <div class="tools-upload-area" id="upload-area">
+              <input type="file" id="file-input" accept=".csv" hidden>
+              <p style="color: var(--text-subtle);">Drop a .csv file here or <button type="button" id="browse-btn" class="browse-link">browse</button></p>
+              <p style="color: var(--text-subtle); font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.6;">Maximum 2.5 million rows</p>
+            </div>
+            <div id="upload-progress" class="tools-progress tools-hidden">
+              <div class="tools-progress-fill" id="upload-fill"></div>
+            </div>
+            <div id="upload-status" class="tools-status tools-hidden"></div>
+          </div>
+
+          <!-- Step 2: Column Mapping -->
+          <div id="phase-step-columns" class="tools-step">
+            <h3>2. Map Columns</h3>
+            <p style="color: var(--text-subtle); font-size: 0.85rem; margin-bottom: var(--space-sm);">Confirm which columns contain your location and date/time fields.</p>
+
+            <div class="tools-mode-toggle">
+              <label class="tools-mode-option">
+                <input type="radio" name="datetime-mode" value="combined" checked>
+                <span>Date + Time columns</span>
+              </label>
+              <label class="tools-mode-option">
+                <input type="radio" name="datetime-mode" value="separate">
+                <span>Separate fields (Year, Month, Day, Hour, Minute)</span>
+              </label>
+            </div>
+
+            <div class="tools-form-row">
+              <div class="form-group">
+                <label for="col-lat">Latitude</label>
+                <select id="col-lat"></select>
+              </div>
+              <div class="form-group">
+                <label for="col-lon">Longitude</label>
+                <select id="col-lon"></select>
+              </div>
+            </div>
+
+            <div id="columns-combined" class="tools-form-row">
+              <div class="form-group">
+                <label for="col-date">Date</label>
+                <select id="col-date"></select>
+              </div>
+              <div class="form-group">
+                <label for="col-time">Time</label>
+                <select id="col-time"></select>
+              </div>
+            </div>
+
+            <div id="columns-separate" class="tools-form-row tools-hidden">
+              <div class="form-group">
+                <label for="col-year">Year</label>
+                <select id="col-year"></select>
+              </div>
+              <div class="form-group">
+                <label for="col-month">Month</label>
+                <select id="col-month"></select>
+              </div>
+              <div class="form-group">
+                <label for="col-day">Day</label>
+                <select id="col-day"></select>
+              </div>
+              <div class="form-group">
+                <label for="col-hour">Hour</label>
+                <select id="col-hour"></select>
+              </div>
+              <div class="form-group">
+                <label for="col-minute">Minute</label>
+                <select id="col-minute"></select>
+              </div>
+            </div>
+
+            <button type="button" id="start-processing" class="btn btn-primary">Process</button>
+          </div>
+
+          <!-- Step 3: Processing -->
+          <div id="phase-step-processing" class="tools-step">
+            <h3>3. Processing</h3>
+            <div class="tools-spinner-row">
+              <div class="tools-spinner"></div>
+              <p id="processing-text" style="color: var(--text-body);">Splitting and processing your data...</p>
+            </div>
+            <div id="processing-progress" class="tools-progress">
+              <div class="tools-progress-fill" id="processing-fill"></div>
+            </div>
+          </div>
+
+          <!-- Step 4: Download -->
+          <div id="phase-step-done" class="tools-step">
+            <h3>4. Download Results</h3>
+            <p id="done-text" style="color: #22c55e; margin-bottom: var(--space-sm);"></p>
+            <a id="download-link" class="btn btn-primary" download style="margin-right: 0.75rem;">Download CSV</a>
+            <button type="button" id="start-over" class="btn btn-secondary">Start Over</button>
+          </div>
+
+          <!-- Error state -->
+          <div id="phase-step-error" class="tools-step">
+            <h3>Error</h3>
+            <p id="error-text" style="color: #ef4444; margin-bottom: var(--space-sm);"></p>
+            <button type="button" id="error-retry" class="btn btn-secondary">Start Over</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var API = 'https://tools.photometrics.ai/api';
+
+  // ─── Tabs ───
+  function switchTab(tabName) {
+    document.querySelectorAll('.tools-tab').forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+    document.querySelectorAll('.tools-tab-content').forEach(function(c) { c.classList.remove('active'); });
+    var btn = document.querySelector('.tools-tab[data-tab="' + tabName + '"]');
+    if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
+    var tabEl = document.getElementById('tab-' + tabName);
+    if (tabEl) tabEl.classList.add('active');
+    history.replaceState(null, '', '#' + tabName);
+  }
+
+  document.querySelectorAll('.tools-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() { switchTab(tab.dataset.tab); });
+  });
+
+  var hashTab = location.hash.replace('#', '');
+  if (hashTab && document.querySelector('.tools-tab[data-tab="' + hashTab + '"]')) switchTab(hashTab);
+
+  // ─── Twilight Times ───
+  document.getElementById('tw-year').value = new Date().getFullYear();
+
+  document.getElementById('twilight-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var lat = document.getElementById('tw-lat').value;
+    var lon = document.getElementById('tw-lon').value;
+    var year = document.getElementById('tw-year').value;
+    var btn = document.getElementById('tw-submit');
+    var status = document.getElementById('tw-status');
+
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    showStatus(status, 'info', 'Calculating twilight times for every day of ' + year + '...');
+
+    fetch(API + '/twilight?lat=' + lat + '&lon=' + lon + '&year=' + year)
+      .then(function(resp) {
+        if (!resp.ok) return resp.json().then(function(err) { throw new Error(err.error || 'Request failed'); });
+        return resp.blob();
+      })
+      .then(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'twilight_' + lat + '_' + lon + '_' + year + '.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        showStatus(status, 'success', 'Download started.');
+      })
+      .catch(function(err) { showStatus(status, 'error', err.message); })
+      .finally(function() { btn.disabled = false; btn.textContent = 'Generate CSV'; });
+  });
+
+  // ─── Phase Calculator ───
+  var currentJobId = null;
+  var pollInterval = null;
+
+  var steps = {
+    upload: document.getElementById('phase-step-upload'),
+    columns: document.getElementById('phase-step-columns'),
+    processing: document.getElementById('phase-step-processing'),
+    done: document.getElementById('phase-step-done'),
+    error: document.getElementById('phase-step-error')
+  };
+
+  function showStep(name) {
+    Object.keys(steps).forEach(function(k) { steps[k].classList.remove('active'); });
+    steps[name].classList.add('active');
+  }
+
+  var uploadArea = document.getElementById('upload-area');
+  var fileInput = document.getElementById('file-input');
+
+  document.getElementById('browse-btn').addEventListener('click', function() { fileInput.click(); });
+  uploadArea.addEventListener('click', function(e) { if (e.target !== document.getElementById('browse-btn')) fileInput.click(); });
+  uploadArea.addEventListener('dragover', function(e) { e.preventDefault(); uploadArea.classList.add('dragover'); });
+  uploadArea.addEventListener('dragleave', function() { uploadArea.classList.remove('dragover'); });
+  uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault(); uploadArea.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', function() { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+  function handleFile(file) {
+    if (!file.name.toLowerCase().endsWith('.csv')) { showStatus(document.getElementById('upload-status'), 'error', 'Please select a .csv file.'); return; }
+    var uploadStatus = document.getElementById('upload-status');
+    var progressBar = document.getElementById('upload-progress');
+    var progressFill = document.getElementById('upload-fill');
+    progressBar.classList.remove('tools-hidden');
+    showStatus(uploadStatus, 'info', 'Getting upload URL...');
+
+    fetch(API + '/phase/upload', { method: 'POST' })
+      .then(function(resp) { if (!resp.ok) throw new Error('Failed to initiate upload'); return resp.json(); })
+      .then(function(data) {
+        currentJobId = data.jobId;
+        showStatus(uploadStatus, 'info', 'Uploading file...');
+        return new Promise(function(resolve, reject) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('PUT', data.uploadUrl);
+          xhr.setRequestHeader('Content-Type', 'text/csv');
+          xhr.upload.addEventListener('progress', function(e) { if (e.lengthComputable) progressFill.style.width = (e.loaded / e.total * 100) + '%'; });
+          xhr.onload = function() { xhr.status === 200 ? resolve() : reject(new Error('Upload failed')); };
+          xhr.onerror = function() { reject(new Error('Upload failed')); };
+          xhr.send(file);
+        });
+      })
+      .then(function() {
+        showStatus(uploadStatus, 'info', 'Detecting columns...');
+        return fetch(API + '/phase/detect-columns', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jobId: currentJobId }) });
+      })
+      .then(function(resp) { if (!resp.ok) throw new Error('Failed to detect columns'); return resp.json(); })
+      .then(function(data) { populateColumnDropdowns(data.columns, data.detected); showStep('columns'); })
+      .catch(function(err) { showStatus(uploadStatus, 'error', err.message); });
+  }
+
+  function setDatetimeMode(mode) {
+    document.querySelector('input[name="datetime-mode"][value="' + mode + '"]').checked = true;
+    document.getElementById('columns-combined').classList.toggle('tools-hidden', mode === 'separate');
+    document.getElementById('columns-separate').classList.toggle('tools-hidden', mode !== 'separate');
+  }
+
+  document.querySelectorAll('input[name="datetime-mode"]').forEach(function(radio) {
+    radio.addEventListener('change', function() { setDatetimeMode(radio.value); });
+  });
+
+  function populateColumnDropdowns(columns, detected) {
+    var idMap = { lat: 'col-lat', lon: 'col-lon', date: 'col-date', time: 'col-time', year: 'col-year', month: 'col-month', day_of_month: 'col-day', hour: 'col-hour', minute: 'col-minute' };
+    Object.keys(idMap).forEach(function(field) {
+      var select = document.getElementById(idMap[field]);
+      if (!select) return;
+      select.innerHTML = '<option value="">— select —</option>';
+      columns.forEach(function(col) {
+        var opt = document.createElement('option');
+        opt.value = col; opt.textContent = col;
+        if (detected[field] === col) opt.selected = true;
+        select.appendChild(opt);
+      });
+    });
+    setDatetimeMode(detected.mode || 'combined');
+  }
+
+  document.getElementById('start-processing').addEventListener('click', function() {
+    var mode = document.querySelector('input[name="datetime-mode"]:checked').value;
+    var columns = { mode: mode, lat: document.getElementById('col-lat').value, lon: document.getElementById('col-lon').value };
+    if (mode === 'separate') {
+      columns.year = document.getElementById('col-year').value; columns.month = document.getElementById('col-month').value;
+      columns.day_of_month = document.getElementById('col-day').value; columns.hour = document.getElementById('col-hour').value; columns.minute = document.getElementById('col-minute').value;
+    } else { columns.date = document.getElementById('col-date').value; columns.time = document.getElementById('col-time').value; }
+    var fields = Object.keys(columns);
+    for (var i = 0; i < fields.length; i++) { if (fields[i] !== 'mode' && !columns[fields[i]]) { alert('Please select a column for ' + fields[i].replace('_', ' ') + '.'); return; } }
+    showStep('processing');
+    fetch(API + '/phase/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jobId: currentJobId, columns: columns }) })
+      .then(function(resp) { if (!resp.ok) return resp.json().then(function(err) { throw new Error(err.error || 'Failed to start processing'); }); startPolling(); })
+      .catch(function(err) { showError(err.message); });
+  });
+
+  function startPolling() {
+    pollInterval = setInterval(function() {
+      fetch(API + '/phase/status?jobId=' + currentJobId)
+        .then(function(resp) { if (!resp.ok) return; return resp.json(); })
+        .then(function(data) {
+          if (!data) return;
+          if (data.status === 'complete') { clearInterval(pollInterval); document.getElementById('processing-fill').style.width = '100%'; document.getElementById('done-text').textContent = 'Done! Processed ' + (data.totalRows || 0).toLocaleString() + ' rows.'; document.getElementById('download-link').href = data.downloadUrl; showStep('done'); }
+          else if (data.status === 'error') { clearInterval(pollInterval); showError(data.error || 'Processing failed.'); }
+          else if (data.status === 'processing' && data.totalRows && data.totalChunks) { document.getElementById('processing-text').textContent = 'Processing ' + data.totalRows.toLocaleString() + ' rows in ' + data.totalChunks + ' chunks...'; }
+        }).catch(function() {});
+    }, 5000);
+  }
+
+  function showError(message) { document.getElementById('error-text').textContent = message; showStep('error'); }
+
+  document.getElementById('start-over').addEventListener('click', resetPhase);
+  document.getElementById('error-retry').addEventListener('click', resetPhase);
+
+  function resetPhase() {
+    if (pollInterval) clearInterval(pollInterval);
+    currentJobId = null; fileInput.value = '';
+    document.getElementById('upload-progress').classList.add('tools-hidden');
+    document.getElementById('upload-fill').style.width = '0%';
+    document.getElementById('upload-status').classList.add('tools-hidden');
+    document.getElementById('processing-fill').style.width = '0%';
+    showStep('upload');
+  }
+
+  function showStatus(el, type, message) { el.className = 'tools-status ' + type; el.textContent = message; el.classList.remove('tools-hidden'); }
+})();
+</script>
+{{ end }}
