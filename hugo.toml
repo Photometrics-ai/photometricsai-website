@@ -2,6 +2,12 @@ buildFuture = true
 baseURL = "https://photometrics.ai/"
 languageCode = "en-us"
 title = "Photometrics AI | Street Lighting Optimization"
+enableGitInfo = true
+
+# Use git commit time as fallback for lastmod when front matter doesn't specify it
+[frontmatter]
+  lastmod = ["lastmod", ":git", "date", "publishDate"]
+  date    = ["date", "publishDate", ":git"]
 
 # Enable sitemap generation
 [sitemap]
