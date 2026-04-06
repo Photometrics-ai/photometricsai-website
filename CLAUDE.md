@@ -111,14 +111,14 @@ The tools web UI lives in Hugo, not in `tools/sun-phase/`:
 - **Styles**: inline `<style>` block in the template (no separate CSS file)
 - **Content**: `content/tools.md`
 
-The frontend calls the Lambda backend at `https://tools.photometrics.ai/api`. This is hardcoded in the inline JS (`var API = 'https://tools.photometrics.ai/api'`).
+The frontend calls the Lambda backend via `/api` (same-origin). Amplify has a rewrite rule that proxies `/api/<*>` → `https://tools.photometrics.ai/api/<*>` (status 200), so all API calls are same-origin from the browser's perspective — no CORS headers needed on Lambdas. The S3 DataBucket CORS config allows direct PUT uploads from both `tools.photometrics.ai` and `photometrics.ai`.
 
 ### AWS Infrastructure (SAM stack: `tools/sun-phase/web/`)
 
 Stack name: `sun-phase-web` | Region: `us-east-2` | Config: `web/samconfig.toml`
 
 **S3 Buckets:**
-- **DataBucket** — Temp storage for user CSV uploads and processed chunks. Auto-expires after 3 days. CORS allows PUT/GET from `tools.photometrics.ai`.
+- **DataBucket** — Temp storage for user CSV uploads and processed chunks. Auto-expires after 3 days. CORS allows PUT/GET from `tools.photometrics.ai` and `photometrics.ai`.
 - **FrontendBucket** — Serves the old standalone frontend via CloudFront (will become unused after migration redirect). Private, CloudFront OAC only.
 - **LogBucket** — CloudFront access logs. Auto-expires after 30 days.
 
