@@ -36,6 +36,7 @@ enableGitInfo = true
   ogImage = "/images/og-image.png"
   twitterHandle = "@PhotometricsAI"
   googleAnalytics = "G-10FLC6K72Z"
+  googleSiteVerification = ""
 
 # Main navigation menu
 [[menus.main]]

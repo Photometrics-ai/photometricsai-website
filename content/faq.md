@@ -6,6 +6,7 @@ keywords: ["false binary street lighting", "target lighting layer", "networked l
 type: "faq"
 cta: "demo-both"
 lastmod: 2026-03-13
+og_image: "/images/og/faq.png"
 faq:
   - question: "What is Photometrics AI?"
     answer: "Photometrics AI is a software platform that optimizes public lighting performance through networked lighting controls. It determines the optimal operating parameters for each luminaire based on real-world geography, lighting standards, and configurable priorities, delivering approximately 35% energy savings without any hardware installation or field activity."

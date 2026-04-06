@@ -11,6 +11,10 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{{ with .Site.Params.googleSiteVerification }}<meta name="google-site-verification" content="{{ . }}">{{ end }}
+
+{{ $ogImage := printf "%simages/og-image.png" .Site.BaseURL }}
+{{ with .Params.og_image }}{{ $ogImage = printf "%s%s" $.Site.BaseURL (strings.TrimPrefix "/" .) }}{{ end }}
 
 <!-- Primary Meta Tags -->
 <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ with .Params.seo_title }}{{ . }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}{{ end }}</title>
@@ -32,7 +36,7 @@
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}">
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
-<meta property="og:image" content="{{ .Site.BaseURL }}images/og-image.png">
+<meta property="og:image" content="{{ $ogImage }}">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
@@ -47,12 +51,17 @@
 <meta name="twitter:url" content="{{ .Permalink }}">
 <meta name="twitter:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}">
 <meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
-<meta name="twitter:image" content="{{ .Site.BaseURL }}images/og-image.png">
+<meta name="twitter:image" content="{{ $ogImage }}">
 {{ with .Site.Params.twitterHandle }}<meta name="twitter:site" content="{{ . }}">{{ end }}
 
 <!-- Organization Schema (JSON-LD) -->
 {{ partial "schema-org.html" . }}
 {{ partial "schema-localbusiness.html" . }}
+{{ partial "schema-breadcrumbs.html" . }}
+
+{{ with .File }}{{ if eq .BaseFileName "tools" }}
+{{ partial "schema-tools.html" $ }}
+{{ end }}{{ end }}
 
 <!-- Software Application Schema (homepage only) -->
 {{ if .IsHome }}

@@ -6,6 +6,7 @@ keywords: ["street lighting ROI", "LED victory lap", "duck curve street lighting
 layout: benefits
 type: page
 lastmod: 2026-03-13
+og_image: "/images/og/benefits.png"
 ---
 
 <div class="stats-grid" style="margin-bottom: var(--space-xl);">
