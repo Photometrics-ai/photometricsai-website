@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Sun Phase Tools - tools.photometrics.ai
+Description: Sun Phase Tools - API backend for photometrics.ai/tools/
 
 Globals:
   Function:
@@ -10,14 +10,6 @@ Globals:
     Environment:
       Variables:
         DATA_BUCKET: !Ref DataBucket
-
-Parameters:
-  DomainName:
-    Type: String
-    Default: tools.photometrics.ai
-  CertificateArn:
-    Type: String
-    Description: ACM certificate ARN for tools.photometrics.ai (must be us-east-1 for CloudFront)
 
 Resources:
   # ─── S3 Buckets ───
@@ -32,7 +24,6 @@ Resources:
       CorsConfiguration:
         CorsRules:
           - AllowedOrigins:
-              - "https://tools.photometrics.ai"
               - "https://photometrics.ai"
               - "https://www.photometrics.ai"
             AllowedMethods:
@@ -43,43 +34,6 @@ Resources:
             ExposedHeaders:
               - ETag
             MaxAge: 3600
-
-  LogBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: BucketOwnerPreferred
-      LifecycleConfiguration:
-        Rules:
-          - Id: ExpireLogs
-            Status: Enabled
-            ExpirationInDays: 30
-
-  FrontendBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-
-  FrontendBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref FrontendBucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: cloudfront.amazonaws.com
-            Action: s3:GetObject
-            Resource: !Sub "${FrontendBucket.Arn}/*"
-            Condition:
-              StringEquals:
-                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
 
   # ─── Lambda Layer ───
   DepsLayer:
@@ -303,81 +257,10 @@ Resources:
         - LambdaInvokePolicy:
             FunctionName: !Ref CombinerFunction
 
-  # ─── CloudFront ───
-  CloudFrontOAC:
-    Type: AWS::CloudFront::OriginAccessControl
-    Properties:
-      OriginAccessControlConfig:
-        Name: !Sub "${AWS::StackName}-oac"
-        OriginAccessControlOriginType: s3
-        SigningBehavior: always
-        SigningProtocol: sigv4
-
-  CloudFrontDistribution:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        Enabled: true
-        Aliases:
-          - !Ref DomainName
-        ViewerCertificate:
-          AcmCertificateArn: !Ref CertificateArn
-          SslSupportMethod: sni-only
-          MinimumProtocolVersion: TLSv1.2_2021
-        Logging:
-          Bucket: !GetAtt LogBucket.DomainName
-          IncludeCookies: false
-          Prefix: cloudfront/
-        DefaultRootObject: index.html
-        Origins:
-          - Id: FrontendS3
-            DomainName: !GetAtt FrontendBucket.RegionalDomainName
-            OriginAccessControlId: !Ref CloudFrontOAC
-            S3OriginConfig:
-              OriginAccessIdentity: ""
-          - Id: ApiGateway
-            DomainName: !Sub "${Api}.execute-api.${AWS::Region}.amazonaws.com"
-            OriginPath: /prod
-            CustomOriginConfig:
-              HTTPSPort: 443
-              OriginProtocolPolicy: https-only
-        DefaultCacheBehavior:
-          TargetOriginId: FrontendS3
-          ViewerProtocolPolicy: redirect-to-https
-          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # CachingOptimized
-          Compress: true
-        CacheBehaviors:
-          - PathPattern: /api/*
-            TargetOriginId: ApiGateway
-            ViewerProtocolPolicy: https-only
-            AllowedMethods:
-              - GET
-              - HEAD
-              - OPTIONS
-              - PUT
-              - POST
-              - PATCH
-              - DELETE
-            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
-            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac  # AllViewerExceptHostHeader
-            Compress: true
-
 Outputs:
   ApiUrl:
     Description: API Gateway URL
     Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/prod"
-  FrontendBucketName:
-    Description: Frontend S3 bucket name
-    Value: !Ref FrontendBucket
   DataBucketName:
     Description: Data S3 bucket name
     Value: !Ref DataBucket
-  CloudFrontDomain:
-    Description: CloudFront distribution domain
-    Value: !GetAtt CloudFrontDistribution.DomainName
-  CloudFrontDistributionId:
-    Description: CloudFront distribution ID
-    Value: !Ref CloudFrontDistribution
-  LogBucketName:
-    Description: Access log bucket name
-    Value: !Ref LogBucket

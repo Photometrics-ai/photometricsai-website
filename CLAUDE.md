@@ -111,21 +111,14 @@ The tools web UI lives in Hugo, not in `tools/sun-phase/`:
 - **Styles**: inline `<style>` block in the template (no separate CSS file)
 - **Content**: `content/tools.md`
 
-API routing: `photometrics.ai/tools/` → `/api/*` → Amplify rewrite → API Gateway (`xtfuhgnw3k.execute-api.us-east-2.amazonaws.com/prod`) → Lambda. Amplify has a rewrite rule that proxies `/api/<*>` directly to API Gateway (status 200), so all API calls are same-origin from the browser's perspective — no CORS headers needed on Lambdas. The S3 DataBucket CORS config allows direct PUT uploads from `https://tools.photometrics.ai`, `https://photometrics.ai`, and `https://www.photometrics.ai`.
+API routing: `photometrics.ai/tools/` → `/api/*` → Amplify rewrite → API Gateway (`xtfuhgnw3k.execute-api.us-east-2.amazonaws.com/prod`) → Lambda. Amplify has a rewrite rule that proxies `/api/<*>` directly to API Gateway (status 200), so all API calls are same-origin from the browser's perspective — no CORS headers needed on Lambdas. The S3 DataBucket CORS config allows direct PUT uploads from `https://photometrics.ai` and `https://www.photometrics.ai`.
 
 ### AWS Infrastructure (SAM stack: `tools/sun-phase/web/`)
 
 Stack name: `sun-phase-web` | Region: `us-east-2` | Config: `web/samconfig.toml`
 
 **S3 Buckets:**
-- **DataBucket** — Temp storage for user CSV uploads and processed chunks. Auto-expires after 3 days. CORS allows PUT/GET from `tools.photometrics.ai`, `photometrics.ai`, and `www.photometrics.ai`.
-- **FrontendBucket** — Unused (was the old standalone frontend). Still exists in SAM stack, teardown is a future task.
-- **LogBucket** — Unused (was CloudFront access logs). Still exists in SAM stack, teardown is a future task.
-
-**CloudFront Distribution** (`tools.photometrics.ai`) — **DECOMMISSIONED** (still exists but no longer in the request path):
-- Amplify now rewrites `/api/*` directly to API Gateway, bypassing CloudFront
-- The distribution, FrontendBucket, LogBucket, ACM cert, and DNS record still exist but are unused
-- Teardown is a separate future SAM template change
+- **DataBucket** — Temp storage for user CSV uploads and processed chunks. Auto-expires after 3 days. CORS allows PUT/GET from `photometrics.ai` and `www.photometrics.ai`.
 
 **API Gateway** (Regional, stage: `prod`):
 Routes map to Lambda functions — all share the `DepsLayer` (pandas, pytz, timezonefinder, sun_utils, phase_calculator_core, twilight_core).
