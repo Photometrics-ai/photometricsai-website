@@ -2,6 +2,7 @@
 title: "BirdCast Data Attribution"
 description: "Attribution and data source information for BirdCast migration forecast data used by Photometrics AI."
 cta: "take-action"
+noindex: true
 ---
 
 BirdCast Alerts provided by [Cornell Lab of Ornithology | BirdCast](https://alert.birdcast.info)
