@@ -5,6 +5,7 @@ tags:
   - energy
   - utilities
   - optimization
+date: 2026-03-25
 ---
 
 *There is substantial waste in street lighting today. The transition to LED saved money by providing more lumens per watt, but it didn't lead to better lighting. Most cities simply swapped fixtures one-for-one without rethinking what the right light is, where it should go, or when it should be on. This series explores the quantifiable financial benefits of getting it right. Utility cost avoidance is the first of seven components we'll cover. Together, these benefits outweigh the costs by 10x.*

@@ -5,6 +5,7 @@ tags:
   - energy
   - optimization
   - controls
+date: 2026-03-14
 ---
 
 The street lighting industry ran on one pitch for fifteen years: replace high-pressure sodium with LED. Same light, lower energy bills. Utility rebates bought down the upfront cost. ESCO financing eliminated capital outlays. Energy savings provided the payback. It was a clean, repeatable economic engine and it worked brilliantly.

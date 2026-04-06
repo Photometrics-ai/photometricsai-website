@@ -5,6 +5,7 @@ tags:
   - optimization
   - energy
   - infrastructure
+date: 2026-03-14
 ---
 
 ## The Static Lighting Problem
