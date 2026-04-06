@@ -26,5 +26,6 @@ nul
 tools/sun-phase/venv/
 tools/sun-phase/__pycache__/
 tools/sun-phase/.aws-sam/
+tools/sun-phase/web/.aws-sam/
 tools/sun-phase/data/input/
 tools/sun-phase/data/output/

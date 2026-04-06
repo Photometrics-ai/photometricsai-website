@@ -111,21 +111,21 @@ The tools web UI lives in Hugo, not in `tools/sun-phase/`:
 - **Styles**: inline `<style>` block in the template (no separate CSS file)
 - **Content**: `content/tools.md`
 
-The frontend calls the Lambda backend via `/api` (same-origin). Amplify has a rewrite rule that proxies `/api/<*>` → `https://tools.photometrics.ai/api/<*>` (status 200), so all API calls are same-origin from the browser's perspective — no CORS headers needed on Lambdas. The S3 DataBucket CORS config allows direct PUT uploads from both `tools.photometrics.ai` and `photometrics.ai`.
+API routing: `photometrics.ai/tools/` → `/api/*` → Amplify rewrite → API Gateway (`xtfuhgnw3k.execute-api.us-east-2.amazonaws.com/prod`) → Lambda. Amplify has a rewrite rule that proxies `/api/<*>` directly to API Gateway (status 200), so all API calls are same-origin from the browser's perspective — no CORS headers needed on Lambdas. The S3 DataBucket CORS config allows direct PUT uploads from `https://tools.photometrics.ai`, `https://photometrics.ai`, and `https://www.photometrics.ai`.
 
 ### AWS Infrastructure (SAM stack: `tools/sun-phase/web/`)
 
 Stack name: `sun-phase-web` | Region: `us-east-2` | Config: `web/samconfig.toml`
 
 **S3 Buckets:**
-- **DataBucket** — Temp storage for user CSV uploads and processed chunks. Auto-expires after 3 days. CORS allows PUT/GET from `tools.photometrics.ai` and `photometrics.ai`.
-- **FrontendBucket** — Serves the old standalone frontend via CloudFront (will become unused after migration redirect). Private, CloudFront OAC only.
-- **LogBucket** — CloudFront access logs. Auto-expires after 30 days.
+- **DataBucket** — Temp storage for user CSV uploads and processed chunks. Auto-expires after 3 days. CORS allows PUT/GET from `tools.photometrics.ai`, `photometrics.ai`, and `www.photometrics.ai`.
+- **FrontendBucket** — Unused (was the old standalone frontend). Still exists in SAM stack, teardown is a future task.
+- **LogBucket** — Unused (was CloudFront access logs). Still exists in SAM stack, teardown is a future task.
 
-**CloudFront Distribution** (`tools.photometrics.ai`):
-- Default behavior → FrontendBucket (S3 via OAC)
-- `/api/*` → API Gateway origin (cache disabled, all HTTP methods)
-- Custom domain with ACM cert (must be us-east-1 for CloudFront)
+**CloudFront Distribution** (`tools.photometrics.ai`) — **DECOMMISSIONED** (still exists but no longer in the request path):
+- Amplify now rewrites `/api/*` directly to API Gateway, bypassing CloudFront
+- The distribution, FrontendBucket, LogBucket, ACM cert, and DNS record still exist but are unused
+- Teardown is a separate future SAM template change
 
 **API Gateway** (Regional, stage: `prod`):
 Routes map to Lambda functions — all share the `DepsLayer` (pandas, pytz, timezonefinder, sun_utils, phase_calculator_core, twilight_core).

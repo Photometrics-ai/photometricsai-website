@@ -33,6 +33,8 @@ Resources:
         CorsRules:
           - AllowedOrigins:
               - "https://tools.photometrics.ai"
+              - "https://photometrics.ai"
+              - "https://www.photometrics.ai"
             AllowedMethods:
               - PUT
               - GET
