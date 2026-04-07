@@ -5,7 +5,8 @@ description: "Photometrics AI delivers $61.27 combined value per light per year.
 keywords: ["street lighting ROI", "LED victory lap", "duck curve street lighting", "avoided cost street lighting", "streetlight energy savings"]
 layout: benefits
 type: page
-lastmod: 2026-03-13---
+lastmod: 2026-03-13
+---
 
 <div class="stats-grid" style="margin-bottom: var(--space-xl);">
   <div class="stat-card glass-card">
