@@ -12,7 +12,7 @@ customHeaders:
       - key: Permissions-Policy
         value: 'camera=(), microphone=(), geolocation=()'
       - key: Content-Security-Policy
-        value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://d3js.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.s3.us-east-2.amazonaws.com https://www.googletagmanager.com; frame-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://d3js.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.s3.us-east-2.amazonaws.com https://www.googletagmanager.com; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
   - pattern: '/css/**'
     headers:
       - key: Cache-Control
