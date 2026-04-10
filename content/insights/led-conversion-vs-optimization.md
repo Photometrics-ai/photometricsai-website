@@ -1,6 +1,7 @@
 ---
 title: "LED Conversion vs. Optimization: Comparing the ROI"
-description: "The LED streetlight conversion cost $400-900 per light with a 3-5 year payback. Street lighting optimization delivers $32-51/light/year with payback under 12 months. No hardware required."
+seo_title: "LED Conversion Isn't Optimization — Here's What Cities Are Missing"
+description: "LED retrofits saved energy but left the same crude design in place. Per-luminaire optimization cuts another 25–50% from systems that already converted."
 tags:
   - energy
   - optimization

@@ -1,8 +1,9 @@
 ---
 title: "Best Practices for Public Safety"
+seo_title: "Street Lighting and Public Safety — What the Data Actually Shows"
 linkTitle: "Public Safety"
 subtitle: "More light isn't the answer. The right light is."
-description: "How intelligent street lighting enhances public safety through targeted crime deterrence, emergency response integration, and evidence-based lighting strategies."
+description: "The relationship between street lighting and crime reduction is real but misunderstood. Better lighting isn't more lighting — it's the right lighting in the right places."
 keywords: ["false binary street lighting", "precision lighting safety", "CPTED street lighting", "street lighting crime reduction"]
 cta: "take-action"
 lastmod: 2026-03-13

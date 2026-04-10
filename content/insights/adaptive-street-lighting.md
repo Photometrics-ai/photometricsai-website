@@ -1,6 +1,7 @@
 ---
 title: "Why Adaptive Street Lighting Is the Next Infrastructure Priority"
-description: "Cities spend billions on street lighting that never changes. Adaptive systems cut energy waste, improve safety, and respond to real-world conditions — without replacing a single fixture."
+seo_title: "Why Adaptive Street Lighting Is Stalled — And What Actually Works"
+description: "Most adaptive lighting is just blanket dimming with a network connection. Real optimization calculates every luminaire individually using GIS and photometric data."
 tags:
   - optimization
   - energy
