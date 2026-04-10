@@ -2,6 +2,7 @@
 {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://photometrics.ai/#organization",
   "name": "Photometrics AI",
   "alternateName": "Photometrics.ai",
   "url": "{{ .Site.BaseURL }}",
@@ -24,7 +25,9 @@
   },
   "sameAs": [
     "https://www.linkedin.com/company/photometricsai/",
-    "https://www.linkedin.com/in/ari-isaak/"
+    "https://www.linkedin.com/in/ari-isaak/",
+    "https://www.ies.org",
+    "https://evarilabs.com"
   ],
   "foundingDate": "2024",
   "foundingLocation": {
@@ -41,7 +44,8 @@
   }],
   "numberOfEmployees": {
     "@type": "QuantitativeValue",
-    "value": "1-10"
+    "minValue": 1,
+    "maxValue": 10
   },
   "areaServed": {
     "@type": "Country",

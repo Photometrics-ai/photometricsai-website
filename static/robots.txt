@@ -29,6 +29,9 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
 User-agent: Bingbot
 Allow: /
 

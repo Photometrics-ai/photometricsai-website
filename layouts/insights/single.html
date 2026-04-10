@@ -2,6 +2,9 @@
 <div class="page-header" data-theme="dark">
   <div class="container">
     <h1>{{ .Title }}</h1>
+    <div style="margin-top: var(--space-sm); opacity: 0.8; font-size: 0.95rem;">
+      {{ with .Site.Params.author }}<span>{{ . }}</span>{{ end }}{{ if and .Site.Params.author (not .Date.IsZero) }} · {{ end }}{{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>{{ end }}
+    </div>
     {{ with .Params.tags }}
     <div class="press-release-tags" style="margin-top: var(--space-sm); justify-content: center;">
       {{ range . }}

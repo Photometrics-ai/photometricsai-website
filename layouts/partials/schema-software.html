@@ -2,6 +2,7 @@
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
+  "@id": "https://photometrics.ai/#software",
   "name": "Photometrics AI",
   "applicationCategory": "BusinessApplication",
   "applicationSubCategory": "Energy Management Software",
@@ -21,12 +22,19 @@
   "offers": {
     "@type": "Offer",
     "priceCurrency": "USD",
-    "price": "0",
-    "description": "Contact for custom pricing ($3–$12 per light per year)",
+    "priceSpecification": {
+      "@type": "UnitPriceSpecification",
+      "priceCurrency": "USD",
+      "minPrice": "3",
+      "maxPrice": "12",
+      "unitText": "per light per year"
+    },
+    "description": "Custom pricing based on deployment size ($3–$12 per light per year)",
     "availability": "https://schema.org/InStock",
     "url": "{{ .Site.BaseURL }}contact/",
     "seller": {
       "@type": "Organization",
+      "@id": "https://photometrics.ai/#organization",
       "name": "Photometrics AI"
     }
   },

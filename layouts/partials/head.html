@@ -46,9 +46,9 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
 <meta property="og:site_name" content="Photometrics AI">
-{{ if eq .Section "press" }}
+{{ if or (eq .Section "press") (eq .Section "insights") }}
 <meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" }}">
-<meta property="article:author" content="Photometrics AI">
+<meta property="article:author" content="{{ .Site.Params.author }}">
 {{ end }}
 
 <!-- Twitter -->
@@ -70,6 +70,12 @@
 <!-- Software Application Schema (homepage only) -->
 {{ if .IsHome }}
 {{ partial "schema-software.html" . }}
+{{ partial "schema-website.html" . }}
+{{ end }}
+
+<!-- Insights article schema -->
+{{ if and (eq .Section "insights") (not .IsSection) }}
+{{ partial "schema-article.html" . }}
 {{ end }}
 
 <!-- Page-specific schema -->

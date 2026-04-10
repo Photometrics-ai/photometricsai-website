@@ -34,6 +34,18 @@ Photometrics AI analyzes the unique context of every luminaire (height, optic ty
 - **The Standards-Practice Gap**: The disconnect between what lighting standards specify and what is actually delivered in the field.
 - **Avoided Cost**: The value of resources a utility does not have to procure because street lighting demand has been reduced.
 
+## Insights (Original Research & Analysis)
+
+- [The LED conversion is over. What comes next?](https://photometrics.ai/insights/beyond-led-conversion/): The economic engine that powered fifteen years of street lighting upgrades is running out of fuel. The next phase of value is in how the hardware is operated.
+- [Calculating the Value of Street Light Optimization for Utilities (1 of 7)](https://photometrics.ai/insights/utility-cost-avoidance/): Using California's Avoided Cost Calculator, each optimized streetlight generates $10.18 in annual utility cost avoidance — $203,699 for a fleet of 20,000.
+- [Calculating the Value of Street Light Optimization for Transportation Safety (2 of 7)](https://photometrics.ai/insights/transportation-safety/): Original FARS analysis (2001–2024) shows fatal crashes spike at the darkness transition. Street lighting optimization reduces crash-related costs by $7.82 per light per year. BCA of 1.56.
+- [LED Conversion vs. Optimization: Comparing the ROI](https://photometrics.ai/insights/led-conversion-vs-optimization/): LED retrofits saved energy but left the same crude design in place. Per-luminaire optimization cuts another 25–50% from systems that already converted.
+- [Why Adaptive Street Lighting Is the Next Infrastructure Priority](https://photometrics.ai/insights/adaptive-street-lighting/): Most adaptive lighting is just blanket dimming with a network connection. Real optimization calculates every luminaire individually using GIS and photometric data.
+
+## Press
+
+- [Photometrics AI Integrates BirdCast Data to Protect Migratory Birds](https://photometrics.ai/press/birdcast-integration/): System uses BirdCast migration forecast data to automatically dim streetlights during peak migration events, reducing bird collisions.
+
 ## Contact
 
 - Email: ari@photometrics.ai

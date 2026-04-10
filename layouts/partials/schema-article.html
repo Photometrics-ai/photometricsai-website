@@ -1,0 +1,30 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ .Permalink }}"
+  },
+  "headline": "{{ .Title }}",
+  "description": "{{ .Description }}",
+  "image": "{{ with .Params.og_image }}{{ $.Site.BaseURL }}{{ strings.TrimPrefix "/" . }}{{ else }}{{ $.Site.BaseURL }}images/og-image.png{{ end }}",
+  "datePublished": "{{ .Date.Format "2006-01-02T15:04:05-07:00" }}",
+  "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ .Site.Params.author }}",
+    "url": "https://photometrics.ai/about/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://photometrics.ai/#organization",
+    "name": "Photometrics AI",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ .Site.BaseURL }}images/logo-dark.png"
+    }
+  }{{ with .Params.tags }},
+  "keywords": [{{ range $i, $tag := . }}{{ if $i }}, {{ end }}"{{ $tag }}"{{ end }}]{{ end }}
+}
+</script>

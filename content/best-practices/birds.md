@@ -54,4 +54,4 @@ Read the full announcement: [Photometrics AI Integrates BirdCast Data to Protect
 
 ## How to Apply
 
-*Coming soon - practical guidance for municipalities and conservation organizations on implementing bird-safe lighting programs.*
+*Practical guidance for municipalities and conservation organizations on implementing bird-safe lighting programs is in development. [Contact us](/contact/) to discuss your specific situation.*

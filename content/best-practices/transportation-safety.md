@@ -54,9 +54,9 @@ Effective street lighting saves lives. The goal is to ensure light reaches where
 
 ## How to Apply
 
-*Coming soon - practical guidance for transportation agencies on implementing crash-reduction lighting strategies with existing infrastructure.*
+*Practical guidance for transportation agencies on implementing crash-reduction lighting strategies with existing infrastructure is in development. [Contact us](/contact/) to discuss your specific situation.*
 
 [^1]: [FHWA, Lighting as a Proven Safety Countermeasure](https://claude-sources.s3.us-west-2.amazonaws.com/public/fhwa-lighting-safety-countermeasure.pdf) — 50% of crashes occur at night despite 25% of VMT, a 3:1 risk ratio.
 [^2]: [NHTSA, The Economic and Societal Impact of Motor Vehicle Crashes, 2019](https://claude-sources.s3.us-west-2.amazonaws.com/public/nhtsa-crash-costs-2019.pdf)
 [^3]: [FHWA, Lighting as a Proven Safety Countermeasure](https://claude-sources.s3.us-west-2.amazonaws.com/public/fhwa-lighting-safety-countermeasure.pdf)
-[^4]: [Calculating the Value of Street Light Optimization: Transportation Safety](https://www.linkedin.com/pulse/calculating-value-street-light-optimization-utilities-1-hxohc/) — derived from NHTSA crash cost data and FHWA crash reduction factors. See also: [NHTSA Crash Costs 2019](https://claude-sources.s3.us-west-2.amazonaws.com/public/nhtsa-crash-costs-2019.pdf).
+[^4]: [Calculating the Value of Street Light Optimization: Transportation Safety](/insights/transportation-safety/) — derived from NHTSA crash cost data and FHWA crash reduction factors. See also: [NHTSA Crash Costs 2019](https://claude-sources.s3.us-west-2.amazonaws.com/public/nhtsa-crash-costs-2019.pdf).
