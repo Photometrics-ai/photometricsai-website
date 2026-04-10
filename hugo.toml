@@ -19,7 +19,7 @@ enableGitInfo = true
 [params]
   tagline = "Where Light Meets Intelligence"
   description = "Photometrics AI is a software platform that optimizes public lighting performance through networked lighting controls, delivering 35% energy savings without hardware installation."
-  author = "Photometrics AI"
+  author = "Ari Isaak, GISP, CFLC"
   email = "ari@photometrics.ai"
   phone = "858-633-6447"
 
