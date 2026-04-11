@@ -7,7 +7,8 @@
   <div class="cta-content">
     <h2>Your city officials<br>can change this.</h2>
     <p class="lead">We'll find the right people and help you write the letter.</p>
-    <a href="/take-action/" class="btn btn-primary btn-lg">Take Action</a>
+    {{ $tap := .Params.take_action_priorities }}
+    <a href="/take-action/{{ with $tap }}?priorities={{ . | safeURL }}{{ end }}" class="btn btn-primary btn-lg">Take Action</a>
     <p class="cta-alt">Or <a href="https://tinyurl.com/MeetPhotometricsTeam" target="_blank" rel="noopener">schedule a conversation</a></p>
   </div>
 </section>

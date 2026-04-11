@@ -29,7 +29,7 @@ PRIORITY_URLS = {
     "Transportation Safety": "https://www.photometrics.ai/best-practices/transportation-safety/",
     "Migratory Birds": "https://www.photometrics.ai/best-practices/birds/",
     "Energy Waste": "https://www.photometrics.ai/best-practices/utilities/",
-    "Light Pollution": "https://www.photometrics.ai/best-practices/",
+    "Light Pollution": "https://www.photometrics.ai/best-practices/dark-sky/",
     "Environmental Impact": "https://www.photometrics.ai/best-practices/",
 }
 BEST_PRACTICES_DEFAULT = "https://www.photometrics.ai/best-practices/"

@@ -8,7 +8,7 @@
 
 <div class="page-content" data-theme="light">
   <div class="container">
-    <div class="ta-wizard">
+    <div class="ta-wizard" style="display: flex; flex-direction: column;">
 
       <!-- Card 1: Location + Name -->
       <div class="ta-card" id="ta-card-1">
@@ -78,14 +78,18 @@
             <input type="text" id="ta-custom-priority" placeholder="e.g. Nighttime cycling safety" maxlength="100">
           </div>
 
-          <div style="margin-top: var(--space-md); text-align: center;">
-            <button class="btn btn-primary btn-lg" id="ta-generate" style="width: 100%;" disabled>Generate My Letter</button>
-          </div>
         </div>
       </div>
 
-      <!-- Card 3: Results -->
+      <!-- Card 3: Generate -->
       <div class="ta-card ta-card-locked" id="ta-card-3">
+        <div style="text-align: center;">
+          <button class="btn btn-primary btn-lg" id="ta-generate" style="width: 100%; max-width: 480px;" disabled>Generate My Letter</button>
+        </div>
+      </div>
+
+      <!-- Card 4: Results -->
+      <div class="ta-card ta-card-locked" id="ta-card-4">
         <div class="glass-card" style="padding: var(--space-lg);">
           <div class="ta-card-header">
             <span class="ta-card-badge">3</span>
@@ -176,6 +180,7 @@
   var card1 = document.getElementById("ta-card-1");
   var card2 = document.getElementById("ta-card-2");
   var card3 = document.getElementById("ta-card-3");
+  var card4 = document.getElementById("ta-card-4");
 
   var currentReps = [];
 
@@ -200,12 +205,11 @@
     // Card 2: unlock when location has 2+ chars
     if (locationFilled) {
       card2.classList.remove("ta-card-locked");
+      card3.classList.remove("ta-card-locked");
     } else {
       card2.classList.add("ta-card-locked");
+      card3.classList.add("ta-card-locked");
     }
-
-    // Card 3: stays locked until results are shown (managed by generate flow)
-    // But re-lock if location is cleared after generation
   }
 
   function getSelectedPriorities() {
@@ -317,7 +321,7 @@
     }, 2000);
   }
 
-  function showCard3State(state) {
+  function showResultsState(state) {
     // Hide all states
     document.getElementById("ta-placeholder").style.display = "none";
     document.getElementById("ta-loading").style.display = "none";
@@ -327,15 +331,15 @@
     // Show requested state
     if (state === "locked") {
       document.getElementById("ta-placeholder").style.display = "block";
-      card3.classList.add("ta-card-locked");
+      card4.classList.add("ta-card-locked");
     } else if (state === "loading") {
-      card3.classList.remove("ta-card-locked");
+      card4.classList.remove("ta-card-locked");
       document.getElementById("ta-loading").style.display = "block";
     } else if (state === "error") {
-      card3.classList.remove("ta-card-locked");
+      card4.classList.remove("ta-card-locked");
       document.getElementById("ta-error").style.display = "block";
     } else if (state === "results") {
-      card3.classList.remove("ta-card-locked");
+      card4.classList.remove("ta-card-locked");
       document.getElementById("ta-results").style.display = "block";
     }
   }
@@ -358,8 +362,8 @@
   // === Generate letter ===
   generateBtn.addEventListener("click", function() {
     // Show loading in Card 3, scroll to it
-    showCard3State("loading");
-    card3.scrollIntoView({ behavior: "smooth", block: "center" });
+    showResultsState("loading");
+    card4.scrollIntoView({ behavior: "smooth", block: "center" });
 
     var payload = {
       session_id: sessionId,
@@ -386,12 +390,12 @@
       currentReps = data.representatives || [];
       letterTextarea.value = data.letter || "";
 
-      showCard3State("results");
+      showResultsState("results");
       renderRepCards();
     })
     .catch(function(err) {
       console.error("Generate error:", err);
-      showCard3State("error");
+      showResultsState("error");
       document.getElementById("ta-error-message").textContent = err.message || "We couldn't generate your letter. Please try again.";
     });
   });
@@ -442,10 +446,64 @@
     updateCheckboxCardStyles();
     generateBtn.disabled = true;
     sessionId = generateUUID();
-    showCard3State("locked");
+    showResultsState("locked");
     updateCardStates();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
+
+  // === Pre-select priorities from URL params ===
+  // When priorities are specified via URL, Card 2 transforms into an
+  // emotional message and reorders to the top of the page.
+  var PRIORITY_MESSAGES = {
+    "Light Pollution": "We are losing our dark sky legacy for our children. More precise lighting is how we get it back.",
+    "Migratory Birds": "Every spring and fall, billions of birds navigate by starlight over our cities. Our streetlights are killing them. Precision lighting can stop it.",
+    "Crime & Safety": "Brighter streets aren\u2019t safer streets. Research shows it\u2019s the right light that reduces crime, not more of it. Your officials need to know.",
+    "Transportation Safety": "Nearly half of all traffic fatalities happen at night on just 25% of the driving. Better-aimed streetlights at the right intersections can change that.",
+    "Energy Waste": "Your city is burning electricity lighting empty streets at 3 AM. Software can fix this without replacing a single light fixture.",
+    "Environmental Impact": "Street lighting affects everything from insect populations to human sleep. Precision means less waste, less disruption, less harm."
+  };
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var preselect = urlParams.get("priorities");
+  if (preselect) {
+    var values = preselect.split(",");
+
+    // Pre-check matching checkboxes
+    priorityCheckboxes.forEach(function(cb) {
+      if (values.indexOf(cb.value) !== -1) cb.checked = true;
+    });
+    updateCheckboxCardStyles();
+    updateGenerateBtn();
+
+    // Find the emotional message for the first matched priority
+    var message = "";
+    for (var i = 0; i < values.length; i++) {
+      if (PRIORITY_MESSAGES[values[i]]) {
+        message = PRIORITY_MESSAGES[values[i]];
+        break;
+      }
+    }
+
+    // Transform Card 2: hide priority UI, show emotional message
+    var card2Inner = card2.querySelector(".glass-card");
+    // Hide all existing children (header, description, grid, custom input)
+    Array.prototype.forEach.call(card2Inner.children, function(child) {
+      child.style.display = "none";
+    });
+    // Add emotional message
+    var msgEl = document.createElement("p");
+    msgEl.style.cssText = "font-size: 1.25rem; line-height: 1.6; color: var(--text-body); margin: 0;";
+    msgEl.textContent = message;
+    card2Inner.appendChild(msgEl);
+    card2.classList.remove("ta-card-locked");
+
+    // Reorder: emotional message first, then location, then generate, then results
+    card2.style.order = "-1";
+
+    // Remove the page subtitle (the emotional message replaces it)
+    var subtitle = document.querySelector(".page-header .lead");
+    if (subtitle) subtitle.style.display = "none";
+  }
 
 })();
 </script>

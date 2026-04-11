@@ -6,6 +6,7 @@ subtitle: "More light isn't the answer. The right light is."
 description: "The relationship between street lighting and crime reduction is real but misunderstood. Better lighting isn't more lighting — it's the right lighting in the right places."
 keywords: ["false binary street lighting", "precision lighting safety", "CPTED street lighting", "street lighting crime reduction"]
 cta: "take-action"
+take_action_priorities: "Crime+%26+Safety"
 lastmod: 2026-03-13
 ---
 

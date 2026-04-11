@@ -2,6 +2,7 @@
 title: "BirdCast Data Attribution"
 description: "Attribution and data source information for BirdCast migration forecast data used by Photometrics AI."
 cta: "take-action"
+take_action_priorities: "Migratory+Birds"
 noindex: true
 private: true
 ---

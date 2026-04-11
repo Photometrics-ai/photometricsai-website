@@ -74,6 +74,12 @@ enableGitInfo = true
   parent = "best-practices"
 
 [[menus.main]]
+  name = "Dark Sky"
+  url = "/best-practices/dark-sky/"
+  weight = 5
+  parent = "best-practices"
+
+[[menus.main]]
   name = "Resources"
   url = "/benefits/"
   weight = 3
