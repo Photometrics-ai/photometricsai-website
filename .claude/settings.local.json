@@ -20,7 +20,9 @@
       "Bash(git push:*)",
       "Bash(MSYS_NO_PATHCONV=1 aws amplify start-job --app-id d22p16j9j2s18f --branch-name master --job-type RELEASE --region us-east-2)",
       "Bash(python ~/.claude/skills/seo/scripts/google_auth.py --check GSC)",
-      "Bash(python -c ':*)"
+      "Bash(python -c ':*)",
+      "Bash(MSYS_NO_PATHCONV=1 aws amplify list-jobs --app-id d22p16j9j2s18f --branch-name master --max-results 1 --region us-east-2 --query 'jobSummaries[0].status' --output text)",
+      "WebFetch(domain:support.claude.com)"
     ]
   }
 }

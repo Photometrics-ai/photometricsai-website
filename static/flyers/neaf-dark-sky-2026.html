@@ -28,8 +28,8 @@
   body {
     font-family: 'Work Sans', sans-serif;
     font-weight: 400;
-    color: #ffffff;
-    background: #0d1117;
+    color: #1a1a1a;
+    background: #ffffff;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -37,24 +37,11 @@
   .page {
     width: 8.5in;
     height: 11in;
-    padding: 0.55in 0.65in 0.45in;
+    padding: 0.68in 0.75in 0.48in;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
-  }
-
-  /* Subtle radial glow — like distant light pollution on the horizon */
-  .page::before {
-    content: '';
-    position: absolute;
-    bottom: -20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 140%;
-    height: 60%;
-    background: radial-gradient(ellipse at center, rgba(24, 46, 79, 0.35) 0%, transparent 70%);
-    pointer-events: none;
   }
 
   /* ---- Header ---- */
@@ -63,15 +50,14 @@
     align-items: center;
     justify-content: space-between;
     padding-bottom: 0.25in;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
     position: relative;
     z-index: 1;
   }
 
   .header-logo img {
-    height: 28px;
+    height: 24px;
     width: auto;
-    opacity: 0.92;
   }
 
   .header-tagline {
@@ -80,12 +66,12 @@
     font-size: 9.5pt;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.45);
   }
 
   /* ---- Headline ---- */
   .headline {
-    padding: 0.4in 0 0.3in;
+    padding: 0.2in 0 0.15in;
     position: relative;
     z-index: 1;
   }
@@ -93,9 +79,9 @@
   .headline h1 {
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-weight: 300;
-    font-size: 33pt;
+    font-size: 30pt;
     line-height: 1.15;
-    color: #ffffff;
+    color: #182e4f;
     margin-bottom: 0.14in;
   }
 
@@ -104,7 +90,7 @@
     font-weight: 300;
     font-size: 12.5pt;
     line-height: 1.5;
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(0, 0, 0, 0.55);
     max-width: 5.5in;
   }
 
@@ -112,8 +98,8 @@
   .columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5in;
-    padding: 0.3in 0;
+    gap: 0.4in;
+    padding: 0.2in 0;
     position: relative;
     z-index: 1;
   }
@@ -123,7 +109,7 @@
     font-weight: 400;
     font-size: 15pt;
     margin-bottom: 0.15in;
-    color: #4ea3dc;
+    color: #182e4f;
     letter-spacing: 0.02em;
   }
 
@@ -135,7 +121,7 @@
   .column li {
     font-size: 9.5pt;
     line-height: 1.55;
-    color: rgba(255, 255, 255, 0.82);
+    color: rgba(0, 0, 0, 0.72);
     padding: 0.06in 0;
     padding-left: 0.18in;
     position: relative;
@@ -155,19 +141,19 @@
   /* ---- Divider ---- */
   .divider {
     border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin: 0.12in 0;
+    border-top: none;
+    margin: 0.05in 0;
     position: relative;
     z-index: 1;
   }
 
   /* ---- Action Zone ---- */
   .action {
-    flex: 1;
+    flex: none;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0.25in 0;
+    padding: 0.05in 0;
     position: relative;
     z-index: 1;
   }
@@ -175,53 +161,24 @@
   .action h2 {
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-weight: 400;
-    font-size: 21pt;
+    font-size: 19pt;
     line-height: 1.2;
     margin-bottom: 0.12in;
-    color: #ffffff;
+    color: #182e4f;
   }
 
   .action > p {
     font-size: 10pt;
     line-height: 1.6;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.6);
     max-width: 5in;
-    margin-bottom: 0.25in;
+    margin-bottom: 0.15in;
   }
 
   .action-row {
     display: flex;
     align-items: center;
     gap: 0.35in;
-  }
-
-  /* QR placeholder — Ari replaces this with the TinyURL QR image */
-  .qr-placeholder {
-    width: 1.6in;
-    height: 1.6in;
-    border: 2px dashed rgba(78, 163, 220, 0.5);
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.03);
-  }
-
-  .qr-placeholder .qr-label {
-    font-family: 'Work Sans', sans-serif;
-    font-weight: 500;
-    font-size: 9pt;
-    color: rgba(78, 163, 220, 0.7);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .qr-placeholder .qr-sublabel {
-    font-size: 7.5pt;
-    color: rgba(255, 255, 255, 0.35);
-    margin-top: 4px;
   }
 
   .action-text {
@@ -234,24 +191,24 @@
     font-family: 'Work Sans', sans-serif;
     font-weight: 500;
     font-size: 11pt;
-    color: #4ea3dc;
+    color: #182e4f;
     letter-spacing: 0.01em;
   }
 
   .action-text .url-hint {
     font-size: 8pt;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(0, 0, 0, 0.4);
     font-style: italic;
   }
 
   .action-text .learn-more {
     font-size: 8.5pt;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.45);
     margin-top: 0.06in;
   }
 
   .action-text .learn-more span {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.65);
   }
 
   /* ---- Footer ---- */
@@ -259,27 +216,37 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 0.15in;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    position: relative;
+    padding-top: 0;
+    border-top: none;
+    position: absolute;
+    bottom: 0.75in;
+    left: 0.75in;
+    right: 0.75in;
     z-index: 1;
   }
 
   .footer span {
     font-size: 8pt;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(0, 0, 0, 0.4);
     letter-spacing: 0.03em;
   }
 
   /* ---- Print overrides ---- */
   @media print {
+    @page {
+      size: letter;
+      margin: 0;
+    }
     html, body {
       width: 8.5in;
       height: 11in;
+      margin: 0;
+      padding: 0;
     }
     .page {
       page-break-after: avoid;
       page-break-inside: avoid;
+      margin: 0;
     }
   }
 </style>
@@ -291,7 +258,7 @@
   <!-- Header -->
   <div class="header">
     <div class="header-logo">
-      <img src="../images/Photometrics Logo Package_Photometrics_White Font_cropped.png" alt="Photometrics AI">
+      <img src="../images/Photometrics Logo Package_Photometrics_Black Font_Cropped.png" alt="Photometrics AI">
     </div>
     <div class="header-tagline">Where Light Meets Intelligence</div>
   </div>
@@ -310,7 +277,7 @@
         <li>Night sky brightness is increasing by nearly 10% every year</li>
         <li>Nearly 80% of North Americans can no longer see the Milky Way</li>
         <li>Street lighting is one of the largest sources of urban skyglow</li>
-        <li>Residential streets run at full power at 3 AM for no one</li>
+        <li>Every street is lit for worst-case conditions, all night, creating substantial unnecessary overlighting</li>
       </ul>
     </div>
     <div class="column">
@@ -318,6 +285,7 @@
       <ul>
         <li>Photometrics AI optimizes every streetlight individually</li>
         <li>Software-only &mdash; works with existing networked lighting</li>
+        <li>Strategic late-night and early-morning dimming where safe</li>
         <li>35% energy reduction while meeting IES safety standards</li>
         <li>Automatic bird migration protection via Cornell BirdCast</li>
       </ul>
@@ -332,14 +300,10 @@
     <p>Our free tool finds your local officials and helps you write a personalized letter asking them to evaluate intelligent street lighting for your community.</p>
 
     <div class="action-row">
-      <!-- QR PLACEHOLDER: Replace this entire div with the TinyURL QR code image -->
-      <div class="qr-placeholder">
-        <span class="qr-label">QR Code</span>
-        <span class="qr-sublabel">Paste TinyURL QR here</span>
-      </div>
+      <img src="qr-dark-sky.png" alt="QR code to take action on light pollution" style="width: 1.6in; height: 1.6in; border-radius: 8px; flex-shrink: 0;">
 
       <div class="action-text">
-        <span class="url-primary">tinyurl.com/photometrics-dark-sky</span>
+        <span class="url-primary">tinyurl.com/photometrics-ai-dark-sky</span>
         <span class="url-hint">Scan the QR code or type the link above</span>
         <span class="learn-more">Learn more: <span>photometrics.ai/best-practices/dark-sky</span></span>
       </div>

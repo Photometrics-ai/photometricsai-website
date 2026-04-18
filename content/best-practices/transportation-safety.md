@@ -45,9 +45,9 @@ Transportation safety needs change throughout the night. Photometrics AI enables
 
 <h2 style="border-top: none; padding-top: 0;">The Value of Crashes Prevented</h2>
 
-Using NHTSA crash cost data and FHWA crash reduction factors, Photometrics AI delivers an estimated **$5.82 per streetlight per year** in transportation safety value[^4] — representing a conservative 3% of darkness-related crash costs allocated to the portion attributable to lighting quality.
+Using NHTSA crash cost data and FHWA crash reduction factors, Photometrics AI delivers an estimated **$7.82 per streetlight per year** in transportation safety value[^4] — representing a conservative 3% of darkness-related crash costs allocated to the portion attributable to lighting quality.
 
-This may sound modest per light, but across a 50,000-light city it represents **$291,000 in annual crash cost reduction** - fewer injuries, fewer fatalities, lower emergency response costs, and reduced liability exposure.
+This may sound modest per light, but across a 50,000-light city it represents **$391,000 in annual crash cost reduction** - fewer injuries, fewer fatalities, lower emergency response costs, and reduced liability exposure.
 
 And unlike many safety investments, this one requires no new infrastructure. The lights are already there. They just need to be told what to do.
 
