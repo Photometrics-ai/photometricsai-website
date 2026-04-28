@@ -41,12 +41,12 @@
     <div class="tools-app">
 
       <nav class="tools-tabs" role="tablist">
-        <button class="tools-tab active" role="tab" aria-selected="true" data-tab="twilight">Twilight Times</button>
-        <button class="tools-tab" role="tab" aria-selected="false" data-tab="phase">Phase Calculator</button>
+        <button class="tools-tab active" role="tab" aria-selected="true" data-tab="phase">Phase Calculator</button>
+        <button class="tools-tab" role="tab" aria-selected="false" data-tab="twilight">Twilight Times</button>
       </nav>
 
       <!-- Twilight Times Tab -->
-      <section id="tab-twilight" class="tools-tab-content active">
+      <section id="tab-twilight" class="tools-tab-content">
         <div class="glass-card" style="padding: var(--space-lg);">
           <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: var(--space-xs);">Nautical Twilight Schedule</h2>
           <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Generate a yearly streetlight operating schedule for any location. Returns daily nautical dusk (lights ON) and nautical dawn (lights OFF) times.</p>
@@ -76,7 +76,7 @@
       </section>
 
       <!-- Phase Calculator Tab -->
-      <section id="tab-phase" class="tools-tab-content">
+      <section id="tab-phase" class="tools-tab-content active">
         <div class="glass-card" style="padding: var(--space-lg);">
           <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: var(--space-xs);">Phase Calculator</h2>
           <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Upload a CSV with coordinates and timestamps. Each record gets tagged with sun elevation, twilight phase, and streetlight status.</p>
