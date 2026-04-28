@@ -89,6 +89,13 @@
               <p style="color: var(--text-subtle);">Drop a .csv file here or <button type="button" id="browse-btn" class="browse-link">browse</button></p>
               <p style="color: var(--text-subtle); font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.6;">Maximum 2.5 million rows</p>
             </div>
+            <div style="color: var(--text-subtle); font-size: 0.78rem; line-height: 1.7; margin-top: 0.75rem;">
+              <p style="margin-bottom: 0.25rem;">Try it with sample data:</p>
+              <ul style="list-style: none; padding: 0; margin: 0;">
+                <li><a href="https://claude-sources.s3.us-west-2.amazonaws.com/public/sample-la-crime-data-2020-2024.csv" download>LA Crime Data sample</a> — from <a href="https://data.lacity.org/Public-Safety/Crime-Data-from-2020-to-2024/2nrs-mtv8/about_data" target="_blank">City of Los Angeles Crime Data (2020–2024)</a></li>
+                <li><a href="https://claude-sources.s3.us-west-2.amazonaws.com/public/sample-fars-2024.csv" download>FARS sample</a> — from <a href="https://www.nhtsa.gov/file-downloads?p=nhtsa/downloads/FARS/" target="_blank">NHTSA Fatality Analysis Reporting System</a></li>
+              </ul>
+            </div>
             <div id="upload-progress" class="tools-progress tools-hidden">
               <div class="tools-progress-fill" id="upload-fill"></div>
             </div>
@@ -100,21 +107,15 @@
             <h3>2. Map Columns</h3>
             <p style="color: var(--text-subtle); font-size: 0.85rem; margin-bottom: var(--space-sm);">Confirm which columns contain your location and date/time fields.</p>
 
-            <div class="tools-mode-toggle" style="flex-direction: column;">
-              <div>
-                <label class="tools-mode-option">
-                  <input type="radio" name="datetime-mode" value="combined" checked>
-                  <span>Date + Time columns</span>
-                </label>
-                <p style="color: var(--text-subtle); font-size: 0.78rem; margin: 0.2rem 0 0 1.4rem;">Ex: <a href="https://data.lacity.org/Public-Safety/Crime-Data-from-2020-to-2024/2nrs-mtv8/about_data" target="_blank">Crime Data from 2020 to 2024</a> from City of Los Angeles (<a href="https://claude-sources.s3.us-west-2.amazonaws.com/public/sample-la-crime-data-2020-2024.csv" download>download sample</a>)</p>
-              </div>
-              <div>
-                <label class="tools-mode-option">
-                  <input type="radio" name="datetime-mode" value="separate">
-                  <span>Separate fields (Year, Month, Day, Hour, Minute)</span>
-                </label>
-                <p style="color: var(--text-subtle); font-size: 0.78rem; margin: 0.2rem 0 0 1.4rem;">Ex: <a href="https://www.nhtsa.gov/file-downloads?p=nhtsa/downloads/FARS/" target="_blank">Fatality Analysis Reporting System (FARS)</a> from NHTSA (<a href="https://claude-sources.s3.us-west-2.amazonaws.com/public/sample-fars-2024.csv" download>download sample</a>)</p>
-              </div>
+            <div class="tools-mode-toggle">
+              <label class="tools-mode-option">
+                <input type="radio" name="datetime-mode" value="combined" checked>
+                <span>Date + Time columns</span>
+              </label>
+              <label class="tools-mode-option">
+                <input type="radio" name="datetime-mode" value="separate">
+                <span>Separate fields (Year, Month, Day, Hour, Minute)</span>
+              </label>
             </div>
 
             <div class="tools-form-row">
