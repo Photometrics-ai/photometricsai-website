@@ -107,14 +107,14 @@
             <h3>2. Map Columns</h3>
             <p style="color: var(--text-subtle); font-size: 0.85rem; margin-bottom: var(--space-sm);">Confirm which columns contain your location and date/time fields.</p>
 
-            <div class="tools-mode-toggle">
+            <div class="tools-mode-toggle" style="flex-direction: column;">
               <label class="tools-mode-option">
                 <input type="radio" name="datetime-mode" value="combined" checked>
-                <span>Date + Time columns</span>
+                <span>Date + Time columns (LA Crime data format)</span>
               </label>
               <label class="tools-mode-option">
                 <input type="radio" name="datetime-mode" value="separate">
-                <span>Separate fields (Year, Month, Day, Hour, Minute)</span>
+                <span>Separate fields — Year, Month, Day, Hour, Minute (FARS format)</span>
               </label>
             </div>
 
