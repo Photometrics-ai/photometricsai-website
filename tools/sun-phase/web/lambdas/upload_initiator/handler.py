@@ -10,7 +10,7 @@ import uuid
 import boto3
 
 DATA_BUCKET = os.environ['DATA_BUCKET']
-s3 = boto3.client('s3', region_name='us-east-2')
+s3 = boto3.client('s3')
 
 
 def lambda_handler(event, context):
