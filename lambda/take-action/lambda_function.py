@@ -19,6 +19,7 @@ from boto3.dynamodb.types import TypeSerializer
 
 DYNAMO_TABLE = os.environ.get("DYNAMODB_TABLE", "photometrics-take-action")
 BOOSTED_TABLE = os.environ.get("BOOSTED_TABLE", "photometrics-boosted-officials")
+FLAGGED_TABLE = os.environ.get("FLAGGED_TABLE", "photometrics-flagged-officials")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 GOOGLE_CIVIC_API_KEY = os.environ.get("GOOGLE_CIVIC_API_KEY", "")
 CLAUDE_MODEL = "claude-sonnet-4-20250514"
@@ -181,10 +182,17 @@ def parse_location(location):
     return city, region
 
 
-def search_officials(location, priorities, civic_officials=None, boosted_officials=None):
+def search_officials(location, priorities, civic_officials=None, boosted_officials=None, flagged_emails=None):
     """Use Haiku + web search to find verified current officials."""
     priorities_text = ", ".join(priorities)
     city, region = parse_location(location)
+
+    flagged_section = ""
+    if flagged_emails:
+        flagged_section = (
+            "\n\nFLAGGED EMAILS (users reported these as no longer current — do NOT use them):\n"
+            + "\n".join(f"- {e}" for e in flagged_emails)
+        )
 
     civic_section = ""
     if civic_officials:
@@ -217,7 +225,7 @@ def search_officials(location, priorities, civic_officials=None, boosted_officia
 
     prompt = f"""Find exactly 4 government officials who influence street lighting decisions
 relevant to {location}. The citizen's priorities are: {priorities_text}.
-{civic_section}{boosted_section}
+{civic_section}{boosted_section}{flagged_section}
 
 INSTRUCTIONS:
 1. Use web search to find CURRENT officials. Check official city/county/state/federal websites,
@@ -729,10 +737,11 @@ def handle_generate(body):
     # Step 1: Gather context for official search
     civic_officials = get_civic_officials(location)
     boosted_officials = get_boosted_officials(location)
+    flagged_emails = get_flagged_emails()
 
     # Step 2: Haiku searches for officials + local context in parallel
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        officials_future = executor.submit(search_officials, location, priorities, civic_officials, boosted_officials)
+        officials_future = executor.submit(search_officials, location, priorities, civic_officials, boosted_officials, flagged_emails)
         research_future = executor.submit(research_location, location, priorities)
 
         # Officials are required — propagate errors
@@ -771,6 +780,48 @@ def handle_generate(body):
         "letter": result["letter"],
         "representatives": result["representatives"],
     })
+
+
+def handle_flag(body):
+    """Handle POST /flag — user reports an official as no longer current."""
+    email = sanitize_string(body.get("email", ""), 200).lower()
+    location = sanitize_string(body.get("location", ""), 200)
+
+    if not email:
+        return respond(400, {"error": "email is required."})
+
+    try:
+        dynamodb.put_item(
+            TableName=FLAGGED_TABLE,
+            Item={
+                "email": {"S": email},
+                "location": {"S": location},
+                "timestamp": {"S": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())},
+                "ttl": {"N": str(int(time.time()) + (180 * 24 * 60 * 60))},  # 6 month TTL
+            },
+        )
+    except Exception as e:
+        print(f"Flag write error: {e}")
+        return respond(500, {"error": "Failed to save flag."})
+
+    return respond(200, {"status": "flagged"})
+
+
+def get_flagged_emails():
+    """Return set of emails that users have flagged as not current."""
+    flagged = set()
+    try:
+        resp = dynamodb.scan(
+            TableName=FLAGGED_TABLE,
+            ProjectionExpression="email",
+        )
+        for item in resp.get("Items", []):
+            email = item.get("email", {}).get("S", "")
+            if email:
+                flagged.add(email.lower())
+    except Exception as e:
+        print(f"Flagged scan error: {e}")
+    return flagged
 
 
 def handle_track(body):
@@ -814,5 +865,7 @@ def lambda_handler(event, context):
         return handle_generate(body)
     elif path.endswith("/track"):
         return handle_track(body)
+    elif path.endswith("/flag"):
+        return handle_flag(body)
     else:
         return respond(404, {"error": "Not found."})

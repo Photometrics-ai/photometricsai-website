@@ -305,9 +305,34 @@
           '<p class="ta-rep-org">' + escapeHtml(rep.organization) + '</p>' +
           '<p class="ta-rep-relevance">' + escapeHtml(rep.relevance) + '</p>' +
           '<p class="ta-rep-email">' + escapeHtml(rep.email) + '</p>' +
+          '<button class="ta-flag-btn" data-email="' + escapeHtml(rep.email) + '">Not current?</button>' +
         '</div>';
 
       repsGrid.appendChild(card);
+    });
+
+    repsGrid.querySelectorAll(".ta-flag-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        var email = btn.getAttribute("data-email");
+        btn.disabled = true;
+        btn.textContent = "Flagging...";
+        fetch(API_BASE + "/flag", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email, location: locationInput.value.trim() })
+        }).then(function(resp) {
+          if (resp.ok) {
+            btn.textContent = "Flagged — thanks!";
+            btn.classList.add("ta-flagged");
+          } else {
+            btn.textContent = "Not current?";
+            btn.disabled = false;
+          }
+        }).catch(function() {
+          btn.textContent = "Not current?";
+          btn.disabled = false;
+        });
+      });
     });
   }
 
