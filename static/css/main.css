@@ -2161,6 +2161,16 @@ section {
   padding: var(--space-lg);
 }
 
+.hero-vision .hero-eyebrow {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: clamp(0.75rem, 1.4vw, 0.875rem);
+  font-weight: 500;
+  color: var(--accent-light);
+  margin-bottom: var(--space-sm);
+}
+
 .hero-vision h1 {
   font-family: var(--font-display);
   font-size: clamp(3rem, 8vw, 5.5rem);
@@ -2257,6 +2267,17 @@ section {
   font-weight: 400;
   color: var(--text-white);
   margin-bottom: var(--space-lg);
+}
+
+.brand-signoff {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: var(--text-light);
+  opacity: 0.6;
+  margin-top: var(--space-xl);
 }
 
 .cta-buttons {
