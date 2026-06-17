@@ -8,6 +8,7 @@ tags:
   - dark-sky
   - standards
 date: 2026-06-17
+og_image: /images/lowest-liability-overlighting.png
 ---
 
 The science of light is rooted in hard and fast, unbreakable rules of physics. Light travels in straight lines at exactly 299792458 m⋅s−1 (AKA the speed of light). Light loses intensity at the inverse square law. Light's wavelengths are clearly defined. Einstein's E=mc² is built on light's immutable characteristics.
