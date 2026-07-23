@@ -29,6 +29,10 @@ customHeaders:
     headers:
       - key: Cache-Control
         value: 'public, max-age=31536000, immutable'
+  - pattern: '/vendor/**'
+    headers:
+      - key: Cache-Control
+        value: 'public, max-age=31536000, immutable'
   - pattern: /press/birdcast-integration.pdf
     headers:
       - key: Content-Disposition
