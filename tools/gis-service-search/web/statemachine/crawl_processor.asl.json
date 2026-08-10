@@ -1,0 +1,84 @@
+{
+  "Comment": "GIS Service Search: fan out one crawl task per source, classify into taxonomy, combine",
+  "StartAt": "CrawlSources",
+  "States": {
+    "CrawlSources": {
+      "Type": "Map",
+      "ItemsPath": "$.sources",
+      "MaxConcurrency": 8,
+      "ResultPath": "$.sourceResults",
+      "Parameters": {
+        "jobId.$": "$.jobId",
+        "query.$": "$.query",
+        "matchMode.$": "$.matchMode",
+        "budgetSeconds.$": "$.budgetSeconds",
+        "source.$": "$$.Map.Item.Value"
+      },
+      "Iterator": {
+        "StartAt": "CrawlOneSource",
+        "States": {
+          "CrawlOneSource": {
+            "Type": "Task",
+            "Resource": "${CrawlSourceFunctionArn}",
+            "Retry": [{"ErrorEquals": ["Lambda.TooManyRequestsException", "Lambda.ServiceException"], "IntervalSeconds": 5, "MaxAttempts": 2, "BackoffRate": 2.0}],
+            "Catch": [{"ErrorEquals": ["States.ALL"], "Next": "CrawlFailedFallback", "ResultPath": "$.error"}],
+            "End": true
+          },
+          "CrawlFailedFallback": {
+            "Type": "Pass",
+            "Parameters": {
+              "source.$": "$.source",
+              "state": "try_google",
+              "reasonCode": "internal_error",
+              "message": "The crawler hit an unexpected internal error searching this source.",
+              "results": [],
+              "totalResults": 0,
+              "servicesScanned": 0,
+              "servicesTotal": 0,
+              "truncated": false,
+              "retrying": false,
+              "elapsedSeconds": 0
+            },
+            "End": true
+          }
+        }
+      },
+      "Next": "Combine",
+      "Catch": [{"ErrorEquals": ["States.ALL"], "Next": "MarkJobFailed", "ResultPath": "$.error"}]
+    },
+    "Combine": {
+      "Type": "Task",
+      "Resource": "${CombineResultsFunctionArn}",
+      "Parameters": {
+        "mode.$": "$.mode",
+        "jobId.$": "$.jobId",
+        "bucket.$": "$.bucket",
+        "query.$": "$.query",
+        "matchMode.$": "$.matchMode",
+        "sources.$": "$.sources",
+        "invalidSources.$": "$.invalidSources",
+        "createdAt.$": "$.createdAt",
+        "sourceResults.$": "$.sourceResults"
+      },
+      "End": true,
+      "Catch": [{"ErrorEquals": ["States.ALL"], "Next": "MarkJobFailed", "ResultPath": "$.error"}]
+    },
+    "MarkJobFailed": {
+      "Type": "Task",
+      "Resource": "${CombineResultsFunctionArn}",
+      "Parameters": {
+        "mode": "error",
+        "jobId.$": "$.jobId",
+        "bucket.$": "$.bucket",
+        "error.$": "$.error"
+      },
+      "Next": "FailState",
+      "Catch": [{"ErrorEquals": ["States.ALL"], "Next": "FailState"}]
+    },
+    "FailState": {
+      "Type": "Fail",
+      "Error": "CrawlFailed",
+      "Cause": "An error occurred while crawling GIS sources"
+    }
+  }
+}

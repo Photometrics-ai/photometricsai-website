@@ -1,0 +1,189 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: GIS Service Search - API backend for photometrics.ai/tools/ (Service Search tab)
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        DATA_BUCKET: !Ref DataBucket
+        RATE_LIMIT_TABLE: !Ref RateLimitTable
+
+Resources:
+  # S3 Buckets
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      LifecycleConfiguration:
+        Rules:
+          - Id: AutoCleanup
+            Status: Enabled
+            ExpirationInDays: 3
+
+  # DynamoDB: per-IP rate limiting
+  RateLimitTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: gis-search-rate-limit
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: ip
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ip
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+
+  # Lambda Layer
+  CrawlDepsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: gis-search-crawl-deps
+      ContentUri: layers/deps/
+      CompatibleRuntimes:
+        - python3.11
+    Metadata:
+      BuildMethod: python3.11
+
+  # API Gateway
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      EndpointConfiguration:
+        Type: REGIONAL
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          ThrottlingRateLimit: 20
+          ThrottlingBurstLimit: 40
+
+  # Lambda Functions
+  StartApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/start_api/
+      Handler: handler.lambda_handler
+      MemorySize: 128
+      Timeout: 10
+      Layers:
+        - !Ref CrawlDepsLayer
+      Environment:
+        Variables:
+          STATE_MACHINE_ARN: !Ref CrawlProcessorStateMachine
+          INITIAL_BUDGET_SECONDS: "45"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RateLimitTable
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+        - StepFunctionsExecutionPolicy:
+            StateMachineName: !GetAtt CrawlProcessorStateMachine.Name
+      Events:
+        PostStart:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/gis-service-search/start
+            Method: POST
+
+  StatusApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/status_api/
+      Handler: handler.lambda_handler
+      MemorySize: 128
+      Timeout: 10
+      Layers:
+        - !Ref CrawlDepsLayer
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref DataBucket
+      Events:
+        GetStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/gis-service-search/status
+            Method: GET
+
+  CrawlSourceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/crawl_source/
+      Handler: handler.lambda_handler
+      MemorySize: 256
+      Timeout: 300
+      Layers:
+        - !Ref CrawlDepsLayer
+
+  CombineResultsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/combine_results/
+      Handler: handler.lambda_handler
+      MemorySize: 256
+      Timeout: 30
+      Layers:
+        - !Ref CrawlDepsLayer
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+
+  RetrySourceApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/retry_source_api/
+      Handler: handler.lambda_handler
+      MemorySize: 128
+      Timeout: 10
+      Layers:
+        - !Ref CrawlDepsLayer
+      Environment:
+        Variables:
+          STATE_MACHINE_ARN: !Ref CrawlProcessorStateMachine
+          FULL_BUDGET_SECONDS: "240"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RateLimitTable
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+        - StepFunctionsExecutionPolicy:
+            StateMachineName: !GetAtt CrawlProcessorStateMachine.Name
+      Events:
+        PostRetrySource:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/gis-service-search/retry-source
+            Method: POST
+
+  # Step Functions
+  CrawlProcessorStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: statemachine/crawl_processor.asl.json
+      DefinitionSubstitutions:
+        CrawlSourceFunctionArn: !GetAtt CrawlSourceFunction.Arn
+        CombineResultsFunctionArn: !GetAtt CombineResultsFunction.Arn
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref CrawlSourceFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref CombineResultsFunction
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway URL
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  RateLimitTableName:
+    Description: DynamoDB rate limit table name
+    Value: !Ref RateLimitTable
+  DataBucketName:
+    Description: Data S3 bucket name
+    Value: !Ref DataBucket

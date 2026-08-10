@@ -27,6 +27,48 @@
 .tools-spinner-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: var(--space-xs); }
 .tools-spinner { width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.06); border-top-color: var(--accent); border-radius: 50%; animation: tools-spin 0.8s linear infinite; }
 @keyframes tools-spin { to { transform: rotate(360deg); } }
+
+/* Service Search (GIS Service Discovery) tab -- live ArcGIS crawl, source-level results */
+.gss-help { color: var(--text-subtle); font-size: 0.9rem; line-height: 1.6; margin-bottom: var(--space-md); }
+.gss-sources-area { width: 100%; min-height: 160px; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.82rem; padding: 0.75rem; border: 1px solid var(--border-dark); border-radius: var(--radius-sm); resize: vertical; }
+.gss-sources-meta { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.78rem; color: var(--text-subtle); margin-top: 0.35rem; }
+.gss-example-link { background: none; border: none; color: var(--accent); cursor: pointer; font-family: var(--font-body); font-size: 0.78rem; text-decoration: underline; padding: 0; }
+.gss-invalid-lines { margin-top: 0.5rem; font-size: 0.78rem; color: #ef4444; }
+.gss-actions { display: flex; gap: 0.75rem; align-items: center; margin-top: var(--space-sm); flex-wrap: wrap; }
+.gss-section-title { font-family: var(--font-display); font-weight: 400; font-size: 1.3rem; margin: var(--space-lg) 0 var(--space-sm); }
+.gss-result-count { font-size: 0.8rem; color: var(--text-subtle); margin-bottom: var(--space-sm); }
+.gss-source-card { border: 1px solid var(--border-dark); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 0.75rem; background: rgba(255,255,255,0.48); }
+.gss-source-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.45rem; }
+.gss-source-url { color: var(--text-body); font-size: 0.86rem; font-weight: 600; word-break: break-all; }
+.gss-source-url a { color: inherit; text-decoration: none; }
+.gss-source-url a:hover { color: var(--accent); text-decoration: underline; }
+.gss-state-badge { display: inline-flex; align-items: center; min-height: 1.45rem; border-radius: 999px; padding: 0.12rem 0.55rem; font-size: 0.68rem; font-weight: 700; line-height: 1; text-transform: uppercase; letter-spacing: 0; white-space: nowrap; background: rgba(78,163,220,0.08); color: var(--accent); border: 1px solid rgba(78,163,220,0.22); }
+.gss-state-success { background: rgba(78,163,220,0.08); color: var(--accent); border-color: rgba(78,163,220,0.22); }
+.gss-state-empty { background: rgba(78,163,220,0.08); color: var(--accent); border-color: rgba(78,163,220,0.22); }
+.gss-state-partial,
+.gss-state-try-google { background: rgba(245,158,11,0.12); color: #b45309; border-color: rgba(245,158,11,0.28); }
+.gss-state-contact-admin,
+.gss-state-check-url { background: rgba(107,114,128,0.1); color: #6b7280; border-color: rgba(107,114,128,0.24); }
+.gss-source-meta { color: var(--text-subtle); font-size: 0.76rem; line-height: 1.5; margin-bottom: 0.6rem; }
+.gss-source-message { color: var(--text-body); font-size: 0.86rem; line-height: 1.5; margin-bottom: 0.65rem; }
+.gss-source-actions { display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; margin: 0.75rem 0 0.25rem; }
+.gss-source-actions .btn { font-size: 0.78rem; padding: 0.45rem 0.7rem; }
+/* .btn-secondary's site-wide default (--text-light/--border-light) is
+   near-white text/border, meant for the dark hero section -- invisible on
+   these white result cards. Override to a readable, dark-background-safe look. */
+.gss-source-actions .btn-secondary { color: var(--text-body); border-color: var(--border-dark); }
+.gss-source-actions .btn-secondary:hover { color: var(--text-dark); border-color: var(--accent); }
+.gss-card-note { color: var(--text-subtle); font-size: 0.78rem; line-height: 1.5; margin-top: 0.4rem; }
+.gss-result-card { border-top: 1px solid var(--border-dark); padding: 0.75rem 0; }
+.gss-result-card:first-child { border-top: 0; padding-top: 0.35rem; }
+.gss-result-card:last-child { padding-bottom: 0; }
+.gss-result-title { font-weight: 600; color: var(--accent); text-decoration: none; }
+.gss-result-title:hover { text-decoration: underline; }
+.gss-result-title-plain { font-weight: 600; color: var(--text-body); }
+.gss-result-link { font-size: 0.78rem; color: var(--text-subtle); margin-top: 0.15rem; word-break: break-all; }
+.gss-result-snippet { font-size: 0.85rem; color: var(--text-body); margin-top: 0.5rem; line-height: 1.5; }
+.gss-result-snippet mark, .gss-result-title mark, .gss-result-title-plain mark { background: rgba(78, 163, 220, 0.35); color: var(--text-dark); font-weight: 700; padding: 0.05em 0.25em; border-radius: 3px; }
+.gss-empty-state { text-align: center; padding: var(--space-lg) 1rem; color: var(--text-subtle); }
 </style>
 
 <div class="page-header" data-theme="dark">
@@ -43,6 +85,7 @@
       <nav class="tools-tabs" role="tablist">
         <button class="tools-tab active" role="tab" aria-selected="true" data-tab="phase">Phase Calculator</button>
         <button class="tools-tab" role="tab" aria-selected="false" data-tab="twilight">Twilight Times</button>
+        <button class="tools-tab" role="tab" aria-selected="false" data-tab="gissearch">Service Search</button>
       </nav>
 
       <!-- Twilight Times Tab -->
@@ -193,6 +236,64 @@
             <button type="button" id="error-retry" class="btn btn-secondary">Start Over</button>
           </div>
         </div>
+      </section>
+
+      <!-- Service Search (GIS Service Discovery) Tab -->
+      <section id="tab-gissearch" class="tools-tab-content">
+        <div class="glass-card" style="padding: var(--space-lg);">
+          <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: var(--space-xs);">GIS Service Discovery</h2>
+          <p class="gss-help">
+            Search across multiple public GIS servers by keyword. This crawls each server's ArcGIS REST catalog
+            directly and live, in real time.
+          </p>
+
+          <form id="gss-form">
+            <div class="tools-form-row">
+              <div class="form-group">
+                <label for="gss-query">Keyword</label>
+                <input type="text" id="gss-query" placeholder="sidewalk, curb ramp, pedestrian facilities, ADA" required>
+              </div>
+            </div>
+
+            <div class="tools-mode-toggle" role="radiogroup" aria-label="Match mode">
+              <label class="tools-mode-option"><input type="radio" name="gss-match-mode" value="any" checked><span>Any words</span></label>
+              <label class="tools-mode-option"><input type="radio" name="gss-match-mode" value="phrase"><span>Exact phrase</span></label>
+              <label class="tools-mode-option"><input type="radio" name="gss-match-mode" value="all"><span>All words</span></label>
+            </div>
+
+            <div class="form-group">
+              <label for="gss-sources">GIS service-root URLs (one per line)</label>
+              <textarea id="gss-sources" class="gss-sources-area" placeholder="https://gis.nola.gov/arcgis/rest/services&#10;https://maps.nola.gov/server/rest/services&#10;https://services.arcgis.com/VhMjCzR3cIjEkh7L/arcgis/rest/services"></textarea>
+              <div class="gss-sources-meta">
+                <span id="gss-url-count">0 sources</span>
+                <button type="button" class="gss-example-link" id="gss-load-example">Load example sources</button>
+              </div>
+              <div id="gss-invalid-lines" class="gss-invalid-lines tools-hidden"></div>
+            </div>
+
+            <div class="gss-actions">
+              <button type="submit" id="gss-submit" class="btn btn-primary">Search GIS services</button>
+              <button type="button" id="gss-clear" class="btn btn-secondary">Clear</button>
+            </div>
+          </form>
+
+          <div id="gss-step-processing" class="tools-step">
+            <div class="tools-spinner-row">
+              <div class="tools-spinner"></div>
+              <p id="gss-processing-text" style="color: var(--text-body);">Searching GIS services...</p>
+            </div>
+          </div>
+
+          <div id="gss-status" class="tools-status tools-hidden"></div>
+        </div>
+
+        <div id="gss-results-section" class="tools-hidden">
+          <h2 class="gss-section-title">Results</h2>
+          <p class="gss-result-count" id="gss-result-count"></p>
+          <div id="gss-source-results"></div>
+        </div>
+
+        <div id="gss-empty-state" class="gss-empty-state tools-hidden"></div>
       </section>
 
     </div>
@@ -386,6 +487,602 @@
   }
 
   function showStatus(el, type, message) { el.className = 'tools-status ' + type; el.textContent = message; el.classList.remove('tools-hidden'); }
+})();
+
+// GIS Service Search (GIS Service Discovery) -- live ArcGIS crawl with polling
+(function() {
+  // In production this is always the same-origin path, proxied by the Amplify
+  // rewrite. In local dev (hugo server, no Amplify) it points at
+  // local_dev_server.py instead -- see tools/gis-service-search/README.md.
+  var IS_LOCAL_DEV = (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  var API_BASE = IS_LOCAL_DEV ? 'http://127.0.0.1:3001/api/gis-service-search' : '/api/gis-service-search';
+  var MAX_SOURCES = 25;
+  var JOB_POLL_MS = 3000;
+  var RETRY_POLL_MS = 3000;
+  var RETRY_TIMEOUT_MS = 6 * 60 * 1000;
+  // Mirrors the backend's retry_source_api FULL_BUDGET_SECONDS default -- used
+  // only to flag when even a full-catalog retry probably won't finish in one pass.
+  var FULL_BUDGET_SECONDS = 240;
+  // Card display order: real matches first, then sources that might still
+  // yield more via a retry, then sources needing a manual Google search,
+  // then confirmed-empty and dead-end (needs external action) sources last.
+  var STATE_SORT_ORDER = {
+    success: 0,
+    partial: 1,
+    try_google: 2,
+    success_empty: 3,
+    contact_admin: 4,
+    check_url: 5
+  };
+  var currentGssJobId = null;
+  var currentGssQuery = '';
+  var currentGssMatchMode = 'any';
+  var jobPollInterval = null;
+  var retryIntervals = {};
+
+  var EXAMPLE_SOURCES = [
+    'https://gis.nola.gov/arcgis/rest/services',
+    'https://maps.nola.gov/server/rest/services',
+    'https://services.arcgis.com/VhMjCzR3cIjEkh7L/arcgis/rest/services'
+  ];
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  function highlightSnippet(text, queryTokens) {
+    var escaped = escapeHtml(text);
+    if (!queryTokens.length) return escaped;
+    var pattern = queryTokens.map(function(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|');
+    var re = new RegExp('(' + pattern + ')', 'ig');
+    return escaped.replace(re, '<mark>$1</mark>');
+  }
+
+  function isSafeHttpUrl(value) {
+    return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
+  }
+
+  // Rough linear extrapolation from how far the crawl got before hitting its
+  // time budget -- e.g. 12 of 340 services scanned in 45s implies roughly
+  // 45 * (340/12) =~ 21 minutes for the full catalog. This is only an estimate:
+  // real throughput varies with network conditions and per-host concurrency.
+  function estimateFullSearchSeconds(entry) {
+    if (!entry) return null;
+    var scanned = entry.servicesScanned;
+    var total = entry.servicesTotal;
+    var elapsed = entry.elapsedSeconds;
+    if (!(scanned > 0) || !(total > scanned) || !(elapsed > 0)) return null;
+    return elapsed * (total / scanned);
+  }
+
+  function formatEstimatedDuration(seconds) {
+    var minutes = Math.round(seconds / 60);
+    if (minutes < 1) return 'under a minute';
+    if (minutes === 1) return '~1 minute';
+    return '~' + minutes + ' minutes';
+  }
+
+  // Builds a `site:`-restricted Google query for a single source and opens
+  // Google's own results in a new tab -- no backend call needed.
+  function buildGoogleSearchUrl(query, matchMode, source) {
+    var keywordPart = matchMode === 'phrase' ? '"' + query + '"' : query;
+    var hostAndPath = (source || '').replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
+    var fullQuery = keywordPart + ' site:' + hostAndPath;
+    return 'https://www.google.com/search?q=' + encodeURIComponent(fullQuery);
+  }
+
+  function fetchJson(url, options) {
+    return fetch(url, options).then(function(resp) {
+      return resp.json().catch(function() { return {}; }).then(function(payload) {
+        if (!resp.ok) {
+          var err = new Error(payload.error || ('Request failed (' + resp.status + ')'));
+          err.status = resp.status;
+          err.payload = payload;
+          throw err;
+        }
+        return payload;
+      });
+    });
+  }
+
+  // ─── Source textarea: count, validate, dedupe (client-side UX only -- the
+  // server independently re-validates every URL) ───
+  var sourcesArea = document.getElementById('gss-sources');
+  var urlCountEl = document.getElementById('gss-url-count');
+  var invalidLinesEl = document.getElementById('gss-invalid-lines');
+  var formEl = document.getElementById('gss-form');
+  var submitBtn = document.getElementById('gss-submit');
+  var processingStep = document.getElementById('gss-step-processing');
+  var processingText = document.getElementById('gss-processing-text');
+  var sourceResultsEl = document.getElementById('gss-source-results');
+  var resultsSection = document.getElementById('gss-results-section');
+  var resultCount = document.getElementById('gss-result-count');
+  var emptyState = document.getElementById('gss-empty-state');
+
+  function parseSourceLines() {
+    var lines = sourcesArea.value.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+    var seen = {};
+    var valid = [];
+    var invalid = [];
+    lines.forEach(function(line) {
+      var normalized;
+      try {
+        var u = new URL(line);
+        if (u.protocol !== 'http:' && u.protocol !== 'https:') throw new Error('scheme');
+        if (u.username || u.password) throw new Error('credentials');
+        normalized = u.protocol + '//' + u.host + u.pathname.replace(/\/+$/, '');
+      } catch (e) {
+        invalid.push(line);
+        return;
+      }
+      if (seen[normalized]) return;
+      seen[normalized] = true;
+      valid.push(line);
+    });
+    return { valid: valid, invalid: invalid };
+  }
+
+  function updateSourcesMeta() {
+    var parsed = parseSourceLines();
+    var count = parsed.valid.length;
+    var label = count + ' source' + (count === 1 ? '' : 's');
+    if (count > MAX_SOURCES) label += ' (only the first ' + MAX_SOURCES + ' will be searched)';
+    urlCountEl.textContent = label;
+
+    if (parsed.invalid.length) {
+      invalidLinesEl.classList.remove('tools-hidden');
+      invalidLinesEl.textContent = 'Not recognized as http(s) URLs: ' + parsed.invalid.join(', ');
+    } else {
+      invalidLinesEl.classList.add('tools-hidden');
+      invalidLinesEl.textContent = '';
+    }
+    return parsed;
+  }
+
+  sourcesArea.addEventListener('input', updateSourcesMeta);
+
+  document.getElementById('gss-load-example').addEventListener('click', function() {
+    sourcesArea.value = EXAMPLE_SOURCES.join('\n');
+    updateSourcesMeta();
+  });
+
+  document.getElementById('gss-clear').addEventListener('click', function() {
+    formEl.reset();
+    resetSearchState();
+    updateSourcesMeta();
+    hideResults();
+  });
+
+  function clearJobPoll() {
+    if (jobPollInterval) {
+      clearInterval(jobPollInterval);
+      jobPollInterval = null;
+    }
+  }
+
+  function clearRetryInterval(key) {
+    if (retryIntervals[key]) {
+      clearInterval(retryIntervals[key].interval);
+      delete retryIntervals[key];
+    }
+  }
+
+  function clearAllRetryIntervals() {
+    Object.keys(retryIntervals).forEach(clearRetryInterval);
+  }
+
+  function retryKey(jobId, source) {
+    return jobId + '::' + source;
+  }
+
+  function resetSearchState() {
+    clearJobPoll();
+    clearAllRetryIntervals();
+    currentGssJobId = null;
+    currentGssQuery = '';
+    currentGssMatchMode = 'any';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Search GIS services';
+    processingStep.classList.remove('active');
+    processingStep.classList.add('tools-hidden');
+    processingText.textContent = 'Searching GIS services...';
+  }
+
+  function hideResults() {
+    document.getElementById('gss-status').classList.add('tools-hidden');
+    resultsSection.classList.add('tools-hidden');
+    emptyState.classList.add('tools-hidden');
+    sourceResultsEl.innerHTML = '';
+    resultCount.textContent = '';
+  }
+
+  function showStatus(type, message) {
+    var el = document.getElementById('gss-status');
+    el.className = 'tools-status ' + type;
+    el.textContent = message;
+    el.classList.remove('tools-hidden');
+  }
+
+  function showProcessing(query, sourceCount) {
+    processingText.textContent = 'Searching ' + sourceCount + ' source' + (sourceCount === 1 ? '' : 's') + ' for "' + query + '"...';
+    processingStep.classList.remove('tools-hidden');
+    processingStep.classList.add('active');
+  }
+
+  function hideProcessing() {
+    processingStep.classList.remove('active');
+    processingStep.classList.add('tools-hidden');
+  }
+
+  // ─── Rendering ───
+  function renderResultCard(result, queryTokens) {
+    var card = document.createElement('div');
+    card.className = 'gss-result-card';
+
+    var titleText = result.title || result.link || 'Untitled result';
+    if (isSafeHttpUrl(result.link)) {
+      var link = document.createElement('a');
+      link.className = 'gss-result-title';
+      link.href = result.link;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.innerHTML = highlightSnippet(titleText, queryTokens);
+      card.appendChild(link);
+    } else {
+      var plainTitle = document.createElement('div');
+      plainTitle.className = 'gss-result-title-plain';
+      plainTitle.innerHTML = highlightSnippet(titleText, queryTokens);
+      card.appendChild(plainTitle);
+    }
+
+    if (result.link || result.displayLink) {
+      var displayLink = document.createElement('div');
+      displayLink.className = 'gss-result-link';
+      displayLink.textContent = result.displayLink || result.link;
+      card.appendChild(displayLink);
+    }
+
+    if (result.snippet) {
+      var snippet = document.createElement('div');
+      snippet.className = 'gss-result-snippet';
+      snippet.innerHTML = highlightSnippet(result.snippet, queryTokens);
+      card.appendChild(snippet);
+    }
+    return card;
+  }
+
+  function appendResults(container, results, queryTokens) {
+    container.innerHTML = '';
+    (results || []).forEach(function(result) {
+      container.appendChild(renderResultCard(result, queryTokens));
+    });
+  }
+
+  function stateClass(state) {
+    if (state === 'success_empty') return 'gss-state-empty';
+    if (state === 'try_google') return 'gss-state-try-google';
+    if (state === 'contact_admin') return 'gss-state-contact-admin';
+    if (state === 'check_url') return 'gss-state-check-url';
+    if (state === 'partial') return 'gss-state-partial';
+    return 'gss-state-success';
+  }
+
+  function stateLabel(state) {
+    var labels = {
+      success: 'Found',
+      success_empty: 'No matches',
+      partial: 'Partial',
+      try_google: "Couldn't reach",
+      contact_admin: 'Contact admin',
+      check_url: 'Check URL'
+    };
+    return labels[state] || state || 'Unknown';
+  }
+
+  function renderSourceCard(entry) {
+    var queryTokens = currentGssQuery.split(/\s+/).filter(Boolean);
+    var card = document.createElement('div');
+    card.className = 'gss-source-card';
+    card.dataset.source = entry.source || '';
+
+    var header = document.createElement('div');
+    header.className = 'gss-source-header';
+
+    var source = document.createElement('div');
+    source.className = 'gss-source-url';
+    if (isSafeHttpUrl(entry.source)) {
+      var sourceLink = document.createElement('a');
+      sourceLink.href = entry.source;
+      sourceLink.target = '_blank';
+      sourceLink.rel = 'noopener noreferrer';
+      sourceLink.textContent = entry.source;
+      source.appendChild(sourceLink);
+    } else {
+      source.textContent = entry.source || 'Unknown source';
+    }
+
+    var badge = document.createElement('span');
+    badge.className = 'gss-state-badge ' + stateClass(entry.state);
+    badge.textContent = stateLabel(entry.state);
+    header.appendChild(source);
+    header.appendChild(badge);
+    card.appendChild(header);
+
+    var metaParts = [];
+    if (typeof entry.totalResults === 'number') {
+      metaParts.push(entry.totalResults + ' match' + (entry.totalResults === 1 ? '' : 'es'));
+    }
+    if (typeof entry.servicesScanned === 'number' && typeof entry.servicesTotal === 'number') {
+      metaParts.push(entry.servicesScanned + ' of ' + entry.servicesTotal + ' services scanned');
+    }
+    if (entry.truncated) metaParts.push('catalog truncated');
+    if (typeof entry.elapsedSeconds === 'number') metaParts.push(entry.elapsedSeconds + 's');
+    if (metaParts.length) {
+      var meta = document.createElement('div');
+      meta.className = 'gss-source-meta';
+      meta.textContent = metaParts.join(' | ');
+      card.appendChild(meta);
+    }
+
+    if (entry.message) {
+      var message = document.createElement('div');
+      message.className = 'gss-source-message';
+      message.textContent = entry.message;
+      card.appendChild(message);
+    }
+
+    var results = entry.results || [];
+    if ((entry.state === 'success' || entry.state === 'success_empty' || entry.state === 'partial') && results.length) {
+      var resultItems = document.createElement('div');
+      appendResults(resultItems, results, queryTokens);
+      card.appendChild(resultItems);
+    } else if (entry.state === 'success_empty') {
+      var empty = document.createElement('div');
+      empty.className = 'gss-card-note';
+      empty.textContent = 'Fully searched this catalog and found no matching services.';
+      card.appendChild(empty);
+    }
+
+    if (entry.state === 'partial' || entry.state === 'try_google') {
+      var actions = document.createElement('div');
+      actions.className = 'gss-source-actions';
+
+      if (entry.state === 'partial') {
+        var retryBtn = document.createElement('button');
+        retryBtn.type = 'button';
+        retryBtn.className = 'btn btn-secondary gss-retry-btn';
+        retryBtn.dataset.source = entry.source || '';
+        retryBtn.textContent = entry.retrying ? 'Retrying...' : 'Complete search';
+        retryBtn.disabled = !!entry.retrying;
+        actions.appendChild(retryBtn);
+
+        if (!entry.retrying) {
+          var estimateSeconds = estimateFullSearchSeconds(entry);
+          if (estimateSeconds !== null) {
+            var estimateNote = document.createElement('div');
+            estimateNote.className = 'gss-card-note';
+            estimateNote.textContent = 'Estimated ' + formatEstimatedDuration(estimateSeconds) +
+              (estimateSeconds > FULL_BUDGET_SECONDS ? ' -- large catalog, may take more than one attempt' : '');
+            actions.appendChild(estimateNote);
+          }
+        }
+      }
+
+      if (entry.state === 'try_google') {
+        var googleLink = document.createElement('a');
+        googleLink.className = 'btn btn-secondary gss-google-btn';
+        googleLink.href = buildGoogleSearchUrl(currentGssQuery, currentGssMatchMode, entry.source);
+        googleLink.target = '_blank';
+        googleLink.rel = 'noopener noreferrer';
+        googleLink.textContent = 'Try Google Search';
+        actions.appendChild(googleLink);
+      }
+
+      card.appendChild(actions);
+    }
+
+    return card;
+  }
+
+  function findSourceCard(source) {
+    var cards = sourceResultsEl.querySelectorAll('.gss-source-card');
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].dataset.source === source) return cards[i];
+    }
+    return null;
+  }
+
+  function sortSourceResults(sourceResults) {
+    return sourceResults.slice().sort(function(a, b) {
+      var orderA = STATE_SORT_ORDER[a.state];
+      var orderB = STATE_SORT_ORDER[b.state];
+      if (orderA === undefined) orderA = 99;
+      if (orderB === undefined) orderB = 99;
+      return orderA - orderB;
+    });
+  }
+
+  function renderAll(doc) {
+    var sourceResults = sortSourceResults(doc.sourceResults || []);
+    sourceResultsEl.innerHTML = '';
+    sourceResults.forEach(function(entry) {
+      sourceResultsEl.appendChild(renderSourceCard(entry));
+    });
+    resultCount.textContent = 'Found ' + (doc.totalResults || 0).toLocaleString() + ' result' + (doc.totalResults === 1 ? '' : 's') +
+      ' across ' + sourceResults.length + ' source' + (sourceResults.length === 1 ? '' : 's') + '.';
+    resultsSection.classList.remove('tools-hidden');
+    emptyState.classList.add('tools-hidden');
+
+    if (doc.invalidSources && doc.invalidSources.length) {
+      showStatus('info', 'Skipped ' + doc.invalidSources.length + ' invalid source URL' + (doc.invalidSources.length === 1 ? '' : 's') + ': ' + doc.invalidSources.join(', '));
+    }
+  }
+
+  function handleJobDoc(doc) {
+    if (!doc) return;
+    if (doc.status === 'processing') return;
+
+    clearJobPoll();
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Search GIS services';
+    hideProcessing();
+
+    if (doc.status === 'complete') {
+      renderAll(doc);
+    } else if (doc.status === 'error') {
+      showStatus('error', doc.error || 'Search failed.');
+    }
+  }
+
+  function pollJobStatus() {
+    if (!currentGssJobId) return;
+    fetchJson(API_BASE + '/status?jobId=' + encodeURIComponent(currentGssJobId))
+      .then(handleJobDoc)
+      .catch(function(err) {
+        clearJobPoll();
+        hideProcessing();
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Search GIS services';
+        showStatus('error', err.message || 'Could not check search status.');
+      });
+  }
+
+  function startJobPolling() {
+    clearJobPoll();
+    pollJobStatus();
+    jobPollInterval = setInterval(pollJobStatus, JOB_POLL_MS);
+  }
+
+  function showRetryTimeout(source) {
+    var card = findSourceCard(source);
+    if (!card) return;
+    var actions = card.querySelector('.gss-source-actions') || card;
+    var note = document.createElement('div');
+    note.className = 'gss-card-note';
+    note.textContent = 'This is taking longer than expected -- check back later.';
+    actions.appendChild(note);
+
+    var recheckBtn = card.querySelector('.gss-retry-btn');
+    if (recheckBtn) {
+      recheckBtn.disabled = false;
+      recheckBtn.textContent = 'Check again';
+    }
+  }
+
+  function startRetryPolling(source) {
+    var key = retryKey(currentGssJobId, source);
+    clearRetryInterval(key);
+    retryIntervals[key] = {
+      startedAt: Date.now(),
+      interval: setInterval(function() {
+        fetchJson(API_BASE + '/status?jobId=' + encodeURIComponent(currentGssJobId))
+          .then(function(doc) {
+            if (!retryIntervals[key]) return;
+            var sourceResults = doc.sourceResults || [];
+            var entry = sourceResults.find(function(item) { return item.source === source; });
+            if (!entry) {
+              if (Date.now() - retryIntervals[key].startedAt > RETRY_TIMEOUT_MS) {
+                clearRetryInterval(key);
+                showRetryTimeout(source);
+              }
+              return;
+            }
+            if (entry.retrying === false) {
+              clearRetryInterval(key);
+              renderAll(doc);
+            } else if (Date.now() - retryIntervals[key].startedAt > RETRY_TIMEOUT_MS) {
+              clearRetryInterval(key);
+              showRetryTimeout(source);
+            }
+          })
+          .catch(function() {
+            if (retryIntervals[key] && Date.now() - retryIntervals[key].startedAt > RETRY_TIMEOUT_MS) {
+              clearRetryInterval(key);
+              showRetryTimeout(source);
+            }
+          });
+      }, RETRY_POLL_MS)
+    };
+  }
+
+  function setCardNote(source, message) {
+    var card = findSourceCard(source);
+    if (!card) return;
+    var actions = card.querySelector('.gss-source-actions') || card;
+    var note = actions.querySelector('.gss-card-note');
+    if (!note) {
+      note = document.createElement('div');
+      note.className = 'gss-card-note';
+      actions.appendChild(note);
+    }
+    note.textContent = message;
+  }
+
+  formEl.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var query = document.getElementById('gss-query').value.trim();
+    if (!query) return;
+    var matchMode = document.querySelector('input[name="gss-match-mode"]:checked').value;
+    var parsed = updateSourcesMeta();
+    var sources = parsed.valid.slice(0, MAX_SOURCES);
+    if (!sources.length) {
+      emptyState.textContent = 'Enter at least one valid http(s) GIS source URL.';
+      emptyState.classList.remove('tools-hidden');
+      invalidLinesEl.classList.remove('tools-hidden');
+      invalidLinesEl.textContent = 'Enter at least one valid http(s) GIS source URL.';
+      return;
+    }
+
+    resetSearchState();
+    hideResults();
+    currentGssQuery = query;
+    currentGssMatchMode = matchMode;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Starting...';
+    showProcessing(query, sources.length);
+
+    fetchJson(API_BASE + '/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: query, matchMode: matchMode, sources: sources })
+    }).then(function(payload) {
+      currentGssJobId = payload.jobId;
+      submitBtn.textContent = 'Searching...';
+      startJobPolling();
+    }).catch(function(err) {
+      hideProcessing();
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Search GIS services';
+      showStatus('error', err.message || 'Could not start the search.');
+    });
+  });
+
+  sourceResultsEl.addEventListener('click', function(e) {
+    var retryBtn = e.target.closest('.gss-retry-btn');
+    if (retryBtn) {
+      var source = retryBtn.dataset.source;
+      if (!currentGssJobId || !source) return;
+      retryBtn.disabled = true;
+      retryBtn.textContent = 'Retrying...';
+      setCardNote(source, 'Retrying this source with a longer time budget...');
+      fetchJson(API_BASE + '/retry-source', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId: currentGssJobId, source: source })
+      }).then(function() {
+        startRetryPolling(source);
+      }).catch(function(err) {
+        retryBtn.disabled = false;
+        retryBtn.textContent = 'Complete search';
+        setCardNote(source, err.message || 'Could not start the full search.');
+      });
+    }
+  });
+
+  resetSearchState();
+  updateSourcesMeta();
 })();
 </script>
 {{ end }}

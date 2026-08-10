@@ -29,3 +29,10 @@ tools/sun-phase/.aws-sam/
 tools/sun-phase/web/.aws-sam/
 tools/sun-phase/data/input/
 tools/sun-phase/data/output/
+
+# GIS Service Search
+tools/gis-service-search/web/.venv/
+tools/gis-service-search/web/__pycache__/
+tools/gis-service-search/web/.aws-sam/
+tools/gis-service-search/web/**/__pycache__/
+tools/gis-service-search/web/.pytest_cache/
