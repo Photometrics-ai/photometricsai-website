@@ -6,6 +6,8 @@ tags:
   - tools
   - transportation-safety
   - data
+  - crime-prevention
+  - CPTED
 date: 2026-08-11
 ---
 
