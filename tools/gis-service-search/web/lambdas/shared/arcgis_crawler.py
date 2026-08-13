@@ -197,9 +197,19 @@ def _service_targets(folder: str | None, services: Any) -> list[tuple[str | None
 
 def _fetch_service_documents(root_url: str, target: tuple[str | None, str, str]) -> dict:
     folder, name, service_type = target
-    if folder:
+    # ArcGIS Server's folder service listing returns "name" already qualified
+    # with the folder path (e.g. folder "Features" -> name "Features/Hydrography"),
+    # not the bare service name relative to the folder. Prepending folder again
+    # in that case double-qualifies the path and, once build_url percent-encodes
+    # the embedded "/" as %2F, produces an invalid URL ArcGIS rejects with a 400.
+    if folder and name.startswith(f"{folder}/"):
+        display_name = name
+        service_url = arcgis_client.build_url(root_url, *name.split("/"), service_type)
+    elif folder:
+        display_name = f"{folder}/{name}"
         service_url = arcgis_client.build_url(root_url, folder, name, service_type)
     else:
+        display_name = name
         service_url = arcgis_client.build_url(root_url, name, service_type)
 
     service_url_without_query = service_url.split("?", 1)[0]
@@ -208,7 +218,6 @@ def _fetch_service_documents(root_url: str, target: tuple[str | None, str, str])
         return {"error_type": result.error_type, "documents": []}
 
     body = result.json_body or {}
-    display_name = f"{folder}/{name}" if folder else name
     documents = [
         {
             "title": f"{service_type}: {display_name}",

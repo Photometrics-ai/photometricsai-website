@@ -185,6 +185,36 @@ def test_discover_tree_collects_services_and_layers(server):
     } in result.documents
 
 
+def test_discover_tree_does_not_double_qualify_folder_prefixed_service_names(server):
+    # Real-world case (mapsdep.nj.gov): some ArcGIS servers return the "name"
+    # of a service inside a folder already qualified with that folder
+    # ("Features/Hydrography" under folder "Features"), not just the bare
+    # service name ("Hydrography"). Naively prepending the folder again used
+    # to build ".../Features/Features%2FHydrography/MapServer", which ArcGIS
+    # rejects with a 400 Invalid URL.
+    server.handler_cls.routes[_route("/arcgis/rest/services")] = {
+        "body": {"folders": ["Features"], "services": []}
+    }
+    server.handler_cls.routes[_route("/arcgis/rest/services/Features")] = {
+        "body": {"services": [{"name": "Features/Hydrography", "type": "MapServer"}]}
+    }
+    server.handler_cls.routes[_service_route("Features", "Hydrography", "MapServer")] = {
+        "body": {"description": "Hydrography features", "layers": []}
+    }
+
+    result = arcgis_crawler.discover_tree(_root_url(server), budget_seconds=10)
+
+    assert result.terminal_error is None
+    assert result.documents == [
+        {
+            "title": "MapServer: Features/Hydrography",
+            "url": f"{_root_url(server)}/Features/Hydrography/MapServer",
+            "kind": "service",
+            "description": "Hydrography features",
+        }
+    ]
+
+
 def test_discover_tree_handles_explicit_json_null_for_folders_and_layers(server):
     # Real-world case (tiles.arcgis.com): some ArcGIS servers return an
     # explicit JSON null for "folders"/"layers" rather than omitting the key
