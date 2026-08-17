@@ -1,0 +1,31 @@
+{{ define "main" }}
+<main class="cld-page">
+  <section class="cld-masthead">
+    <h1 class="cld-title">{{ .Title }}</h1>
+    <p class="cld-description">{{ .Description }}</p>
+  </section>
+
+  <section class="cld-signup">
+    <form
+      action="https://buttondown.com/api/emails/embed-subscribe/SDGIS"
+      method="post"
+      class="embeddable-buttondown-form"
+    >
+      <label for="bd-email">Enter your email</label>
+      <div class="cld-form-row">
+        <input type="email" name="email" id="bd-email" required>
+        <input type="submit" value="Subscribe">
+      </div>
+      <p class="cld-powered">
+        <a href="https://buttondown.com/refer/SDGIS" target="_blank" rel="noopener">
+          Powered by Buttondown.
+        </a>
+      </p>
+    </form>
+  </section>
+
+  <footer class="cld-footer">
+    <a href="https://evarilabs.com" target="_blank" rel="noopener">Published by EvariLABS</a>
+  </footer>
+</main>
+{{ end }}

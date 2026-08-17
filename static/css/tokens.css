@@ -1,0 +1,31 @@
+/* EvariLABS brand tokens — mirror of tokens.json (skills/brand-assets/references).
+   Canonical :root for photometrics.ai and evarilux.com. Drop this into each site's
+   static/css/ and let main.css consume the variables. Do NOT hand-edit values here;
+   change tokens.json, then regenerate/re-propagate. Verified 2026-07-23. */
+:root{
+  /* Living Night — dark backgrounds */
+  --bg-deep:#0a0f14; --bg-dark:#0f1419; --bg-navy:#141b24; --bg-card:#1a222d;
+  /* Light backgrounds */
+  --bg-light:#f8f9fa; --bg-white:#ffffff;
+  /* Accent — the brand blue (single accent for all properties) */
+  --accent:#4ea3dc; --accent-light:#7dbde8; --accent-glow:rgba(78,163,220,0.08);
+  /* Light-temperature accents */
+  --light-warm:#ffefd5; --light-cool:#e8f4fc;
+  /* Text — dark mode */
+  --text-white:rgba(255,255,255,.95); --text-light:rgba(255,255,255,.75); --text-muted:rgba(255,255,255,.5);
+  /* Text — light mode */
+  --text-dark:#1a1a2e; --text-body:#4a5568; --text-subtle:#718096;
+  /* Borders */
+  --border-light:rgba(255,255,255,.08); --border-dark:rgba(0,0,0,.08);
+  /* Functional only — never brand accents */
+  --success:#22c55e; --linkedin:#0a66c2;
+  /* Type */
+  --font-display:'Cormorant Garamond', Georgia, serif;
+  --font-body:'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Layout */
+  --container:1100px;
+  --radius-lg:12px; --radius-md:8px; --radius-pill:100px;
+  --space-xs:0.5rem; --space-sm:1rem; --space-md:1.5rem; --space-lg:3rem; --space-xl:5rem; --space-xxl:8rem;
+  /* Motion */
+  --ease:cubic-bezier(0.4,0,0.2,1); --ease-organic:cubic-bezier(0.25,0.1,0.25,1); --duration:0.3s;
+}
