@@ -107,6 +107,21 @@ body {
   outline-offset: 2px;
 }
 
+.cld-signup-message {
+  min-height: 1.25rem;
+  margin: var(--space-sm) 0 0;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+}
+
+.cld-signup-message-success {
+  color: var(--accent);
+}
+
+.cld-signup-message-error {
+  color: #c0392b;
+}
+
 .cld-powered {
   margin: var(--space-sm) 0 0;
   text-align: center;

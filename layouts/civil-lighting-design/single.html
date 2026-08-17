@@ -6,17 +6,13 @@
   </section>
 
   <section class="cld-signup">
-    <form
-      action="https://buttondown.com/api/emails/embed-subscribe/SDGIS"
-      method="post"
-      target="_blank"
-      class="embeddable-buttondown-form"
-    >
+    <form class="embeddable-buttondown-form" id="cld-signup-form">
       <label for="bd-email">Enter your email</label>
       <div class="cld-form-row">
         <input type="email" name="email" id="bd-email" required>
-        <input type="submit" value="Subscribe">
+        <input type="submit" value="Subscribe" id="cld-submit">
       </div>
+      <p class="cld-signup-message" id="cld-signup-message" role="status" aria-live="polite"></p>
       <p class="cld-powered">
         <a href="https://buttondown.com/refer/SDGIS" target="_blank" rel="noopener">
           Powered by Buttondown.
@@ -29,4 +25,58 @@
     <a href="https://evarilabs.com" target="_blank" rel="noopener">Published by EvariLABS</a>
   </footer>
 </main>
+
+<script>
+(function() {
+  var API_URL = "https://d6uh2i4kzovazeqdhtnrw4xnty0oxgbo.lambda-url.us-east-2.on.aws/";
+  var form = document.getElementById("cld-signup-form");
+  var emailInput = document.getElementById("bd-email");
+  var submitBtn = document.getElementById("cld-submit");
+  var messageEl = document.getElementById("cld-signup-message");
+
+  function showMessage(text, isError) {
+    messageEl.textContent = text;
+    messageEl.classList.toggle("cld-signup-message-error", !!isError);
+    messageEl.classList.toggle("cld-signup-message-success", !isError);
+  }
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    var email = emailInput.value.trim();
+    if (!email) return;
+
+    submitBtn.disabled = true;
+    submitBtn.value = "Subscribing...";
+    showMessage("", false);
+
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email })
+    })
+    .then(function(response) {
+      return response.json().then(function(data) {
+        return { ok: response.ok, data: data };
+      });
+    })
+    .then(function(result) {
+      if (result.ok && result.data.status === "already_subscribed") {
+        showMessage("You're already subscribed!", false);
+      } else if (result.ok) {
+        showMessage("You're subscribed. Check your inbox to confirm.", false);
+        emailInput.value = "";
+      } else {
+        showMessage(result.data.error || "Something went wrong. Please try again.", true);
+      }
+    })
+    .catch(function() {
+      showMessage("Something went wrong. Please try again.", true);
+    })
+    .finally(function() {
+      submitBtn.disabled = false;
+      submitBtn.value = "Subscribe";
+    });
+  });
+})();
+</script>
 {{ end }}
