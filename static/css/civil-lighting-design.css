@@ -1,5 +1,43 @@
 /* Civil Lighting Design newsletter page — consumes static/css/tokens.css only.
-   Self-contained: no dependency on main.css or the main site's header/footer. */
+   Self-contained: no dependency on main.css or the main site's header/footer.
+
+   Visual identity: a civil engineering plan sheet. This is a deliberate
+   brand exception for newsletter surfaces only — see the "Civil Lighting
+   Design newsletter" section of the brand-assets skill. Overpass (display)
+   and Overpass Mono (sheet-lettering: labels, title block, stationing)
+   replace Cormorant Garamond here; everything else (palette, Work Sans body
+   text) still comes from tokens.css. */
+
+@font-face {
+  font-family: 'Overpass';
+  src: url('/vendor/overpass/overpass-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Overpass Mono';
+  src: url('/vendor/overpass/overpass-mono-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Overpass Mono';
+  src: url('/vendor/overpass/overpass-mono-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Sheet-furniture colors: not part of tokens.css (--text-dark already equals
+     the heavy-border color below, reused directly). New to this page only. */
+  --cld-hairline: #c9d0d8;
+  --cld-accent-text: #2A6F9B;
+}
 
 * { box-sizing: border-box; }
 
@@ -20,20 +58,78 @@ body {
   padding: var(--space-xl) var(--space-md);
 }
 
-.cld-masthead {
-  max-width: 640px;
+/* Sheet frame — double border: heavy outer, hairline inner, with
+   midpoint grid-reference ticks on all four outer edges. */
+.cld-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  border: 3px solid var(--text-dark);
+  padding: 10px;
+}
+
+.cld-sheet-inner {
+  border: 1px solid var(--cld-hairline);
+  padding: var(--space-lg) var(--space-lg);
+}
+
+.cld-tick {
+  position: absolute;
+  background: var(--text-dark);
+}
+
+.cld-tick-top,
+.cld-tick-bottom {
+  width: 4px;
+  height: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.cld-tick-top { top: -9px; }
+.cld-tick-bottom { bottom: -9px; }
+
+.cld-tick-left,
+.cld-tick-right {
+  width: 18px;
+  height: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.cld-tick-left { left: -9px; }
+.cld-tick-right { right: -9px; }
+
+/* Header — masthead + stationing line */
+.cld-header {
   text-align: center;
   margin-bottom: var(--space-lg);
 }
 
 .cld-title {
-  font-family: var(--font-display);
-  font-weight: 300;
-  font-size: clamp(2.75rem, 7vw, 4.5rem);
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  font-family: 'Overpass', var(--font-body);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 5.5vw, 2.75rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.25;
   color: var(--text-dark);
-  margin: 0 0 var(--space-md);
+  margin: 0;
+}
+
+.cld-sta-line {
+  font-family: 'Overpass Mono', ui-monospace, monospace;
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cld-accent-text);
+  margin: var(--space-xs) 0 0;
+}
+
+.cld-masthead {
+  max-width: 640px;
+  margin: 0 auto var(--space-lg);
+  text-align: center;
 }
 
 .cld-description {
@@ -58,6 +154,7 @@ body {
 .cld-signup {
   width: 100%;
   max-width: 480px;
+  margin: 0 auto;
 }
 
 .embeddable-buttondown-form label {
@@ -132,45 +229,99 @@ body {
   color: #c0392b;
 }
 
-.cld-powered {
-  margin: var(--space-sm) 0 0;
-  text-align: center;
+/* Title block — replaces the old plain footer */
+.cld-titleblock {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: var(--space-xl);
+  border-top: 1px solid var(--cld-hairline);
+  border-bottom: 1px solid var(--cld-hairline);
+}
+
+.cld-tb-cell {
+  vertical-align: top;
+  padding: var(--space-sm) var(--space-md);
+  border-left: 1px solid var(--cld-hairline);
+  width: 34%;
+}
+
+.cld-tb-cell:first-child {
+  border-left: none;
+  padding-left: 0;
+  width: 32%;
+}
+
+.cld-tb-line,
+.cld-tb-row {
+  font-family: 'Overpass Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-body);
+  line-height: 1.9;
+}
+
+.cld-tb-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.25rem 0;
+}
+
+.cld-tb-cell-divided .cld-tb-row + .cld-tb-row {
+  border-top: 1px solid var(--cld-hairline);
+}
+
+.cld-tb-strong {
+  font-weight: 600;
+  color: var(--text-dark);
   font-size: 0.8125rem;
 }
 
-.cld-powered a {
+.cld-tb-label {
+  color: var(--text-subtle);
+}
+
+.cld-tb-value {
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+.cld-tb-cell a {
   color: var(--text-subtle);
   text-decoration: none;
 }
 
-.cld-powered a:hover {
+.cld-tb-cell a:hover {
   color: var(--accent);
   text-decoration: underline;
-}
-
-.cld-footer {
-  margin-top: var(--space-xl);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--border-dark);
-  width: 100%;
-  max-width: 480px;
-  text-align: center;
-}
-
-.cld-footer a {
-  font-family: var(--font-body);
-  font-size: 0.8125rem;
-  color: var(--text-subtle);
-  text-decoration: none;
-  transition: color var(--duration) var(--ease);
-}
-
-.cld-footer a:hover {
-  color: var(--accent);
 }
 
 @media (max-width: 500px) {
   .cld-form-row {
     flex-direction: column;
+  }
+
+  .cld-sheet-inner {
+    padding: var(--space-md);
+  }
+
+  .cld-titleblock,
+  .cld-titleblock tbody,
+  .cld-titleblock tr,
+  .cld-tb-cell {
+    display: block;
+    width: 100%;
+  }
+
+  .cld-tb-cell {
+    border-left: none;
+    border-top: 1px solid var(--cld-hairline);
+    padding: var(--space-sm) 0 0;
+  }
+
+  .cld-tb-cell:first-child {
+    border-top: none;
   }
 }

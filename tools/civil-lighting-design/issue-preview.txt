@@ -1,0 +1,32 @@
+CIVIL LIGHTING DESIGN
+STA 01+00 - AUGUST 2026
+
+------------------------------------------------------------
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+
+MATCH LINE -- FROM PHOTOMETRICS.AI
+
+LOREM IPSUM DOLOR SIT AMET CONSECTETUR
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+MATCH LINE -- AROUND THE INDUSTRY
+
+UT ENIM AD MINIM VENIAM QUIS NOSTRUD
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+EXCEPTEUR SINT OCCAECAT CUPIDATAT
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+MATCH LINE -- STANDARDS AND COMMITTEES
+
+SED UT PERSPICIATIS UNDE OMNIS ISTE
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+------------------------------------------------------------
+
+Published by EvariLABS
+Issue 01 | Date 08/17/26 | Sheet 1 of 1
+Drawn: AI | Checked: AI | Scale: NTS
+
+Unsubscribe: {{ unsubscribe_url }}

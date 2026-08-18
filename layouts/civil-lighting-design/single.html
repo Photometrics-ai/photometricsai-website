@@ -1,25 +1,55 @@
 {{ define "main" }}
 <main class="cld-page">
-  <section class="cld-masthead">
-    <h1 class="cld-title">{{ .Title }}</h1>
-    <p class="cld-description">{{ .Description }}</p>
-    <p class="cld-positioning">Lighting design has always meant architectural lighting design. Buildings, facades, interiors. That makes sense: most lighting lives in those spaces. But some spaces cannot be divided into managed horizontal and vertical planes, because nobody controls them. The road geometry is given. The trees, the traffic, and the weather do what they do. This newsletter is for the people lighting those places, whether you work there already, are looking for tools and concepts you can apply today, or are an architectural lighting designer curious about what changes when the calculation planes are gone.</p>
-  </section>
+  <div class="cld-sheet">
+    <span class="cld-tick cld-tick-top" aria-hidden="true"></span>
+    <span class="cld-tick cld-tick-bottom" aria-hidden="true"></span>
+    <span class="cld-tick cld-tick-left" aria-hidden="true"></span>
+    <span class="cld-tick cld-tick-right" aria-hidden="true"></span>
 
-  <section class="cld-signup">
-    <form class="embeddable-buttondown-form" id="cld-signup-form">
-      <label for="bd-email">Enter your email</label>
-      <div class="cld-form-row">
-        <input type="email" name="email" id="bd-email" required>
-        <input type="submit" value="Subscribe" id="cld-submit">
-      </div>
-      <p class="cld-signup-message" id="cld-signup-message" role="status" aria-live="polite"></p>
-    </form>
-  </section>
+    <div class="cld-sheet-inner">
 
-  <footer class="cld-footer">
-    <a href="https://evarilabs.com" target="_blank" rel="noopener">Published by EvariLABS</a>
-  </footer>
+      <header class="cld-header">
+        <h1 class="cld-title">{{ .Title }}</h1>
+        <p class="cld-sta-line">STA 01+00 &middot; {{ now.Format "January 2006" }}</p>
+      </header>
+
+      <section class="cld-masthead">
+        <p class="cld-description">{{ .Description }}</p>
+        <p class="cld-positioning"><strong>Many of us in lighting design see a gap. Architectural concepts and tools solve architectural problems, but every space isn't architecture.</strong> Horizontal and vertical planes describe rooms, not roads. Some areas are simply too diverse to templatize. Civil lighting design is the emerging discipline that fills this gap.</p>
+      </section>
+
+      <section class="cld-signup">
+        <form class="embeddable-buttondown-form" id="cld-signup-form">
+          <label for="bd-email">Enter your email</label>
+          <div class="cld-form-row">
+            <input type="email" name="email" id="bd-email" required>
+            <input type="submit" value="Subscribe" id="cld-submit">
+          </div>
+          <p class="cld-signup-message" id="cld-signup-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <table class="cld-titleblock">
+        <tr>
+          <td class="cld-tb-cell cld-tb-credit">
+            <div class="cld-tb-line cld-tb-strong">CIVIL LIGHTING DESIGN</div>
+            <div class="cld-tb-line"><a href="https://evarilabs.com" target="_blank" rel="noopener">PUBLISHED BY EVARILABS</a></div>
+          </td>
+          <td class="cld-tb-cell cld-tb-cell-divided">
+            <div class="cld-tb-row"><span class="cld-tb-label">ISSUE</span><span class="cld-tb-value">&mdash;</span></div>
+            <div class="cld-tb-row"><span class="cld-tb-label">DATE</span><span class="cld-tb-value">{{ now.Format "01/02/06" }}</span></div>
+            <div class="cld-tb-row"><span class="cld-tb-label">SHEET</span><span class="cld-tb-value">1 OF 1</span></div>
+          </td>
+          <td class="cld-tb-cell">
+            <div class="cld-tb-row"><span class="cld-tb-label">DRAWN</span><span class="cld-tb-value">AI</span></div>
+            <div class="cld-tb-row"><span class="cld-tb-label">CHECKED</span><span class="cld-tb-value">AI</span></div>
+            <div class="cld-tb-row"><span class="cld-tb-label">SCALE</span><span class="cld-tb-value">NTS</span></div>
+          </td>
+        </tr>
+      </table>
+
+    </div>
+  </div>
 </main>
 
 <script>
