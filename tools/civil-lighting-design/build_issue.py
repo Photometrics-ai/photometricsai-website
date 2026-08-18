@@ -160,9 +160,9 @@ def build_email_html(issue_number, publish_date, intro_html, sections):
 
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="height:16px;line-height:16px;font-size:0;">&nbsp;</td></tr></table>
 
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid {HAIRLINE};border-bottom:1px solid {HAIRLINE};">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid {HAIRLINE};">
         <tr>
-          <td width="34%" valign="top" style="padding:16px 12px 16px 0;font-family:'Courier New',Courier,monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:{BODY_TEXT};line-height:1.9;">
+          <td width="34%" valign="top" style="padding:16px 12px;font-family:'Courier New',Courier,monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:{BODY_TEXT};line-height:1.9;">
             <div style="font-weight:bold;color:{INK};font-size:13px;">CIVIL LIGHTING DESIGN</div>
             <div><a href="{EVARILABS_URL}" style="color:{BODY_TEXT};text-decoration:none;">PUBLISHED BY EVARILABS</a></div>
           </td>
@@ -173,7 +173,7 @@ def build_email_html(issue_number, publish_date, intro_html, sections):
             <tr><td style="padding:4px 0;border-top:1px solid {HAIRLINE};">SHEET</td><td align="right" style="padding:4px 0;border-top:1px solid {HAIRLINE};font-weight:bold;color:{INK};">1 OF 1</td></tr>
             </table>
           </td>
-          <td width="33%" valign="top" style="padding:16px 0 16px 12px;border-left:1px solid {HAIRLINE};font-family:'Courier New',Courier,monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:{BODY_TEXT};">
+          <td width="33%" valign="top" style="padding:16px 12px;border-left:1px solid {HAIRLINE};font-family:'Courier New',Courier,monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:{BODY_TEXT};">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr><td style="padding:4px 0;">DRAWN</td><td align="right" style="padding:4px 0;font-weight:bold;color:{INK};">AI</td></tr>
             <tr><td style="padding:4px 0;border-top:1px solid {HAIRLINE};">CHECKED</td><td align="right" style="padding:4px 0;border-top:1px solid {HAIRLINE};font-weight:bold;color:{INK};">AI</td></tr>

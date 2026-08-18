@@ -43,7 +43,7 @@
 
 body {
   margin: 0;
-  background: var(--bg-white);
+  background: var(--bg-light);
   color: var(--text-body);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -59,18 +59,27 @@ body {
 }
 
 /* Sheet frame — double border: heavy outer, hairline inner, with
-   midpoint grid-reference ticks on all four outer edges. */
+   midpoint grid-reference ticks on all four outer edges. Sized to
+   letter-paper (8.5x11) proportions, like an actual civil drawing sheet,
+   with a light backdrop behind it so it reads as a page, not just a
+   bordered content block. */
 .cld-sheet {
   position: relative;
   width: 100%;
-  max-width: 720px;
+  max-width: 780px;
+  aspect-ratio: 8.5 / 11;
+  background: var(--bg-white);
   border: 3px solid var(--text-dark);
   padding: 10px;
 }
 
 .cld-sheet-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--cld-hairline);
   padding: var(--space-lg) var(--space-lg);
+  overflow: auto;
 }
 
 .cld-tick {
@@ -103,7 +112,7 @@ body {
 /* Header — masthead + stationing line */
 .cld-header {
   text-align: center;
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
 }
 
 .cld-title {
@@ -128,8 +137,23 @@ body {
 
 .cld-masthead {
   max-width: 640px;
-  margin: 0 auto var(--space-lg);
+  margin: 0 auto var(--space-md);
   text-align: center;
+}
+
+.cld-matchline {
+  border-top: 1px dashed var(--cld-hairline);
+  margin: var(--space-md) 0;
+  padding-top: var(--space-xs);
+  text-align: center;
+}
+
+.cld-matchline-label {
+  font-family: 'Overpass Mono', ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
 }
 
 .cld-description {
@@ -234,9 +258,8 @@ body {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  margin-top: var(--space-xl);
-  border-top: 1px solid var(--cld-hairline);
-  border-bottom: 1px solid var(--cld-hairline);
+  margin-top: auto;
+  border: 1px solid var(--cld-hairline);
 }
 
 .cld-tb-cell {
