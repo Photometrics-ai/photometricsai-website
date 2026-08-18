@@ -90,6 +90,26 @@ If site doesn't update after deploy:
 2. Check in incognito/private window
 3. Verify build succeeded: `aws amplify list-jobs --app-id d22p16j9j2s18f --branch-name master --max-results 1`
 
+## Civil Lighting Design Newsletter (`content/civil-lighting-design/`, `tools/civil-lighting-design/`)
+
+A separate EvariLABS newsletter (signup page at `/civil-lighting-design/`), sent via Buttondown (account username `civillightingdesign`), styled as a civil-engineering plan sheet — a deliberate visual exception from the main brand (Overpass display type instead of Cormorant Garamond, sheet furniture: border frame, grid-reference ticks, matchline dividers, title block). Assets and generator scripts live in `tools/civil-lighting-design/`: font files, `generate_masthead.py`, and `build_issue.py`, which assembles each issue's complete HTML/plain-text **locally** — Buttondown has no confirmed template variable for per-issue body content, so the script bakes date/issue number/content into static HTML at generation time rather than relying on Buttondown-side template substitution (see comments in `build_issue.py` for the full reasoning). The only Buttondown-side variable used is `{{ unsubscribe_url }}`, which is documented and confirmed to work directly inside email body content.
+
+### Link backlog workflow
+
+Ari sends story links (studies, industry news, standards updates) whenever he finds one — not tied to any particular issue being in progress.
+
+**If Ari pastes a URL and asks to save it / add it to the newsletter / queue it for a future issue:**
+
+1. Read `tools/civil-lighting-design/link-backlog.json` (array of entries; empty array if nothing queued yet).
+2. Fetch the URL, draft a `headline` and a short factual 1-2 sentence `summary` — concise and factual, not gap-selling copy; this is a roundup.
+3. Guess a `section`: `"From Photometrics.ai"` (company-authored), `"Around the Industry"` (general industry news), or `"Standards and Committees"` (standards-body/regulatory) — this is a guess for Ari to correct later, not a final assignment.
+4. Append `{url, date_added, headline, summary, section, status: "unused", used_in_issue: null}` and write the file back.
+5. Confirm briefly what was added — don't just silently write the file.
+
+This works from any Claude Code session on this repo (local terminal, desktop app, or claude.ai/code from mobile) since it only needs git read/write access — no dependency on the local-only Buttondown API key or AWS credentials that live on Ari's machine.
+
+**When actually building an issue:** pull unused entries (oldest first, or whichever Ari points at), confirm with him the summaries are still accurate, then feed the finalized set into `build_issue.py`'s `ISSUE` structure, regenerate, and mark those entries `"status": "used"` with `used_in_issue` set.
+
 ## Sun Phase Tools (`tools/sun-phase/`)
 
 Astronomical sun calculation toolkit for streetlight operations. Contains CLI tools, a desktop GUI, and an AWS Lambda backend (SAM).
