@@ -1,0 +1,43 @@
+{{ define "main" }}
+<main class="cld-page">
+  <div class="cld-sheet">
+    <span class="cld-tick cld-tick-top" aria-hidden="true"></span>
+    <span class="cld-tick cld-tick-bottom" aria-hidden="true"></span>
+    <span class="cld-tick cld-tick-left" aria-hidden="true"></span>
+    <span class="cld-tick cld-tick-right" aria-hidden="true"></span>
+
+    <div class="cld-sheet-inner">
+
+      <header class="cld-header">
+        <h1 class="cld-title">Civil Lighting Design</h1>
+        <p class="cld-sta-line">STA 01+00 &middot; {{ now.Format "January 2006" }}</p>
+      </header>
+
+      <section class="cld-masthead">
+        <p class="cld-description">You're confirmed. Welcome to Civil Lighting Design.</p>
+        <p class="cld-positioning">Issues land in your inbox as they're published. In the meantime, you can revisit the page anytime at <a href="https://photometrics.ai/civil-lighting-design/">photometrics.ai/civil-lighting-design</a>.</p>
+      </section>
+
+      <table class="cld-titleblock">
+        <tr>
+          <td class="cld-tb-cell cld-tb-credit">
+            <div class="cld-tb-line cld-tb-strong">CIVIL LIGHTING DESIGN</div>
+            <div class="cld-tb-line"><a href="https://evarilabs.com" target="_blank" rel="noopener">PUBLISHED BY EVARILABS</a></div>
+          </td>
+          <td class="cld-tb-cell cld-tb-cell-divided">
+            <div class="cld-tb-row"><span class="cld-tb-label">ISSUE</span><span class="cld-tb-value">&mdash;</span></div>
+            <div class="cld-tb-row"><span class="cld-tb-label">DATE</span><span class="cld-tb-value">{{ now.Format "01/02/06" }}</span></div>
+            <div class="cld-tb-row"><span class="cld-tb-label">SHEET</span><span class="cld-tb-value">1 OF 1</span></div>
+          </td>
+          <td class="cld-tb-cell cld-tb-cell-divided">
+            <div class="cld-tb-row"><span class="cld-tb-label">DRAWN</span><span class="cld-tb-value">HND</span></div>
+            <div class="cld-tb-row"><span class="cld-tb-label">CHECKED</span><span class="cld-tb-value">RJK</span></div>
+            <div class="cld-tb-row"><span class="cld-tb-label">SCALE</span><span class="cld-tb-value">NTS</span></div>
+          </td>
+        </tr>
+      </table>
+
+    </div>
+  </div>
+</main>
+{{ end }}
