@@ -69,17 +69,17 @@ def _tick_row():
     return f"""
     <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:640px;max-width:640px;">
     <tr>
-      <td width="311" style="font-size:0;line-height:0;">&nbsp;</td>
-      <td width="18" height="18" align="center" style="font-size:0;line-height:0;">
-        <div style="width:4px;height:18px;line-height:18px;font-size:0;background-color:{INK};margin:0 auto;">&nbsp;</div>
+      <td width="316" style="font-size:0;line-height:0;">&nbsp;</td>
+      <td width="7" height="7" align="center" style="font-size:0;line-height:0;">
+        <div style="width:2px;height:7px;line-height:7px;font-size:0;background-color:{INK};margin:0 auto;">&nbsp;</div>
       </td>
-      <td width="311" style="font-size:0;line-height:0;">&nbsp;</td>
+      <td width="316" style="font-size:0;line-height:0;">&nbsp;</td>
     </tr>
     </table>"""
 
 
 def _side_tick_cell():
-    return f"""<div style="width:18px;height:4px;line-height:4px;font-size:0;background-color:{INK};">&nbsp;</div>"""
+    return f"""<div style="width:7px;height:2px;line-height:2px;font-size:0;background-color:{INK};">&nbsp;</div>"""
 
 
 def build_body_content(intro_html, sections):
@@ -129,7 +129,7 @@ def build_email_html(issue_number, publish_date, intro_html, sections):
 
 <table role="presentation" cellpadding="0" cellspacing="0" border="0">
 <tr>
-  <td width="18" valign="middle" align="center">{_side_tick_cell()}</td>
+  <td width="7" valign="middle" align="center">{_side_tick_cell()}</td>
   <td align="center">
 
 {_tick_row()}
@@ -164,7 +164,7 @@ def build_email_html(issue_number, publish_date, intro_html, sections):
         <tr>
           <td width="34%" valign="top" style="padding:16px 12px 16px 0;font-family:'Courier New',Courier,monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:{BODY_TEXT};line-height:1.9;">
             <div style="font-weight:bold;color:{INK};font-size:13px;">CIVIL LIGHTING DESIGN</div>
-            <div><a href="{EVARILABS_URL}" style="color:{MUTED_TEXT};text-decoration:none;">PUBLISHED BY EVARILABS</a></div>
+            <div><a href="{EVARILABS_URL}" style="color:{BODY_TEXT};text-decoration:none;">PUBLISHED BY EVARILABS</a></div>
           </td>
           <td width="33%" valign="top" style="padding:16px 12px 16px;border-left:1px solid {HAIRLINE};font-family:'Courier New',Courier,monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:{BODY_TEXT};">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -176,8 +176,8 @@ def build_email_html(issue_number, publish_date, intro_html, sections):
           <td width="33%" valign="top" style="padding:16px 0 16px 12px;border-left:1px solid {HAIRLINE};font-family:'Courier New',Courier,monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:{BODY_TEXT};">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr><td style="padding:4px 0;">DRAWN</td><td align="right" style="padding:4px 0;font-weight:bold;color:{INK};">AI</td></tr>
-            <tr><td style="padding:4px 0;">CHECKED</td><td align="right" style="padding:4px 0;font-weight:bold;color:{INK};">AI</td></tr>
-            <tr><td style="padding:4px 0;">SCALE</td><td align="right" style="padding:4px 0;font-weight:bold;color:{INK};">NTS</td></tr>
+            <tr><td style="padding:4px 0;border-top:1px solid {HAIRLINE};">CHECKED</td><td align="right" style="padding:4px 0;border-top:1px solid {HAIRLINE};font-weight:bold;color:{INK};">AI</td></tr>
+            <tr><td style="padding:4px 0;border-top:1px solid {HAIRLINE};">SCALE</td><td align="right" style="padding:4px 0;border-top:1px solid {HAIRLINE};font-weight:bold;color:{INK};">NTS</td></tr>
             </table>
           </td>
         </tr>
@@ -198,7 +198,7 @@ def build_email_html(issue_number, publish_date, intro_html, sections):
 {_tick_row()}
 
   </td>
-  <td width="18" valign="middle" align="center">{_side_tick_cell()}</td>
+  <td width="7" valign="middle" align="center">{_side_tick_cell()}</td>
 </tr>
 </table>
 
@@ -244,7 +244,7 @@ def build_email_text(issue_number, publish_date, intro_text, sections):
 # that this script reproduces the approved mockup.
 ISSUE = {
     "issue_number": 1,
-    "publish_date": date(2026, 8, 17),
+    "publish_date": date(2026, 8, 19),
     "intro": (
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod "
         "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim "

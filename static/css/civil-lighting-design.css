@@ -80,25 +80,25 @@ body {
 
 .cld-tick-top,
 .cld-tick-bottom {
-  width: 4px;
-  height: 18px;
+  width: 3px;
+  height: 10px;
   left: 50%;
   transform: translateX(-50%);
 }
 
-.cld-tick-top { top: -9px; }
-.cld-tick-bottom { bottom: -9px; }
+.cld-tick-top { top: -10px; }
+.cld-tick-bottom { bottom: -10px; }
 
 .cld-tick-left,
 .cld-tick-right {
-  width: 18px;
-  height: 4px;
+  width: 10px;
+  height: 3px;
   top: 50%;
   transform: translateY(-50%);
 }
 
-.cld-tick-left { left: -9px; }
-.cld-tick-right { right: -9px; }
+.cld-tick-left { left: -10px; }
+.cld-tick-right { right: -10px; }
 
 /* Header — masthead + stationing line */
 .cld-header {
@@ -109,8 +109,8 @@ body {
 .cld-title {
   font-family: 'Overpass', var(--font-body);
   font-weight: 700;
-  font-size: clamp(1.75rem, 5.5vw, 2.75rem);
-  letter-spacing: 0.08em;
+  font-size: 2.375rem;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   line-height: 1.25;
   color: var(--text-dark);
@@ -280,7 +280,7 @@ body {
 }
 
 .cld-tb-label {
-  color: var(--text-subtle);
+  color: var(--text-body);
 }
 
 .cld-tb-value {
@@ -289,7 +289,7 @@ body {
 }
 
 .cld-tb-cell a {
-  color: var(--text-subtle);
+  color: var(--text-body);
   text-decoration: none;
 }
 

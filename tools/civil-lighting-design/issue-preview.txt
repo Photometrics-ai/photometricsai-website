@@ -26,7 +26,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 ------------------------------------------------------------
 
 Published by EvariLABS
-Issue 01 | Date 08/17/26 | Sheet 1 of 1
+Issue 01 | Date 08/19/26 | Sheet 1 of 1
 Drawn: AI | Checked: AI | Scale: NTS
 
 Unsubscribe: {{ unsubscribe_url }}
