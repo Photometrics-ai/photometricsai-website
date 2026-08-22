@@ -1,27 +1,39 @@
 CIVIL LIGHTING DESIGN
 STA 01+00 - AUGUST 2026
 
+TARGET LIGHTING LAYER -- CORRIDOR SCHEMATIC
+
 ------------------------------------------------------------
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+GENERAL NOTES
+
+1. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
 
 MATCH LINE -- FROM PHOTOMETRICS.AI
 
-LOREM IPSUM DOLOR SIT AMET CONSECTETUR
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+FROM PHOTOMETRICS.AI SCHEDULE
+
+01. LOREM IPSUM DOLOR SIT AMET CONSECTETUR
+    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 
 MATCH LINE -- AROUND THE INDUSTRY
 
-UT ENIM AD MINIM VENIAM QUIS NOSTRUD
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+AROUND THE INDUSTRY SCHEDULE
 
-EXCEPTEUR SINT OCCAECAT CUPIDATAT
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+01. UT ENIM AD MINIM VENIAM QUIS NOSTRUD
+    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+    -- Example Trade Publication
+
+02. EXCEPTEUR SINT OCCAECAT CUPIDATAT
+    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 
 MATCH LINE -- STANDARDS AND COMMITTEES
 
-SED UT PERSPICIATIS UNDE OMNIS ISTE
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+STANDARDS AND COMMITTEES SCHEDULE
+
+01. SED UT PERSPICIATIS UNDE OMNIS ISTE
+    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+    -- Example Standards Body
 
 ------------------------------------------------------------
 
