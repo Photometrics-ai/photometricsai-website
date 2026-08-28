@@ -2261,6 +2261,7 @@ section {
   text-align: center;
 }
 
+.cta-vision h1,
 .cta-vision h2 {
   font-family: var(--font-display);
   font-size: clamp(2rem, 5vw, 3rem);
