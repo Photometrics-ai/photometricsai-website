@@ -1,31 +1,4 @@
-<!-- Google Analytics (deferred to first interaction or window 'load', so it doesn't compete with the LCP element for main-thread time) -->
-{{ with .Site.Params.googleAnalytics }}
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', '{{ . }}');
-
-  (function() {
-    var loaded = false;
-    function loadGA() {
-      if (loaded) return;
-      loaded = true;
-      var s = document.createElement('script');
-      s.async = true;
-      s.src = 'https://www.googletagmanager.com/gtag/js?id={{ . }}';
-      document.head.appendChild(s);
-      events.forEach(function(evt) { window.removeEventListener(evt, loadGA, { passive: true }); });
-    }
-    var events = ['scroll', 'mousemove', 'keydown', 'touchstart'];
-    events.forEach(function(evt) { window.addEventListener(evt, loadGA, { passive: true, once: true }); });
-    window.addEventListener('load', loadGA, { once: true });
-  })();
-</script>
-{{ end }}
-
-<!-- Glyphex Analytics -->
-<script defer data-site-id="3c116179-171d-422c-8ad1-53ffe3c62c40" src="https://glyphex.io/tracker.js"></script>
+{{ partial "analytics.html" . }}
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

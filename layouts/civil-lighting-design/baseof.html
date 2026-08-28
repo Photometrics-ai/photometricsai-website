@@ -12,6 +12,8 @@
 
   <link rel="icon" type="image/png" href="/images/favicon.png">
 
+  {{ partial "analytics.html" . }}
+
   {{ $ogImage := printf "%simages/og-image.png" .Site.BaseURL }}
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{ .Permalink }}">
