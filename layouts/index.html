@@ -198,10 +198,24 @@
     if (video.dataset.loaded) return;
     const source = video.querySelector('source[data-src]');
     if (source) {
+      // Once a video is actually going to play, fully buffer it so looping
+      // is seamless instead of stalling at the loop point waiting on network.
+      video.preload = 'auto';
       source.src = source.dataset.src;
       video.load();
     }
     video.dataset.loaded = 'true';
+
+    // Belt-and-suspenders loop: some browsers stall on the native `loop`
+    // attribute right after a dynamically-assigned source. Force a restart
+    // on 'ended' too. Skip videos in a swap group (e.g. rain/snow) -- they
+    // already have their own 'ended' handler that crossfades to the sibling.
+    if (video.hasAttribute('loop') && !video.dataset.lazyGroup) {
+      video.addEventListener('ended', function() {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      });
+    }
 
     // Warm sibling videos in the same swap group (e.g. rain/snow) so the
     // 'ended' handoff doesn't stall on a cold fetch.
