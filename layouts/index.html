@@ -4,8 +4,8 @@
 <section class="hero-vision" data-theme="dark">
   <div class="hero-glow"></div>
 
-  <!-- Video background -->
-  <video class="vignette-video" autoplay muted loop playsinline>
+  <!-- Video background (eager: this is the LCP element, above the fold) -->
+  <video class="vignette-video" autoplay muted loop playsinline poster="/videos/posters/hero-night-sky.jpg">
     <source src="/videos/hero-night-sky.mp4" type="video/mp4">
   </video>
   <div class="vignette-overlay"></div>
@@ -52,11 +52,11 @@
 
 <!-- Vignette: Weather (rain + snow alternating) -->
 <section class="vignette" data-theme="dark" data-vignette="weather">
-  <video class="vignette-video vignette-weather" autoplay muted playsinline data-lazy id="weather-rain">
-    <source src="/videos/rain-driving.mp4" type="video/mp4">
+  <video class="vignette-video vignette-weather" muted playsinline preload="none" data-lazy data-lazy-group="weather" id="weather-rain" poster="/videos/posters/rain-driving.jpg">
+    <source data-src="/videos/rain-driving.mp4" type="video/mp4">
   </video>
-  <video class="vignette-video vignette-weather" muted playsinline data-lazy id="weather-snow" style="opacity: 0;">
-    <source src="/videos/snow-driving.mp4" type="video/mp4">
+  <video class="vignette-video vignette-weather" muted playsinline preload="none" data-lazy data-lazy-group="weather" id="weather-snow" style="opacity: 0;" poster="/videos/posters/snow-driving.jpg">
+    <source data-src="/videos/snow-driving.mp4" type="video/mp4">
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
@@ -80,8 +80,8 @@
 
 <!-- Vignette: Crosswalk -->
 <section class="vignette" data-theme="dark" data-vignette="crosswalk">
-  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
-    <source src="/videos/crosswalk.mp4" type="video/mp4">
+  <video class="vignette-video" muted loop playsinline preload="none" data-lazy poster="/videos/posters/crosswalk.jpg">
+    <source data-src="/videos/crosswalk.mp4" type="video/mp4">
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
@@ -91,8 +91,8 @@
 
 <!-- Vignette: Child Sleeping -->
 <section class="vignette" data-theme="dark" data-vignette="child_sleeping">
-  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
-    <source src="/videos/child-sleeping.mp4" type="video/mp4">
+  <video class="vignette-video" muted loop playsinline preload="none" data-lazy poster="/videos/posters/child-sleeping.jpg">
+    <source data-src="/videos/child-sleeping.mp4" type="video/mp4">
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
@@ -102,8 +102,8 @@
 
 <!-- Vignette: Concert Exit -->
 <section class="vignette" data-theme="dark" data-vignette="concert_exit">
-  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
-    <source src="/videos/concert-exit.mp4" type="video/mp4">
+  <video class="vignette-video" muted loop playsinline preload="none" data-lazy poster="/videos/posters/concert-exit.jpg">
+    <source data-src="/videos/concert-exit.mp4" type="video/mp4">
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
@@ -113,8 +113,8 @@
 
 <!-- Vignette: Bus Stop -->
 <section class="vignette" data-theme="dark" data-vignette="bus_stop">
-  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
-    <source src="/videos/bus-stop.mp4" type="video/mp4">
+  <video class="vignette-video" muted loop playsinline preload="none" data-lazy poster="/videos/posters/bus-stop.jpg">
+    <source data-src="/videos/bus-stop.mp4" type="video/mp4">
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
@@ -124,8 +124,8 @@
 
 <!-- Vignette: Birds -->
 <section class="vignette" data-theme="dark" data-vignette="birds">
-  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
-    <source src="/videos/birds-migrating.mp4" type="video/mp4">
+  <video class="vignette-video" muted loop playsinline preload="none" data-lazy poster="/videos/posters/birds-migrating.jpg">
+    <source data-src="/videos/birds-migrating.mp4" type="video/mp4">
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
@@ -135,8 +135,8 @@
 
 <!-- Vignette: Cyclist -->
 <section class="vignette" data-theme="dark" data-vignette="cyclist">
-  <video class="vignette-video" autoplay muted loop playsinline data-lazy>
-    <source src="/videos/cyclist.mp4" type="video/mp4">
+  <video class="vignette-video" muted loop playsinline preload="none" data-lazy poster="/videos/posters/cyclist.jpg">
+    <source data-src="/videos/cyclist.mp4" type="video/mp4">
   </video>
   <div class="vignette-overlay"></div>
   <div class="vignette-content">
@@ -186,7 +186,7 @@
   <p class="brand-signoff">Light That Moves With Us</p>
 </section>
 
-<!-- Video lazy loading and pause-on-scroll -->
+<!-- Video lazy loading (defers network fetch until near-viewport) and pause-on-scroll -->
 <script>
 (function() {
   // Only run if IntersectionObserver is supported
@@ -194,14 +194,30 @@
 
   const videos = document.querySelectorAll('.vignette-video[data-lazy]');
 
+  function ensureLoaded(video) {
+    if (video.dataset.loaded) return;
+    const source = video.querySelector('source[data-src]');
+    if (source) {
+      source.src = source.dataset.src;
+      video.load();
+    }
+    video.dataset.loaded = 'true';
+
+    // Warm sibling videos in the same swap group (e.g. rain/snow) so the
+    // 'ended' handoff doesn't stall on a cold fetch.
+    const group = video.dataset.lazyGroup;
+    if (group) {
+      document.querySelectorAll('.vignette-video[data-lazy-group="' + group + '"]').forEach(ensureLoaded);
+    }
+  }
+
   const videoObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       const video = entry.target;
       if (entry.isIntersecting) {
-        // Load and play video when visible
+        ensureLoaded(video);
         video.play().catch(() => {});
       } else {
-        // Pause when not visible
         video.pause();
       }
     });
