@@ -22,6 +22,10 @@ Thumbs.db
 # Windows artifacts
 nul
 
+# Python bytecode cache (anywhere in the repo)
+__pycache__/
+**/__pycache__/
+
 # Sun Phase Tools
 tools/sun-phase/venv/
 tools/sun-phase/__pycache__/
