@@ -1,4 +1,4 @@
-<!-- Google Analytics (deferred: loads after first user interaction or idle, so it doesn't compete with the LCP element for main-thread time) -->
+<!-- Google Analytics (deferred to first interaction or window 'load', so it doesn't compete with the LCP element for main-thread time) -->
 {{ with .Site.Params.googleAnalytics }}
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -19,11 +19,7 @@
     }
     var events = ['scroll', 'mousemove', 'keydown', 'touchstart'];
     events.forEach(function(evt) { window.addEventListener(evt, loadGA, { passive: true, once: true }); });
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(loadGA, { timeout: 4000 });
-    } else {
-      setTimeout(loadGA, 3000);
-    }
+    window.addEventListener('load', loadGA, { once: true });
   })();
 </script>
 {{ end }}
