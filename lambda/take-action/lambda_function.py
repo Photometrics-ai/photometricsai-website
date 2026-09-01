@@ -22,7 +22,7 @@ BOOSTED_TABLE = os.environ.get("BOOSTED_TABLE", "photometrics-boosted-officials"
 FLAGGED_TABLE = os.environ.get("FLAGGED_TABLE", "photometrics-flagged-officials")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 GOOGLE_CIVIC_API_KEY = os.environ.get("GOOGLE_CIVIC_API_KEY", "")
-CLAUDE_MODEL = "claude-sonnet-4-20250514"
+CLAUDE_MODEL = "claude-sonnet-5"
 HAIKU_MODEL = "claude-haiku-4-5-20251001"
 
 PRIORITY_URLS = {
