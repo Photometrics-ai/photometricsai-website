@@ -374,7 +374,7 @@ Output ONLY a JSON array. No text before or after it. No markdown fences.
         match = re.search(r"\[[\s\S]*\]", tb)
         if match:
             try:
-                officials = json.loads(match.group(0))
+                officials = json.loads(match.group(0), strict=False)
                 break
             except json.JSONDecodeError:
                 continue
@@ -387,7 +387,7 @@ Output ONLY a JSON array. No text before or after it. No markdown fences.
         match = re.search(r"\[[\s\S]*\]", all_text)
         if match:
             try:
-                officials = json.loads(match.group(0))
+                officials = json.loads(match.group(0), strict=False)
             except json.JSONDecodeError:
                 pass
 
@@ -635,7 +635,9 @@ Return ONLY the JSON object, no other text."""
     text = re.sub(r"\n?```\s*$", "", text)
     text = text.strip()
 
-    parsed = json.loads(text)
+    # strict=False: Claude's JSON output can contain literal (unescaped) newlines
+    # inside string values, which Python's default strict JSON parser rejects.
+    parsed = json.loads(text, strict=False)
 
     # Validate structure
     if "letter" not in parsed or "representatives" not in parsed:
