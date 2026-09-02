@@ -24,9 +24,15 @@
             <input type="text" id="ta-location" placeholder="e.g. Austin, TX or 78701" maxlength="200" autocomplete="address-level2">
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
+          <div class="form-group">
             <label for="ta-name">Your name <span style="font-weight: 400; color: var(--text-subtle);">(optional &mdash; makes the letter more personal)</span></label>
             <input type="text" id="ta-name" placeholder="e.g. Jane Smith" maxlength="100" autocomplete="name">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="ta-email">Your email <span style="font-weight: 400; color: var(--text-subtle);">(only needed if you want us to send it for you)</span></label>
+            <input type="email" id="ta-email" placeholder="e.g. jane@example.com" maxlength="200" autocomplete="email">
+            <p style="color: var(--text-subtle); font-size: 0.8125rem; margin-top: var(--space-xs);">We'll CC you on the email and route any reply from the official back to you.</p>
           </div>
         </div>
       </div>
@@ -136,12 +142,36 @@
               <textarea class="ta-letter-textarea" id="ta-letter" rows="16"></textarea>
             </div>
 
-            <!-- Action buttons -->
-            <div class="ta-actions-bar">
-              <button class="ta-send-btn ta-send-mailto" id="ta-send-all-email">Send All via Email</button>
-              <button class="ta-send-btn ta-send-gmail" id="ta-send-all-gmail">Open All in Gmail</button>
-              <button class="ta-send-btn ta-send-copy" id="ta-copy-letter">Copy Letter</button>
-              <button class="ta-send-btn ta-send-copy" id="ta-copy-reps">Copy Representatives</button>
+            <!-- Managed send (primary) -->
+            <div class="ta-managed-send" id="ta-managed-send" style="display: none;">
+              <p style="color: var(--text-subtle); font-size: 0.875rem; margin-bottom: var(--space-sm);">By clicking Send, you authorize Photometrics AI to send this letter on your behalf to the officials above. You'll be CC'd, and any reply goes directly to your email.</p>
+              <p id="ta-send-inline-error" style="display: none; color: var(--text-dark); font-weight: 600; font-size: 0.875rem; margin-bottom: var(--space-sm);"></p>
+
+              <div style="text-align: center; margin-bottom: var(--space-lg);">
+                <button class="btn btn-primary btn-lg" id="ta-send-managed" style="width: 100%; max-width: 480px;">Send</button>
+
+                <div id="ta-send-loading" style="display: none; margin-top: var(--space-sm);">
+                  <p style="color: var(--text-subtle);">Sending your letter...</p>
+                </div>
+                <div id="ta-send-success" style="display: none; margin-top: var(--space-sm);">
+                  <p style="color: var(--text-dark); font-weight: 600;">Sent! You'll receive a copy by email, and any reply goes straight to you.</p>
+                </div>
+                <div id="ta-send-error-box" style="display: none; margin-top: var(--space-sm);">
+                  <p id="ta-send-error-message" style="color: var(--text-subtle); margin-bottom: var(--space-xs);"></p>
+                  <button class="btn btn-secondary" id="ta-send-retry">Try Again</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Manual fallback options -->
+            <div class="ta-manual-options">
+              <p style="color: var(--text-subtle); font-size: 0.875rem; margin-bottom: var(--space-sm); text-align: center;">Prefer to send it yourself?</p>
+              <div class="ta-actions-bar">
+                <button class="ta-send-btn ta-send-gmail" id="ta-send-all-gmail">Open All in Gmail</button>
+                <button class="ta-send-btn ta-send-copy" id="ta-copy-letter">Copy Letter</button>
+                <button class="ta-send-btn ta-send-copy" id="ta-copy-reps">Copy Representatives</button>
+                <button class="ta-send-btn ta-send-mailto" id="ta-send-all-email">Use Your Mail App</button>
+              </div>
             </div>
 
             <div style="text-align: center; margin-top: var(--space-xl);">
@@ -162,9 +192,17 @@
   var API_BASE = "https://eqo2pst6mlkq3gs4lsu32373vu0tbthi.lambda-url.us-east-2.on.aws";
   var sessionId = generateUUID();
 
+  // Managed send (SES) is live: SES use-case description updated, SNS topic
+  // + configuration set wired for bounce/complaint tracking (which also
+  // feeds get_bounced_emails() in the Lambda so bounced officials stop being
+  // suggested), ses:SendEmail granted (scoped to take-action@photometrics.ai),
+  // and the /send route deployed.
+  var MANAGED_SEND_ENABLED = true;
+
   // === DOM refs ===
   var locationInput = document.getElementById("ta-location");
   var nameInput = document.getElementById("ta-name");
+  var emailInput = document.getElementById("ta-email");
   var generateBtn = document.getElementById("ta-generate");
   var letterTextarea = document.getElementById("ta-letter");
   var repsGrid = document.getElementById("ta-reps-grid");
@@ -177,12 +215,22 @@
   var copyRepsBtn = document.getElementById("ta-copy-reps");
   var priorityCheckboxes = document.querySelectorAll(".ta-priority-card input[type=checkbox]");
 
+  var managedSendSection = document.getElementById("ta-managed-send");
+  var sendManagedBtn = document.getElementById("ta-send-managed");
+  var sendInlineError = document.getElementById("ta-send-inline-error");
+  var sendLoadingEl = document.getElementById("ta-send-loading");
+  var sendSuccessEl = document.getElementById("ta-send-success");
+  var sendErrorBox = document.getElementById("ta-send-error-box");
+  var sendErrorMessage = document.getElementById("ta-send-error-message");
+  var sendRetryBtn = document.getElementById("ta-send-retry");
+
   var card1 = document.getElementById("ta-card-1");
   var card2 = document.getElementById("ta-card-2");
   var card3 = document.getElementById("ta-card-3");
   var card4 = document.getElementById("ta-card-4");
 
   var currentReps = [];
+  var currentSubmissionCount = 0;
 
   // === Utility functions ===
   function generateUUID() {
@@ -197,6 +245,35 @@
     var div = document.createElement("div");
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
+  }
+
+  function gtagEvent(name, params) {
+    if (typeof window.gtag === "function") {
+      window.gtag("event", name, params);
+    }
+  }
+
+  function getSubmissionCount() {
+    try {
+      var n = parseInt(sessionStorage.getItem("ta_submission_count") || "0", 10);
+      return isNaN(n) ? 0 : n;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  function incrementSubmissionCount() {
+    var n = getSubmissionCount() + 1;
+    try { sessionStorage.setItem("ta_submission_count", String(n)); } catch (e) {}
+    return n;
+  }
+
+  function analyticsPriorities() {
+    return getSelectedPriorities().join(",");
+  }
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
   function updateCardStates() {
@@ -266,7 +343,7 @@
     var subject = "Intelligent Street Lighting for " + locationInput.value;
     return "mailto:" + emails +
       "?subject=" + encodeURIComponent(subject) +
-      "&bcc=advocacy@photometrics.ai" +
+      "&bcc=take-action@photometrics.ai" +
       "&body=" + encodeURIComponent(body);
   }
 
@@ -277,7 +354,7 @@
     return "https://mail.google.com/mail/?view=cm" +
       "&to=" + encodeURIComponent(emails) +
       "&su=" + encodeURIComponent(subject) +
-      "&bcc=advocacy@photometrics.ai" +
+      "&bcc=take-action@photometrics.ai" +
       "&body=" + encodeURIComponent(body);
   }
 
@@ -369,6 +446,83 @@
     }
   }
 
+  function showSendState(state) {
+    sendInlineError.style.display = "none";
+    sendLoadingEl.style.display = "none";
+    sendSuccessEl.style.display = "none";
+    sendErrorBox.style.display = "none";
+    sendManagedBtn.style.display = "inline-block";
+    sendManagedBtn.disabled = false;
+
+    if (state === "loading") {
+      sendManagedBtn.disabled = true;
+      sendLoadingEl.style.display = "block";
+    } else if (state === "success") {
+      sendManagedBtn.style.display = "none";
+      sendSuccessEl.style.display = "block";
+    } else if (state === "error") {
+      sendErrorBox.style.display = "block";
+    }
+  }
+
+  function attemptManagedSend() {
+    var email = emailInput.value.trim();
+    if (!isValidEmail(email)) {
+      sendInlineError.textContent = "Enter a valid email address above so we can CC you and route replies to you.";
+      sendInlineError.style.display = "block";
+      emailInput.focus();
+      emailInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (!currentReps.length) return;
+
+    gtagEvent("send_intent_clicked", {
+      method: "managed_send",
+      priorities: analyticsPriorities(),
+      location_entered: locationInput.value,
+      session_submission_count: currentSubmissionCount
+    });
+
+    showSendState("loading");
+
+    var payload = {
+      session_id: sessionId,
+      name: nameInput.value.trim(),
+      email: email,
+      location: locationInput.value.trim(),
+      letter: prepareLetterForEmail(),
+      representatives: currentReps
+    };
+
+    fetch(API_BASE + "/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(function(response) {
+      if (!response.ok) {
+        return response.json().then(function(err) {
+          throw new Error(err.error || "Send failed");
+        });
+      }
+      return response.json();
+    })
+    .then(function(data) {
+      showSendState("success");
+      gtagEvent("send_confirmed", {
+        priorities: analyticsPriorities(),
+        location_entered: locationInput.value,
+        session_submission_count: currentSubmissionCount,
+        officials_count: data.sent_count || currentReps.length
+      });
+    })
+    .catch(function(err) {
+      console.error("Send error:", err);
+      sendErrorMessage.textContent = (err.message || "We couldn't send your letter.") + " You can try again or use the options below.";
+      showSendState("error");
+    });
+  }
+
   // === Card 1: Location validation ===
   locationInput.addEventListener("input", function() {
     updateCardStates();
@@ -416,7 +570,16 @@
       letterTextarea.value = data.letter || "";
 
       showResultsState("results");
+      showSendState("idle");
       renderRepCards();
+
+      currentSubmissionCount = incrementSubmissionCount();
+      gtagEvent("take_action_submit", {
+        priorities: analyticsPriorities(),
+        location_entered: locationInput.value,
+        has_name: !!nameInput.value.trim(),
+        session_submission_count: currentSubmissionCount
+      });
     })
     .catch(function(err) {
       console.error("Generate error:", err);
@@ -433,17 +596,35 @@
   // === Unified action buttons ===
   sendAllEmailBtn.addEventListener("click", function() {
     if (!currentReps.length) return;
+    gtagEvent("send_intent_clicked", {
+      method: "mailto",
+      priorities: analyticsPriorities(),
+      location_entered: locationInput.value,
+      session_submission_count: currentSubmissionCount
+    });
     window.location.href = buildMailtoUrl();
     trackEvent("click_mailto_all", currentReps.map(function(r) { return r.email; }).join(","));
   });
 
   sendAllGmailBtn.addEventListener("click", function() {
     if (!currentReps.length) return;
+    gtagEvent("send_intent_clicked", {
+      method: "gmail",
+      priorities: analyticsPriorities(),
+      location_entered: locationInput.value,
+      session_submission_count: currentSubmissionCount
+    });
     window.open(buildGmailUrl(), "_blank");
     trackEvent("click_gmail_all", currentReps.map(function(r) { return r.email; }).join(","));
   });
 
   copyLetterBtn.addEventListener("click", function() {
+    gtagEvent("send_intent_clicked", {
+      method: "copy_letter",
+      priorities: analyticsPriorities(),
+      location_entered: locationInput.value,
+      session_submission_count: currentSubmissionCount
+    });
     navigator.clipboard.writeText(letterTextarea.value).then(function() {
       copiedFeedback(copyLetterBtn);
     });
@@ -451,6 +632,12 @@
   });
 
   copyRepsBtn.addEventListener("click", function() {
+    gtagEvent("send_intent_clicked", {
+      method: "copy_reps",
+      priorities: analyticsPriorities(),
+      location_entered: locationInput.value,
+      session_submission_count: currentSubmissionCount
+    });
     var text = currentReps.map(function(rep) {
       return rep.name + ", " + rep.title + ", " + rep.organization + " - " + rep.email;
     }).join("\n");
@@ -459,10 +646,19 @@
     });
   });
 
+  // === Managed send (SES) ===
+  sendManagedBtn.addEventListener("click", attemptManagedSend);
+  sendRetryBtn.addEventListener("click", attemptManagedSend);
+
+  if (MANAGED_SEND_ENABLED) {
+    managedSendSection.style.display = "block";
+  }
+
   // === Start Over ===
   startOverBtn.addEventListener("click", function() {
     locationInput.value = "";
     nameInput.value = "";
+    emailInput.value = "";
     customPriority.value = "";
     letterTextarea.value = "";
     repsGrid.innerHTML = "";
@@ -472,6 +668,7 @@
     generateBtn.disabled = true;
     sessionId = generateUUID();
     showResultsState("locked");
+    showSendState("idle");
     updateCardStates();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });

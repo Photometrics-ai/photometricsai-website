@@ -20,10 +20,20 @@ from boto3.dynamodb.types import TypeSerializer
 DYNAMO_TABLE = os.environ.get("DYNAMODB_TABLE", "photometrics-take-action")
 BOOSTED_TABLE = os.environ.get("BOOSTED_TABLE", "photometrics-boosted-officials")
 FLAGGED_TABLE = os.environ.get("FLAGGED_TABLE", "photometrics-flagged-officials")
+SEND_LOG_TABLE = os.environ.get("SEND_LOG_TABLE", "photometrics-take-action-sends")
+BOUNCE_TABLE = os.environ.get("BOUNCE_TABLE", "photometrics-email-bounces")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 GOOGLE_CIVIC_API_KEY = os.environ.get("GOOGLE_CIVIC_API_KEY", "")
 CLAUDE_MODEL = "claude-sonnet-5"
 HAIKU_MODEL = "claude-haiku-4-5-20251001"
+
+# Managed send (SES) — see handle_send() below for why this is gated off in
+# production until the SES use-case update is approved. SES_CONFIGURATION_SET
+# is intentionally blank until that configuration set exists; sends work
+# without one, just without bounce/complaint event tracking.
+SES_SENDER_EMAIL = os.environ.get("SES_SENDER_EMAIL", "take-action@photometrics.ai")
+SES_CONFIGURATION_SET = os.environ.get("SES_CONFIGURATION_SET", "")
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 PRIORITY_URLS = {
     "Crime & Safety": "https://www.photometrics.ai/best-practices/public-safety/",
@@ -67,6 +77,7 @@ Ask the official to evaluate Photometrics AI as a solution for their community a
 """
 
 dynamodb = boto3.client("dynamodb")
+ses = boto3.client("sesv2")
 serializer = TypeSerializer()
 
 # Response headers (CORS handled by Lambda Function URL config)
@@ -87,6 +98,10 @@ def sanitize_string(value, max_len):
     if not isinstance(value, str):
         return ""
     return value.strip()[:max_len]
+
+
+def is_valid_email(value):
+    return isinstance(value, str) and bool(EMAIL_RE.match(value.strip()))
 
 
 def sanitize_priorities(priorities):
@@ -182,16 +197,16 @@ def parse_location(location):
     return city, region
 
 
-def search_officials(location, priorities, civic_officials=None, boosted_officials=None, flagged_emails=None):
+def search_officials(location, priorities, civic_officials=None, boosted_officials=None, excluded_emails=None):
     """Use Haiku + web search to find verified current officials."""
     priorities_text = ", ".join(priorities)
     city, region = parse_location(location)
 
     flagged_section = ""
-    if flagged_emails:
+    if excluded_emails:
         flagged_section = (
-            "\n\nFLAGGED EMAILS (users reported these as no longer current — do NOT use them):\n"
-            + "\n".join(f"- {e}" for e in flagged_emails)
+            "\n\nEXCLUDED EMAILS (reported no longer current, or bounced/complained on a prior send — do NOT use them):\n"
+            + "\n".join(f"- {e}" for e in excluded_emails)
         )
 
     civic_section = ""
@@ -739,11 +754,14 @@ def handle_generate(body):
     # Step 1: Gather context for official search
     civic_officials = get_civic_officials(location)
     boosted_officials = get_boosted_officials(location)
-    flagged_emails = get_flagged_emails()
+    excluded_emails = get_flagged_emails() | get_bounced_emails()
+    boosted_officials = [
+        o for o in boosted_officials if o.get("email", "").lower() not in excluded_emails
+    ]
 
     # Step 2: Haiku searches for officials + local context in parallel
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        officials_future = executor.submit(search_officials, location, priorities, civic_officials, boosted_officials, flagged_emails)
+        officials_future = executor.submit(search_officials, location, priorities, civic_officials, boosted_officials, excluded_emails)
         research_future = executor.submit(research_location, location, priorities)
 
         # Officials are required — propagate errors
@@ -826,6 +844,234 @@ def get_flagged_emails():
     return flagged
 
 
+def get_bounced_emails():
+    """Return set of emails that hard-bounced or triggered a spam complaint
+    on a prior managed send, so they're excluded from future suggestions the
+    same way a manually flagged 'Not current?' email is. Transient bounces
+    (mailbox full, temporary server issue) are excluded from this set — those
+    are delivery hiccups, not evidence the official is no longer there."""
+    bounced = set()
+    try:
+        resp = dynamodb.scan(
+            TableName=BOUNCE_TABLE,
+            ProjectionExpression="email, event_type, subtype",
+        )
+        for item in resp.get("Items", []):
+            email = item.get("email", {}).get("S", "")
+            event_type = item.get("event_type", {}).get("S", "")
+            subtype = item.get("subtype", {}).get("S", "")
+            if not email:
+                continue
+            if event_type == "Complaint" or (event_type == "Bounce" and subtype == "Permanent"):
+                bounced.add(email.lower())
+    except Exception as e:
+        print(f"Bounced scan error: {e}")
+    return bounced
+
+
+def get_verified_representative_emails(session_id):
+    """Look up the officials we actually returned for this session during
+    /generate. /send is restricted to this set so the endpoint can't be used
+    as an open relay to arbitrary recipients — Function URLs have no built-in
+    auth, so anyone who finds the endpoint could otherwise POST any address
+    they want into the To/Cc fields of a mail sent from our verified domain.
+    Returns None if the session can't be found (caller should reject)."""
+    try:
+        resp = dynamodb.get_item(
+            TableName=DYNAMO_TABLE,
+            Key={"session_id": {"S": session_id}},
+        )
+    except Exception as e:
+        print(f"Session lookup error: {e}")
+        return None
+
+    item = resp.get("Item")
+    if not item:
+        return None
+
+    emails = set()
+    for rep_item in item.get("representatives", {}).get("L", []):
+        rep = rep_item.get("M", {})
+        email = rep.get("email", {}).get("S", "")
+        if email:
+            emails.add(email.strip().lower())
+    return emails
+
+
+def already_sent(session_id):
+    """Check whether this session already has a managed-send log entry, so a
+    double-click (or a replayed request) can't send the same letter twice."""
+    try:
+        resp = dynamodb.get_item(
+            TableName=SEND_LOG_TABLE,
+            Key={"session_id": {"S": session_id}},
+        )
+    except Exception as e:
+        print(f"Send-log lookup error: {e}")
+        return False
+    return "Item" in resp
+
+
+def log_send(session_id, constituent_email, location, representatives_sent, message_id):
+    """Log a managed-send event. 1-year TTL to match the retention already
+    used for the rest of the take-action log (session, letter, reps) —
+    see the take-action privacy-policy note for why this needs disclosure."""
+    ttl = int(time.time()) + (365 * 24 * 60 * 60)
+
+    item = {
+        "session_id": {"S": session_id or str(uuid.uuid4())},
+        "timestamp": {"S": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())},
+        "constituent_email": {"S": constituent_email},
+        "location": {"S": location},
+        "representatives_sent": {"L": [{"S": e} for e in representatives_sent]},
+        "message_id": {"S": message_id},
+        "ttl": {"N": str(ttl)},
+    }
+
+    try:
+        dynamodb.put_item(TableName=SEND_LOG_TABLE, Item=item)
+    except Exception as e:
+        print(f"Send log write error: {e}")
+
+
+def handle_send(body):
+    """Handle POST /send — managed send via SES.
+
+    Recipients are restricted to the officials verified during this session's
+    /generate call (see get_verified_representative_emails) and a session can
+    only be sent once (see already_sent) — both are abuse guards, since a
+    Lambda Function URL has no built-in auth and would otherwise let anyone
+    who finds the endpoint use our verified sending domain as an open relay.
+    """
+    session_id = sanitize_string(body.get("session_id", ""), 100)
+    constituent_name = sanitize_string(body.get("name", ""), 100)
+    constituent_email = sanitize_string(body.get("email", ""), 200)
+    location = sanitize_string(body.get("location", ""), 200)
+    letter = body.get("letter", "")
+    representatives = body.get("representatives", [])
+
+    if not session_id:
+        return respond(400, {"error": "session_id is required."})
+    if not is_valid_email(constituent_email):
+        return respond(400, {"error": "A valid email address is required to send."})
+    if not isinstance(letter, str) or not letter.strip():
+        return respond(400, {"error": "Letter text is required."})
+    if not isinstance(representatives, list) or len(representatives) == 0:
+        return respond(400, {"error": "At least one representative is required."})
+
+    if already_sent(session_id):
+        return respond(409, {"error": "This letter has already been sent."})
+
+    verified_emails = get_verified_representative_emails(session_id)
+    if verified_emails is None:
+        return respond(400, {"error": "We couldn't verify this session. Please generate your letter again."})
+
+    to_addresses = []
+    for rep in representatives:
+        email = rep.get("email", "") if isinstance(rep, dict) else ""
+        email = email.strip()
+        if is_valid_email(email) and email.lower() in verified_emails:
+            to_addresses.append(email)
+    if not to_addresses:
+        return respond(400, {"error": "No valid, verified representative email addresses to send to."})
+
+    letter = letter.strip()[:20000]
+    sender_name = constituent_name or "A Concerned Resident"
+    subject = f"Street Lighting Improvement Request – {location}" if location else "Street Lighting Improvement Request"
+
+    send_kwargs = {
+        "FromEmailAddress": f'"{sender_name}" <{SES_SENDER_EMAIL}>',
+        "Destination": {
+            "ToAddresses": to_addresses,
+            "CcAddresses": [constituent_email],
+            "BccAddresses": [SES_SENDER_EMAIL],
+        },
+        "ReplyToAddresses": [constituent_email],
+        "Content": {
+            "Simple": {
+                "Subject": {"Data": subject, "Charset": "UTF-8"},
+                "Body": {"Text": {"Data": letter, "Charset": "UTF-8"}},
+            }
+        },
+    }
+    if SES_CONFIGURATION_SET:
+        send_kwargs["ConfigurationSetName"] = SES_CONFIGURATION_SET
+
+    try:
+        result = ses.send_email(**send_kwargs)
+    except Exception as e:
+        print(f"SES send error: {e}")
+        return respond(502, {"error": "Failed to send email. Please try again or use the manual options below."})
+
+    log_send(
+        session_id=session_id,
+        constituent_email=constituent_email,
+        location=location,
+        representatives_sent=to_addresses,
+        message_id=result.get("MessageId", ""),
+    )
+
+    return respond(200, {
+        "status": "sent",
+        "sent_count": len(to_addresses),
+    })
+
+
+def record_bounce_event(message, event_type):
+    """Write one bounce/complaint event per affected recipient, keyed by the
+    official's email address. get_bounced_emails() reads this table so a
+    permanently-bounced or complained-about address stops being suggested,
+    the same way a manually flagged 'Not current?' email does."""
+    ttl = int(time.time()) + (180 * 24 * 60 * 60)
+    timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+    if event_type == "Bounce":
+        detail = message.get("bounce", {})
+        recipients = [r.get("emailAddress", "") for r in detail.get("bouncedRecipients", [])]
+        subtype = detail.get("bounceType", "")
+    else:
+        detail = message.get("complaint", {})
+        recipients = [r.get("emailAddress", "") for r in detail.get("complainedRecipients", [])]
+        subtype = detail.get("complaintFeedbackType", "")
+
+    for email in recipients:
+        if not email:
+            continue
+        try:
+            dynamodb.put_item(
+                TableName=BOUNCE_TABLE,
+                Item={
+                    "email": {"S": email.lower()},
+                    "timestamp": {"S": timestamp},
+                    "event_type": {"S": event_type},
+                    "subtype": {"S": subtype},
+                    "ttl": {"N": str(ttl)},
+                },
+            )
+        except Exception as e:
+            print(f"Bounce log write error for {email}: {e}")
+
+
+def handle_ses_notification(event):
+    """Process SES bounce/complaint notifications delivered via SNS.
+
+    Wired to the 'take-action-sends' SES configuration set's event
+    destination, which publishes Bounce/Complaint events to the
+    photometrics-ses-bounces SNS topic this Lambda is subscribed to.
+    """
+    for record in event.get("Records", []):
+        try:
+            message = json.loads(record.get("Sns", {}).get("Message", "{}"))
+        except json.JSONDecodeError:
+            continue
+        notification_type = message.get("notificationType") or message.get("eventType")
+        if notification_type == "Bounce":
+            record_bounce_event(message, "Bounce")
+        elif notification_type == "Complaint":
+            record_bounce_event(message, "Complaint")
+    return {"statusCode": 200}
+
+
 def handle_track(body):
     """Handle POST /track — click event tracking."""
     session_id = sanitize_string(body.get("session_id", ""), 100)
@@ -844,7 +1090,12 @@ def handle_track(body):
 
 
 def lambda_handler(event, context):
-    """Main Lambda entry point — routes by path."""
+    """Main Lambda entry point — routes by path (Function URL) or by trigger
+    source (SNS, for SES bounce/complaint notifications)."""
+    records = event.get("Records")
+    if records and records[0].get("EventSource") == "aws:sns":
+        return handle_ses_notification(event)
+
     # Handle CORS preflight
     method = event.get("requestContext", {}).get("http", {}).get("method", "")
     if method == "OPTIONS":
@@ -865,6 +1116,8 @@ def lambda_handler(event, context):
 
     if path.endswith("/generate"):
         return handle_generate(body)
+    elif path.endswith("/send"):
+        return handle_send(body)
     elif path.endswith("/track"):
         return handle_track(body)
     elif path.endswith("/flag"):
