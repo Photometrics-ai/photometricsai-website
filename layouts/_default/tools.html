@@ -69,6 +69,42 @@
 .gss-result-snippet { font-size: 0.85rem; color: var(--text-body); margin-top: 0.5rem; line-height: 1.5; }
 .gss-result-snippet mark, .gss-result-title mark, .gss-result-title-plain mark { background: rgba(78, 163, 220, 0.35); color: var(--text-dark); font-weight: 700; padding: 0.05em 0.25em; border-radius: 3px; }
 .gss-empty-state { text-align: center; padding: var(--space-lg) 1rem; color: var(--text-subtle); }
+
+/* Safety & Lighting tab -- MapLibre map + chat over FARS enriched with evStreetlightsOn */
+.sl-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr); gap: var(--space-md); align-items: stretch; }
+@media (max-width: 900px) { .sl-layout { grid-template-columns: 1fr; } }
+.sl-map-wrap { position: relative; min-height: 560px; border: 1px solid var(--border-dark); border-radius: var(--radius-sm); overflow: hidden; background: #111; }
+#sl-map { position: absolute; inset: 0; }
+.sl-map-bar { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; margin-bottom: 0.75rem; font-size: 0.85rem; color: var(--text-body); }
+.sl-map-bar label { display: flex; align-items: center; gap: 0.4rem; }
+.sl-map-bar select { font-family: var(--font-body); font-size: 0.85rem; padding: 0.3rem 0.5rem; border: 1px solid var(--border-dark); border-radius: var(--radius-sm); background: #fff; }
+.sl-legend { display: flex; gap: 1rem; align-items: center; color: var(--text-subtle); font-size: 0.8rem; }
+.sl-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.3rem; vertical-align: middle; }
+.sl-dot-on { background: #ffcf5a; box-shadow: 0 0 4px #ffcf5a; }
+.sl-dot-off { background: #8a8f99; width: 6px; height: 6px; opacity: 0.6; }
+.sl-count { margin-left: auto; font-size: 0.8rem; color: var(--text-subtle); }
+.sl-map-status { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.4rem 0.75rem; font-size: 0.78rem; color: #eee; background: rgba(0,0,0,0.55); z-index: 2; }
+.sl-chat { display: flex; flex-direction: column; min-height: 560px; border: 1px solid var(--border-dark); border-radius: var(--radius-sm); background: rgba(255,255,255,0.6); }
+.sl-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; max-height: 620px; }
+.sl-msg { padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.88rem; line-height: 1.55; white-space: pre-wrap; word-wrap: break-word; }
+.sl-msg.user { align-self: flex-end; background: var(--accent); color: #fff; max-width: 90%; }
+.sl-msg.assistant { align-self: flex-start; background: rgba(0,0,0,0.04); color: var(--text-body); max-width: 96%; }
+.sl-msg.assistant a { color: var(--accent); word-break: break-all; }
+.sl-msg.system { align-self: center; color: var(--text-subtle); font-size: 0.78rem; background: transparent; }
+.sl-msg.error { align-self: flex-start; background: rgba(239,68,68,0.1); color: #b91c1c; }
+.sl-msg .sl-mapnote { display: block; margin-top: 0.4rem; font-size: 0.76rem; color: var(--text-subtle); }
+.sl-input-row { display: flex; gap: 0.5rem; padding: 0.75rem; border-top: 1px solid var(--border-dark); }
+.sl-input-row textarea { flex: 1; font-family: var(--font-body); font-size: 0.88rem; padding: 0.5rem 0.65rem; border: 1px solid var(--border-dark); border-radius: var(--radius-sm); resize: none; min-height: 44px; max-height: 120px; }
+.sl-input-row .btn { align-self: flex-end; }
+.sl-examples { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 0.75rem 0.75rem; }
+.sl-example { background: none; border: 1px solid var(--border-dark); border-radius: 999px; padding: 0.25rem 0.65rem; font-family: var(--font-body); font-size: 0.74rem; color: var(--text-subtle); cursor: pointer; }
+.sl-example:hover { color: var(--accent); border-color: var(--accent); }
+.sl-typing { align-self: flex-start; display: flex; gap: 0.5rem; align-items: center; color: var(--text-subtle); font-size: 0.8rem; }
+.sl-fine { color: var(--text-subtle); font-size: 0.78rem; line-height: 1.6; margin-top: var(--space-md); }
+.sl-fine strong { color: var(--text-body); }
+.maplibregl-ctrl-attrib { font-size: 10px; }
+.sl-pop { font-size: 12px; line-height: 1.45; color: #222; font-family: var(--font-body); }
+.maplibregl-popup-content { padding: 10px 12px; }
 </style>
 
 <div class="page-header" data-theme="dark">
@@ -86,6 +122,7 @@
         <button class="tools-tab active" role="tab" aria-selected="true" data-tab="phase">Phase Calculator</button>
         <button class="tools-tab" role="tab" aria-selected="false" data-tab="twilight">Twilight Times</button>
         <button class="tools-tab" role="tab" aria-selected="false" data-tab="gissearch">Service Search</button>
+        <button class="tools-tab" role="tab" aria-selected="false" data-tab="safety">Safety &amp; Lighting</button>
       </nav>
 
       <!-- Twilight Times Tab -->
@@ -294,6 +331,47 @@
         </div>
 
         <div id="gss-empty-state" class="gss-empty-state tools-hidden"></div>
+      </section>
+
+      <!-- Safety & Lighting Tab -->
+      <section id="tab-safety" class="tools-tab-content">
+        <div class="glass-card" style="padding: var(--space-lg);">
+          <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: var(--space-xs);">Safety &amp; Lighting</h2>
+          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Every US fatal crash with usable coordinates (NHTSA FARS, 1999&ndash;2024), run through the Phase Calculator to determine whether street lighting was providing visibility at the moment of the crash. Ask the assistant about the data, or about lighting ordinances and standards.</p>
+
+          <div class="sl-map-bar">
+            <label>Year <select id="sl-year"></select></label>
+            <span class="sl-legend"><span><span class="sl-dot sl-dot-on"></span>Street lighting providing visibility</span><span><span class="sl-dot sl-dot-off"></span>Sun providing visibility</span></span>
+            <span class="sl-count" id="sl-count"></span>
+            <button type="button" class="btn btn-secondary" id="sl-reset" style="font-size: 0.78rem; padding: 0.35rem 0.7rem; color: var(--text-body); border-color: var(--border-dark);">Reset map</button>
+          </div>
+
+          <div class="sl-layout">
+            <div class="sl-map-wrap">
+              <div id="sl-map" role="img" aria-label="Map of fatal crashes coloured by whether street lighting was providing visibility"></div>
+              <div class="sl-map-status" id="sl-map-status">Loading map&hellip;</div>
+            </div>
+            <div class="sl-chat">
+              <div class="sl-messages" id="sl-messages" aria-live="polite">
+                <div class="sl-msg assistant">Ask about fatal crashes and lighting. Answers from the data state the years and filters used; answers about ordinances and standards cite their source.</div>
+              </div>
+              <div class="sl-examples" id="sl-examples">
+                <button type="button" class="sl-example">What share of 2024 fatal crashes happened while street lighting was providing visibility?</button>
+                <button type="button" class="sl-example">Show pedestrian fatalities in California in 2023 that happened under street lighting</button>
+                <button type="button" class="sl-example">How has the lit share of drinking-driver crashes changed since 2010?</button>
+                <button type="button" class="sl-example">What does Tucson's outdoor lighting ordinance require?</button>
+              </div>
+              <div class="sl-input-row">
+                <textarea id="sl-input" rows="2" placeholder="Ask a question&hellip;" aria-label="Question"></textarea>
+                <button type="button" class="btn btn-primary" id="sl-send">Send</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sl-fine">
+            <strong>How lighting is determined.</strong> For each crash the Phase Calculator computes the sun's position from the crash coordinates and local time. <strong>evStreetlightsOn</strong> is true when street lighting was providing visibility and false when the sun was. This is the only lighting determination used here; the police-reported FARS light-condition field is available in the data for reference but is not the indicator. Crashes without coordinates (all years before 1999) or with an unknown crash hour are stored but cannot be determined and do not appear on the map. Data: NHTSA FARS national files; processing by Photometrics AI.
+          </div>
+        </div>
       </section>
 
     </div>
@@ -1083,6 +1161,181 @@
 
   resetSearchState();
   updateSourcesMeta();
+})();
+</script>
+
+<link rel="stylesheet" href="/vendor/maplibre/maplibre-gl.css">
+<script src="/vendor/maplibre/maplibre-gl-csp.js"></script>
+<script src="/vendor/flatgeobuf/flatgeobuf-geojson.min.js"></script>
+<script>
+(function() {
+  // ─── Safety & Lighting tab: MapLibre + FlatGeobuf from S3, chat via Lambda Function URL ───
+  var CHAT_URL = 'https://jny7rxtr3p2cln765be6vyd7mu0fcrkf.lambda-url.us-east-2.on.aws/';
+  var DATA_BASE = 'https://photometrics-fars.s3.us-east-2.amazonaws.com/fars';
+  var yearSel = document.getElementById('sl-year');
+  var countEl = document.getElementById('sl-count');
+  var mapStatus = document.getElementById('sl-map-status');
+  var messagesEl = document.getElementById('sl-messages');
+  var inputEl = document.getElementById('sl-input');
+  var sendBtn = document.getElementById('sl-send');
+  var resetBtn = document.getElementById('sl-reset');
+  var map = null, mapReady = false, initStarted = false;
+  var yearData = {};          // year -> GeoJSON FeatureCollection
+  var currentYear = null;
+  var filterIds = null;       // Set of crash_id when the assistant filtered the map
+  var history = [];           // [{role, content}] sent to the Lambda
+  var busy = false;
+
+  function setMapStatus(text) { mapStatus.textContent = text || ''; mapStatus.style.display = text ? 'block' : 'none'; }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function renderText(s) {
+    // escape, then linkify bare URLs and render **bold**; everything else stays plain text
+    var h = esc(s);
+    h = h.replace(/(https?:\/\/[^\s<)\]]+)/g, function(u) { var t = u.replace(/[.,;:]+$/, ''); return '<a href="' + t + '" target="_blank" rel="noopener">' + t + '</a>' + u.slice(t.length); });
+    h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    return h;
+  }
+  function addMsg(role, text, extraHtml) {
+    var d = document.createElement('div');
+    d.className = 'sl-msg ' + role;
+    d.innerHTML = role === 'user' ? esc(text) : renderText(text) + (extraHtml || '');
+    messagesEl.appendChild(d);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return d;
+  }
+
+  // ─── Map ───
+  function ensureMap() {
+    if (initStarted) return;
+    initStarted = true;
+    if (!window.maplibregl) { setMapStatus('Map library failed to load.'); return; }
+    if (typeof maplibregl.setWorkerUrl === 'function') maplibregl.setWorkerUrl('/vendor/maplibre/maplibre-gl-csp-worker.js'); else maplibregl.workerUrl = '/vendor/maplibre/maplibre-gl-csp-worker.js';
+    map = new maplibregl.Map({
+      container: 'sl-map',
+      style: {
+        version: 8,
+        sources: { carto: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 16, attribution: 'Basemap &copy; Esri, HERE, Garmin, FAO, NOAA, USGS | Data: NHTSA FARS, Photometrics AI' },
+                   labels: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 16 } },
+        layers: [{ id: 'carto', type: 'raster', source: 'carto' }]
+      },
+      center: [-96.5, 38.5], zoom: 3.6, minZoom: 2, maxZoom: 16, attributionControl: { compact: true }
+    });
+    window.__slMap = map; // debug handle
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.on('load', function() {
+      map.addSource('crashes', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+      map.addLayer({ id: 'crashes-off', type: 'circle', source: 'crashes', filter: ['==', ['get', 'evStreetlightsOn'], false],
+        paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 1, 8, 2, 14, 4], 'circle-color': '#8a8f99', 'circle-opacity': 0.35 } });
+      map.addLayer({ id: 'crashes-on', type: 'circle', source: 'crashes', filter: ['==', ['get', 'evStreetlightsOn'], true],
+        paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 2.2, 8, 4, 14, 7], 'circle-color': '#ffcf5a', 'circle-opacity': 0.85, 'circle-stroke-color': '#7a5a00', 'circle-stroke-width': 0.4 } });
+      // place names, roads and boundaries drawn above the points (transparent reference tiles)
+      map.addLayer({ id: 'labels', type: 'raster', source: 'labels', paint: { 'raster-opacity': 0.9 } });
+      map.on('click', 'crashes-on', showPopup);
+      map.on('click', 'crashes-off', showPopup);
+      map.on('mouseenter', 'crashes-on', function() { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'crashes-on', function() { map.getCanvas().style.cursor = ''; });
+      mapReady = true;
+      if (currentYear) loadYear(currentYear);
+    });
+  }
+  var popup = null;
+  function showPopup(e) {
+    var p = e.features[0].properties;
+    var on = (p.evStreetlightsOn === true || p.evStreetlightsOn === 'true');
+    if (popup) popup.remove();
+    popup = new maplibregl.Popup({ closeButton: true, maxWidth: '340px' }).setLngLat(e.lngLat).setHTML('<div class="sl-pop">Loading&hellip;</div>').addTo(map);
+    fetch(CHAT_URL + '?crash_id=' + encodeURIComponent(String(p.crash_id))).then(function(r) { return r.json().then(function(j) { if (!r.ok) throw new Error(j.error || r.status); return j; }); })
+      .then(function(d) {
+        if (!popup || !popup.isOpen()) return;
+        popup.setHTML('<div class="sl-pop">' + (d.lines || []).map(esc).join('<br>') + '</div>');
+      })
+      .catch(function(err) { if (popup && popup.isOpen()) popup.setHTML('<div class="sl-pop">Details unavailable (' + esc(err.message) + ').</div>'); });
+  }
+  function loadYear(year) {
+    currentYear = year;
+    if (!mapReady) return;
+    if (yearData[year]) { applyData(); return; }
+    setMapStatus('Loading ' + year + ' crashes\u2026');
+    fetch(DATA_BASE + '/' + year + '/crashes.fgb').then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.arrayBuffer();
+    }).then(function(buf) {
+      // flatgeobuf 4.x: deserialize(Uint8Array) returns an async iterable of GeoJSON features
+      var it = flatgeobuf.deserialize(new Uint8Array(buf));
+      var feats = [];
+      if (it && it.features) return it;
+      if (it && typeof it[Symbol.asyncIterator] === 'function') {
+        return (async function() { for await (var f of it) feats.push(f); return { type: 'FeatureCollection', features: feats }; })();
+      }
+      if (it && typeof it[Symbol.iterator] === 'function') { for (var f of it) feats.push(f); return { type: 'FeatureCollection', features: feats }; }
+      throw new Error('unexpected FlatGeobuf content');
+    }).then(function(fc) {
+      yearData[year] = fc;
+      if (currentYear === year) applyData();
+    }).catch(function(err) { setMapStatus('Could not load ' + year + ': ' + err.message); });
+  }
+  function applyData() {
+    var fc = yearData[currentYear];
+    var feats = fc.features, on = 0;
+    if (filterIds) feats = feats.filter(function(f) { return filterIds.has(String(f.properties.crash_id)); });
+    for (var i = 0; i < feats.length; i++) { var v = feats[i].properties.evStreetlightsOn; if (v === true || v === 'true') on++; }
+    map.getSource('crashes').setData({ type: 'FeatureCollection', features: feats });
+    var total = fc.features.length;
+    countEl.textContent = (filterIds ? feats.length.toLocaleString() + ' of ' + total.toLocaleString() + ' crashes match (' : total.toLocaleString() + ' crashes in ' + currentYear + ' (') + on.toLocaleString() + ' under street lighting)';
+    setMapStatus('');
+  }
+  function setFilter(ids) {
+    if (!ids || !ids.length) { filterIds = null; if (mapReady && yearData[currentYear]) applyData(); return; }
+    filterIds = new Set(ids.map(String));
+    // if the selected year has none of the ids, jump to the year with the most
+    var byYear = {};
+    ids.forEach(function(id) { var y = String(id).split('-')[0]; byYear[y] = (byYear[y] || 0) + 1; });
+    if (!byYear[currentYear]) {
+      var best = Object.keys(byYear).sort(function(a, b) { return byYear[b] - byYear[a]; })[0];
+      if (best && Array.prototype.some.call(yearSel.options, function(o) { return o.value === best; })) { yearSel.value = best; loadYear(best); return; }
+    }
+    if (mapReady && yearData[currentYear]) applyData();
+  }
+  resetBtn.addEventListener('click', function() { filterIds = null; if (mapReady && yearData[currentYear]) applyData(); if (map) map.flyTo({ center: [-96.5, 38.5], zoom: 3.6 }); });
+  yearSel.addEventListener('change', function() { loadYear(yearSel.value); });
+
+  fetch(DATA_BASE + '/years.json', { cache: 'no-store' }).then(function(r) { return r.json(); }).then(function(j) {
+    var years = (j.phasable_years || []).map(function(m) { return m.year; }).sort(function(a, b) { return b - a; });
+    yearSel.innerHTML = years.map(function(y) { return '<option value="' + y + '">' + y + '</option>'; }).join('');
+    currentYear = String(j.newest || years[0]);
+    yearSel.value = currentYear;
+    if (mapReady) loadYear(currentYear);
+  }).catch(function() { setMapStatus('Year list unavailable.'); });
+
+  // initialise the map only when the tab is visible (MapLibre needs a sized container)
+  function maybeInit() { if (document.getElementById('tab-safety').classList.contains('active')) ensureMap(); }
+  document.querySelectorAll('.tools-tab').forEach(function(t) { t.addEventListener('click', function() { setTimeout(maybeInit, 0); }); });
+  maybeInit();
+
+  // ─── Chat ───
+  function send(text) {
+    text = (text || inputEl.value).trim();
+    if (!text || busy) return;
+    busy = true; sendBtn.disabled = true; inputEl.value = '';
+    addMsg('user', text);
+    history.push({ role: 'user', content: text });
+    var typing = document.createElement('div'); typing.className = 'sl-typing'; typing.innerHTML = '<span class="tools-spinner"></span>Working (data queries can take up to a minute)\u2026';
+    messagesEl.appendChild(typing); messagesEl.scrollTop = messagesEl.scrollHeight;
+    fetch(CHAT_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: history.slice(-12) }) })
+      .then(function(r) { return r.json().catch(function() { return {}; }).then(function(j) { if (!r.ok) throw new Error(j.error || ('Request failed (' + r.status + ')')); return j; }); })
+      .then(function(j) {
+        typing.remove();
+        history.push({ role: 'assistant', content: j.reply || '' });
+        var note = '';
+        if (j.crash_ids && j.crash_ids.length) { setFilter(j.crash_ids); note = '<span class="sl-mapnote">Map filtered to ' + j.crash_ids.length.toLocaleString() + ' matching crash' + (j.crash_ids.length === 1 ? '' : 'es') + '. Use Reset map to clear.</span>'; }
+        addMsg('assistant', j.reply || '(no answer)', note);
+      })
+      .catch(function(err) { typing.remove(); history.pop(); addMsg('error', err.message || 'Something went wrong.'); })
+      .finally(function() { busy = false; sendBtn.disabled = false; inputEl.focus(); });
+  }
+  sendBtn.addEventListener('click', function() { send(); });
+  inputEl.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+  document.querySelectorAll('.sl-example').forEach(function(b) { b.addEventListener('click', function() { send(b.textContent); }); });
 })();
 </script>
 {{ end }}
