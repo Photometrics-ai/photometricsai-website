@@ -44,44 +44,45 @@
             <span class="ta-card-badge">2</span>
             <h3>What matters most to you?</h3>
           </div>
-          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Select the issues you care about. We'll tailor your letter around these priorities.</p>
+          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Choose a top priority, and optionally a secondary one. The most effective letters focus on one or two issues.</p>
 
           <div class="ta-priorities-grid">
-            <label class="ta-priority-card">
-              <input type="checkbox" value="Crime & Safety">
+            <div class="ta-priority-card" role="checkbox" aria-checked="false" tabindex="0" data-value="Crime &amp; Safety">
+              <span class="ta-priority-rank-badge"></span>
               <span class="ta-priority-icon">&#x1F6E1;</span>
               <span class="ta-priority-label">Crime &amp; Safety</span>
-            </label>
-            <label class="ta-priority-card">
-              <input type="checkbox" value="Transportation Safety">
+              <button type="button" class="ta-priority-make-top">Make Top Priority</button>
+            </div>
+            <div class="ta-priority-card" role="checkbox" aria-checked="false" tabindex="0" data-value="Transportation Safety">
+              <span class="ta-priority-rank-badge"></span>
               <span class="ta-priority-icon">&#x1F6A7;</span>
               <span class="ta-priority-label">Transportation Safety</span>
-            </label>
-            <label class="ta-priority-card">
-              <input type="checkbox" value="Migratory Birds">
+              <button type="button" class="ta-priority-make-top">Make Top Priority</button>
+            </div>
+            <div class="ta-priority-card" role="checkbox" aria-checked="false" tabindex="0" data-value="Migratory Birds">
+              <span class="ta-priority-rank-badge"></span>
               <span class="ta-priority-icon">&#x1F426;</span>
               <span class="ta-priority-label">Migratory Birds</span>
-            </label>
-            <label class="ta-priority-card">
-              <input type="checkbox" value="Light Pollution">
+              <button type="button" class="ta-priority-make-top">Make Top Priority</button>
+            </div>
+            <div class="ta-priority-card" role="checkbox" aria-checked="false" tabindex="0" data-value="Light Pollution">
+              <span class="ta-priority-rank-badge"></span>
               <span class="ta-priority-icon">&#x1F30C;</span>
               <span class="ta-priority-label">Light Pollution</span>
-            </label>
-            <label class="ta-priority-card">
-              <input type="checkbox" value="Energy Waste">
+              <button type="button" class="ta-priority-make-top">Make Top Priority</button>
+            </div>
+            <div class="ta-priority-card" role="checkbox" aria-checked="false" tabindex="0" data-value="Energy Waste">
+              <span class="ta-priority-rank-badge"></span>
               <span class="ta-priority-icon">&#x26A1;</span>
               <span class="ta-priority-label">Energy Waste</span>
-            </label>
-            <label class="ta-priority-card">
-              <input type="checkbox" value="Environmental Impact">
+              <button type="button" class="ta-priority-make-top">Make Top Priority</button>
+            </div>
+            <div class="ta-priority-card" role="checkbox" aria-checked="false" tabindex="0" data-value="Environmental Impact">
+              <span class="ta-priority-rank-badge"></span>
               <span class="ta-priority-icon">&#x1F33F;</span>
               <span class="ta-priority-label">Environmental Impact</span>
-            </label>
-          </div>
-
-          <div class="form-group" style="margin-top: var(--space-md);">
-            <label for="ta-custom-priority">Something else?</label>
-            <input type="text" id="ta-custom-priority" placeholder="e.g. Nighttime cycling safety" maxlength="100">
+              <button type="button" class="ta-priority-make-top">Make Top Priority</button>
+            </div>
           </div>
 
         </div>
@@ -204,12 +205,11 @@
   var generateBtn = document.getElementById("ta-generate");
   var letterTextarea = document.getElementById("ta-letter");
   var repsGrid = document.getElementById("ta-reps-grid");
-  var customPriority = document.getElementById("ta-custom-priority");
   var retryBtn = document.getElementById("ta-retry");
   var startOverBtn = document.getElementById("ta-start-over");
   var copyLetterBtn = document.getElementById("ta-copy-letter");
   var copyRepsBtn = document.getElementById("ta-copy-reps");
-  var priorityCheckboxes = document.querySelectorAll(".ta-priority-card input[type=checkbox]");
+  var priorityCards = document.querySelectorAll(".ta-priority-card");
 
   var managedSendSection = document.getElementById("ta-managed-send");
   var sendManagedBtn = document.getElementById("ta-send-managed");
@@ -227,6 +227,8 @@
 
   var currentReps = [];
   var currentSubmissionCount = 0;
+  var topPriority = null;
+  var secondaryPriority = null;
 
   // === Utility functions ===
   function generateUUID() {
@@ -286,29 +288,64 @@
   }
 
   function getSelectedPriorities() {
-    var selected = [];
-    priorityCheckboxes.forEach(function(cb) {
-      if (cb.checked) selected.push(cb.value);
-    });
-    var custom = customPriority.value.trim();
-    if (custom) selected.push(custom);
-    return selected;
+    return [topPriority, secondaryPriority].filter(Boolean);
   }
 
-  function updateCheckboxCardStyles() {
-    document.querySelectorAll(".ta-priority-card").forEach(function(card) {
-      var cb = card.querySelector("input[type=checkbox]");
-      if (cb.checked) {
-        card.classList.add("selected");
+  // Click rules: 1st pick becomes Top, 2nd becomes Secondary. Clicking Top
+  // deselects it and promotes Secondary (Top is never empty while Secondary
+  // is filled). Clicking Secondary just deselects it. Once both slots are
+  // filled, other cards are disabled — see renderPriorityCards().
+  function selectPriority(value) {
+    if (value === topPriority) {
+      topPriority = secondaryPriority;
+      secondaryPriority = null;
+    } else if (value === secondaryPriority) {
+      secondaryPriority = null;
+    } else if (!topPriority) {
+      topPriority = value;
+    } else if (!secondaryPriority) {
+      secondaryPriority = value;
+    } else {
+      return; // both slots full and this is a third card — no-op
+    }
+    renderPriorityCards();
+    updateGenerateBtn();
+  }
+
+  function promoteSecondaryToTop() {
+    if (!secondaryPriority) return;
+    var newTop = secondaryPriority;
+    secondaryPriority = topPriority;
+    topPriority = newTop;
+    renderPriorityCards();
+  }
+
+  function renderPriorityCards() {
+    priorityCards.forEach(function(card) {
+      var value = card.getAttribute("data-value");
+      var badge = card.querySelector(".ta-priority-rank-badge");
+      card.classList.remove("ta-priority-top", "ta-priority-secondary", "ta-priority-disabled");
+
+      if (value === topPriority) {
+        card.classList.add("ta-priority-top");
+        card.setAttribute("aria-checked", "true");
+        badge.textContent = "Top Priority";
+      } else if (value === secondaryPriority) {
+        card.classList.add("ta-priority-secondary");
+        card.setAttribute("aria-checked", "true");
+        badge.textContent = "Secondary Priority";
       } else {
-        card.classList.remove("selected");
+        card.setAttribute("aria-checked", "false");
+        badge.textContent = "";
+        if (topPriority && secondaryPriority) {
+          card.classList.add("ta-priority-disabled");
+        }
       }
     });
   }
 
   function updateGenerateBtn() {
-    var hasPriority = getSelectedPriorities().length > 0;
-    generateBtn.disabled = !hasPriority;
+    generateBtn.disabled = !topPriority;
   }
 
   function trackEvent(event, repEmail) {
@@ -521,15 +558,27 @@
     updateCardStates();
   });
 
-  // === Card 2: Priority selection ===
-  priorityCheckboxes.forEach(function(cb) {
-    cb.addEventListener("change", function() {
-      updateCheckboxCardStyles();
-      updateGenerateBtn();
+  // === Card 2: Priority selection (Top/Secondary ranking) ===
+  priorityCards.forEach(function(card) {
+    var value = card.getAttribute("data-value");
+
+    card.addEventListener("click", function() {
+      selectPriority(value);
+    });
+
+    card.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        selectPriority(value);
+      }
+    });
+
+    var makeTopBtn = card.querySelector(".ta-priority-make-top");
+    makeTopBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      promoteSecondaryToTop();
     });
   });
-
-  customPriority.addEventListener("input", updateGenerateBtn);
 
   // === Generate letter ===
   generateBtn.addEventListener("click", function() {
@@ -628,12 +677,12 @@
     locationInput.value = "";
     nameInput.value = "";
     emailInput.value = "";
-    customPriority.value = "";
     letterTextarea.value = "";
     repsGrid.innerHTML = "";
     currentReps = [];
-    priorityCheckboxes.forEach(function(cb) { cb.checked = false; });
-    updateCheckboxCardStyles();
+    topPriority = null;
+    secondaryPriority = null;
+    renderPriorityCards();
     generateBtn.disabled = true;
     sessionId = generateUUID();
     showResultsState("locked");
@@ -657,27 +706,29 @@
   var urlParams = new URLSearchParams(window.location.search);
   var preselect = urlParams.get("priorities");
   if (preselect) {
-    var values = preselect.split(",");
-
-    // Pre-check matching checkboxes
-    priorityCheckboxes.forEach(function(cb) {
-      if (values.indexOf(cb.value) !== -1) cb.checked = true;
+    var requestedValues = preselect.split(",");
+    var validValues = [];
+    priorityCards.forEach(function(card) {
+      var value = card.getAttribute("data-value");
+      if (requestedValues.indexOf(value) !== -1) validValues.push(value);
     });
-    updateCheckboxCardStyles();
+    // Preserve the order requested in the URL, not DOM order
+    validValues.sort(function(a, b) {
+      return requestedValues.indexOf(a) - requestedValues.indexOf(b);
+    });
+
+    // First valid match = Top, second = Secondary, rest ignored
+    topPriority = validValues[0] || null;
+    secondaryPriority = validValues[1] || null;
+    renderPriorityCards();
     updateGenerateBtn();
 
-    // Find the emotional message for the first matched priority
-    var message = "";
-    for (var i = 0; i < values.length; i++) {
-      if (PRIORITY_MESSAGES[values[i]]) {
-        message = PRIORITY_MESSAGES[values[i]];
-        break;
-      }
-    }
+    // Find the emotional message for the top priority
+    var message = PRIORITY_MESSAGES[topPriority] || "";
 
     // Transform Card 2: hide priority UI, show emotional message
     var card2Inner = card2.querySelector(".glass-card");
-    // Hide all existing children (header, description, grid, custom input)
+    // Hide all existing children (header, description, grid)
     Array.prototype.forEach.call(card2Inner.children, function(child) {
       child.style.display = "none";
     });

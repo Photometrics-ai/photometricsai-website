@@ -2392,13 +2392,7 @@ section {
   transition: all var(--duration) var(--ease);
   text-align: center;
   background: var(--bg-white);
-}
-
-.ta-priority-card input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
+  position: relative;
 }
 
 .ta-priority-card:hover {
@@ -2406,16 +2400,57 @@ section {
   background: rgba(78, 163, 220, 0.03);
 }
 
-.ta-priority-card.selected {
+.ta-priority-card.ta-priority-top,
+.ta-priority-card.ta-priority-secondary {
   border-color: var(--accent);
   background: rgba(78, 163, 220, 0.06);
   box-shadow: 0 0 0 1px var(--accent);
 }
 
-.ta-priority-card:has(input:checked) {
-  border-color: var(--accent);
-  background: rgba(78, 163, 220, 0.06);
-  box-shadow: 0 0 0 1px var(--accent);
+.ta-priority-card.ta-priority-disabled {
+  cursor: default;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.ta-priority-rank-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  display: none;
+}
+
+.ta-priority-top .ta-priority-rank-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+}
+
+.ta-priority-secondary .ta-priority-rank-badge {
+  display: inline-block;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.ta-priority-make-top {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-body);
+}
+
+.ta-priority-secondary .ta-priority-make-top {
+  display: inline-block;
 }
 
 .ta-priority-icon {

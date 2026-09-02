@@ -105,10 +105,12 @@ def is_valid_email(value):
 
 
 def sanitize_priorities(priorities):
+    """Cap at 2 — the UI only ever lets a citizen pick a Top and a Secondary
+    priority, so more than 2 should never be legitimate."""
     if not isinstance(priorities, list):
         return []
     cleaned = []
-    for p in priorities[:10]:
+    for p in priorities[:2]:
         if isinstance(p, str) and p.strip():
             cleaned.append(p.strip()[:100])
     return cleaned
@@ -530,11 +532,19 @@ def call_claude(location, priorities, name, verified_reps=None, local_context=""
     priorities_text = ", ".join(priorities) if priorities else "general street lighting improvements"
     name_instruction = f'The letter should be signed by "{name}".' if name else 'Use "[Your Name]" as the signature since no name was provided.'
 
-    # Determine best practices URL: specific page if exactly 1 priority, general page otherwise
-    if len(priorities) == 1:
-        best_practices_url = PRIORITY_URLS.get(priorities[0], BEST_PRACTICES_DEFAULT)
-    else:
-        best_practices_url = BEST_PRACTICES_DEFAULT
+    # Link to the Top priority's specific best-practices page whenever there
+    # is one — priorities[0] is always the Top priority (see sanitize_priorities;
+    # UI caps selection to Top + optional Secondary), so this no longer needs
+    # to fall back to the generic page just because a Secondary is also set.
+    best_practices_url = PRIORITY_URLS.get(priorities[0], BEST_PRACTICES_DEFAULT) if priorities else BEST_PRACTICES_DEFAULT
+
+    # Secondary priority (if any) gets folded into the top-priority paragraph
+    # when the two share an underlying cause, or a brief closing mention when
+    # they don't — rather than its own full paragraph, which is what made
+    # multi-priority letters run long before this was capped to Top + Secondary.
+    secondary_priority_instruction = ""
+    if len(priorities) > 1:
+        secondary_priority_instruction = f""" The citizen also selected a secondary priority: {priorities[1]}. First check whether it shares an underlying cause with the top priority (for example, Light Pollution and Energy Waste both come from eliminating unnecessary illumination). If it does, weave it into this same paragraph so it reads as one unified argument, not two bolted-together topics. If it does not naturally connect (for example, Crime & Safety and Migratory Birds), give it a brief mention only, one to two sentences, not a full paragraph of its own. The secondary priority MUST appear somewhere in the letter in one of these two forms; do not drop it entirely, and do not let it be displaced by an unselected topic even if local context research surfaced a more compelling story elsewhere."""
 
     # Build representatives section based on whether we have verified reps
     if verified_reps:
@@ -580,6 +590,7 @@ LOCAL CONTEXT (sourced facts from web search — each includes its source):
 {local_context}
 
 RULES FOR USING LOCAL CONTEXT:
+- Use these facts only to support the citizen's selected priorities ({priorities_text}). If a fact relates to a different, unselected topic, do not let it take over the letter or replace the selected priorities' narrative, even if it is the most compelling story you found.
 - You may weave these facts into the letter to make it specific to this location.
 - When using a fact, mention the source naturally (e.g. "according to the FBI's Uniform Crime Report" or "data from the California Energy Commission shows").
 - Only use facts that appear above AND have a named source. If a fact above has no source attribution, skip it.
@@ -599,7 +610,7 @@ Their priorities: {priorities_text}
 Return a JSON object with exactly this structure (no markdown, no code blocks, just raw JSON):
 
 {{
-  "letter": "A letter addressed to [Official Name] (this placeholder will be replaced per recipient). Structure:\n\n1. Opening paragraph: Introduce yourself as a resident of the location concerned about street lighting. Do NOT invent personal anecdotes, stories, or events. State the core problem: street lighting in most communities is stuck in a false choice between safety and the environment. There is a better way.\n\n2. One paragraph per priority the citizen selected. Each paragraph MUST:\n   - Open with the human cost of the current state (the gap): what is broken, who is affected, what the real-world consequence is\n   - Name the false assumption behind the status quo (e.g., 'brighter means safer' when LAPD data shows properly designed lighting reduces crime 39%)\n   - Show how precision closes the gap: connect to a specific Photometrics AI capability from the context above\n   - Cite sourced numbers where relevant (35% energy savings, 39% crime reduction, 28-42% crash reduction per FHWA, 20% perception threshold). Do NOT cite dollar-per-light values or annual savings totals.\n   - Do NOT lead with product features. Lead with the problem, then show how precision solves it.\n\n3. Closing paragraph: The gap between what exists and what is possible is large, but closing it starts with a conversation. Ask the official to evaluate Photometrics AI as a solution and reach out to the company to learn more. Do NOT mention pricing, pilot costs, number of luminaires, or any dollar amounts — a citizen would not know these details. Frame it as pointing a leader toward a technology worth investigating, not prescribing a specific program. Near the closing, include a link to the Photometrics AI website where the official can learn more. Since Photometrics AI is already mentioned earlier in the letter, do NOT re-introduce the company. Instead, frame the link as pointing to additional detail, e.g. 'You can read more about how this works here:' or 'Their best practices page has more detail:'. Include this exact URL: {best_practices_url}. Do NOT use marketing language around the link.\n\n4. Sign off with the appropriate signature.\n\nTone: An earnest, informed citizen making a case, not a salesperson pitching a product. Professional and factual. The letter should make the official feel the distance between what their community has and what it could have.\n\nFORMATTING RULE: NEVER use em-dashes (the long dash character). Use commas, periods, semicolons, or parentheses instead. This is a strict formatting requirement.\n\nCORE CONCEPT: Every letter must express the idea of 'right light, right place, right time' — but in the citizen's own voice, not as a branded tagline. It should sound like a resident articulating common sense, e.g. 'It just makes sense to have the right amount of light where and when it is needed' or 'Why would we not light our streets based on what is actually needed?' Do NOT use the exact phrase 'right light, right place, right time' as if quoting marketing copy.",
+  "letter": "A letter addressed to [Official Name] (this placeholder will be replaced per recipient). Structure:\n\n1. Opening paragraph: Introduce yourself as a resident of the location concerned about street lighting. Do NOT invent personal anecdotes, stories, or events. State the core problem: street lighting in most communities is stuck in a false choice between safety and the environment. There is a better way.\n\n2. A full paragraph on the citizen's top priority. This paragraph MUST:\n   - Open with the human cost of the current state (the gap): what is broken, who is affected, what the real-world consequence is\n   - Name the false assumption behind the status quo (e.g., 'brighter means safer' when LAPD data shows properly designed lighting reduces crime 39%)\n   - Show how precision closes the gap: connect to a specific Photometrics AI capability from the context above\n   - Cite sourced numbers where relevant (35% energy savings, 39% crime reduction, 28-42% crash reduction per FHWA, 20% perception threshold). Do NOT cite dollar-per-light values or annual savings totals.\n   - Do NOT lead with product features. Lead with the problem, then show how precision solves it.{secondary_priority_instruction}\n\n3. Closing paragraph: The gap between what exists and what is possible is large, but closing it starts with a conversation. Ask the official to evaluate Photometrics AI as a solution and reach out to the company to learn more. Do NOT mention pricing, pilot costs, number of luminaires, or any dollar amounts — a citizen would not know these details. Frame it as pointing a leader toward a technology worth investigating, not prescribing a specific program. Near the closing, include a link to the Photometrics AI website where the official can learn more. Since Photometrics AI is already mentioned earlier in the letter, do NOT re-introduce the company. Instead, frame the link as pointing to additional detail, e.g. 'You can read more about how this works here:' or 'Their best practices page has more detail:'. In place of the URL, write the literal placeholder text [[BEST_PRACTICES_URL]] exactly as shown, including the double square brackets. Do not write out any URL yourself, real or invented; the placeholder will be substituted automatically after you respond. Do NOT use marketing language around the link.\n\n4. Sign off with the appropriate signature.\n\nTone: An earnest, informed citizen making a case, not a salesperson pitching a product. Professional and factual. The letter should make the official feel the distance between what their community has and what it could have.\n\nFORMATTING RULE: NEVER use em-dashes (the long dash character). Use commas, periods, semicolons, or parentheses instead. This is a strict formatting requirement.\n\nCORE CONCEPT: Every letter must express the idea of 'right light, right place, right time' — but in the citizen's own voice, not as a branded tagline. It should sound like a resident articulating common sense, e.g. 'It just makes sense to have the right amount of light where and when it is needed' or 'Why would we not light our streets based on what is actually needed?' Do NOT use the exact phrase 'right light, right place, right time' as if quoting marketing copy.",
   "representatives": [
     {{
       "name": "Full Name",
@@ -659,6 +670,12 @@ Return ONLY the JSON object, no other text."""
         raise ValueError("Claude response missing required fields")
     if not isinstance(parsed["representatives"], list) or len(parsed["representatives"]) == 0:
         raise ValueError("No representatives returned")
+
+    # Substitute the placeholder deterministically rather than trusting the
+    # model to copy an arbitrary URL string correctly — it has been observed
+    # to substitute a different (wrong) priority's best-practices URL when
+    # the letter's content drifted toward an unselected topic.
+    parsed["letter"] = parsed["letter"].replace("[[BEST_PRACTICES_URL]]", best_practices_url)
 
     # Normalize representatives
     for rep in parsed["representatives"]:
@@ -854,7 +871,8 @@ def get_bounced_emails():
     try:
         resp = dynamodb.scan(
             TableName=BOUNCE_TABLE,
-            ProjectionExpression="email, event_type, subtype",
+            ProjectionExpression="email, event_type, #st",
+            ExpressionAttributeNames={"#st": "subtype"},  # "subtype" is a DynamoDB reserved word
         )
         for item in resp.get("Items", []):
             email = item.get("email", {}).get("S", "")
