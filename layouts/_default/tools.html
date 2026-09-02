@@ -1207,16 +1207,17 @@
     if (initStarted) return;
     initStarted = true;
     if (!window.maplibregl) { setMapStatus('Map library failed to load.'); return; }
-    maplibregl.workerUrl = '/vendor/maplibre/maplibre-gl-csp-worker.js';
+    if (typeof maplibregl.setWorkerUrl === 'function') maplibregl.setWorkerUrl('/vendor/maplibre/maplibre-gl-csp-worker.js'); else maplibregl.workerUrl = '/vendor/maplibre/maplibre-gl-csp-worker.js';
     map = new maplibregl.Map({
       container: 'sl-map',
       style: {
         version: 8,
-        sources: { carto: { type: 'raster', tiles: ['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png', 'https://b.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png', 'https://c.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'], tileSize: 256, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> | Data: NHTSA FARS, Photometrics AI' } },
+        sources: { carto: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 16, attribution: 'Basemap &copy; Esri, HERE, Garmin, FAO, NOAA, USGS | Data: NHTSA FARS, Photometrics AI' } },
         layers: [{ id: 'carto', type: 'raster', source: 'carto' }]
       },
       center: [-96.5, 38.5], zoom: 3.6, minZoom: 2, maxZoom: 16, attributionControl: { compact: true }
     });
+    window.__slMap = map; // debug handle
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.on('load', function() {
       map.addSource('crashes', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
@@ -1248,8 +1249,16 @@
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.arrayBuffer();
     }).then(function(buf) {
-      var fc = flatgeobuf.deserialize(new Uint8Array(buf));
-      if (!fc || !fc.features) throw new Error('unexpected FlatGeobuf content');
+      // flatgeobuf 4.x: deserialize(Uint8Array) returns an async iterable of GeoJSON features
+      var it = flatgeobuf.deserialize(new Uint8Array(buf));
+      var feats = [];
+      if (it && it.features) return it;
+      if (it && typeof it[Symbol.asyncIterator] === 'function') {
+        return (async function() { for await (var f of it) feats.push(f); return { type: 'FeatureCollection', features: feats }; })();
+      }
+      if (it && typeof it[Symbol.iterator] === 'function') { for (var f of it) feats.push(f); return { type: 'FeatureCollection', features: feats }; }
+      throw new Error('unexpected FlatGeobuf content');
+    }).then(function(fc) {
       yearData[year] = fc;
       if (currentYear === year) applyData();
     }).catch(function(err) { setMapStatus('Could not load ' + year + ': ' + err.message); });
@@ -1279,7 +1288,7 @@
   resetBtn.addEventListener('click', function() { filterIds = null; if (mapReady && yearData[currentYear]) applyData(); if (map) map.flyTo({ center: [-96.5, 38.5], zoom: 3.6 }); });
   yearSel.addEventListener('change', function() { loadYear(yearSel.value); });
 
-  fetch(DATA_BASE + '/years.json').then(function(r) { return r.json(); }).then(function(j) {
+  fetch(DATA_BASE + '/years.json', { cache: 'no-store' }).then(function(r) { return r.json(); }).then(function(j) {
     var years = (j.phasable_years || []).map(function(m) { return m.year; }).sort(function(a, b) { return b - a; });
     yearSel.innerHTML = years.map(function(y) { return '<option value="' + y + '">' + y + '</option>'; }).join('');
     currentYear = String(j.newest || years[0]);
