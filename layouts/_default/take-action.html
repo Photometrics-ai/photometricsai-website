@@ -330,6 +330,9 @@
 
       card.innerHTML =
         '<div class="ta-rep-info">' +
+          '<label class="ta-rep-include">' +
+            '<input type="checkbox" class="ta-rep-checkbox" data-email="' + escapeHtml(rep.email) + '" checked> Include in send' +
+          '</label>' +
           '<h4 class="ta-rep-name">' + escapeHtml(rep.name) + '</h4>' +
           '<p class="ta-rep-title">' + escapeHtml(rep.title) + '</p>' +
           '<p class="ta-rep-org">' + escapeHtml(rep.organization) + '</p>' +
@@ -364,6 +367,32 @@
         });
       });
     });
+
+    repsGrid.querySelectorAll(".ta-rep-checkbox").forEach(function(cb) {
+      cb.addEventListener("change", function() {
+        var card = cb.closest(".ta-rep-card");
+        if (card) card.classList.toggle("ta-rep-excluded", !cb.checked);
+        updateSendButtonLabel();
+      });
+    });
+  }
+
+  function getSelectedReps() {
+    var checkedEmails = {};
+    repsGrid.querySelectorAll(".ta-rep-checkbox:checked").forEach(function(cb) {
+      checkedEmails[(cb.getAttribute("data-email") || "").toLowerCase()] = true;
+    });
+    return currentReps.filter(function(rep) {
+      return checkedEmails[(rep.email || "").toLowerCase()];
+    });
+  }
+
+  function updateSendButtonLabel() {
+    var count = getSelectedReps().length;
+    sendManagedBtn.textContent = count > 0
+      ? "Send to " + count + (count === 1 ? " Official" : " Officials")
+      : "Select at least one official";
+    sendManagedBtn.disabled = count === 0;
   }
 
   function copiedFeedback(btn) {
@@ -405,7 +434,7 @@
     sendSuccessEl.style.display = "none";
     sendErrorBox.style.display = "none";
     sendManagedBtn.style.display = "inline-block";
-    sendManagedBtn.disabled = false;
+    updateSendButtonLabel();
 
     if (state === "loading") {
       sendManagedBtn.disabled = true;
@@ -419,6 +448,13 @@
   }
 
   function attemptManagedSend() {
+    var selectedReps = getSelectedReps();
+    if (!selectedReps.length) {
+      sendInlineError.textContent = "Select at least one representative above to send to.";
+      sendInlineError.style.display = "block";
+      return;
+    }
+
     var email = emailInput.value.trim();
     if (!isValidEmail(email)) {
       sendInlineError.textContent = "Enter a valid email address above so we can CC you and route replies to you.";
@@ -427,7 +463,6 @@
       emailInput.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    if (!currentReps.length) return;
 
     gtagEvent("send_intent_clicked", {
       method: "managed_send",
@@ -440,14 +475,16 @@
 
     // Send the raw letter, [Official Name] placeholder intact — the backend
     // sends one email per official and substitutes each one's own name, so
-    // no one recipient sees a salutation naming the other three.
+    // no one recipient sees a salutation naming the other three. Only the
+    // reps the user left checked are included — the backend independently
+    // verifies each against the session's search results either way.
     var payload = {
       session_id: sessionId,
       name: nameInput.value.trim(),
       email: email,
       location: locationInput.value.trim(),
       letter: letterTextarea.value,
-      representatives: currentReps
+      representatives: selectedReps
     };
 
     fetch(API_BASE + "/send", {
@@ -469,7 +506,7 @@
         priorities: analyticsPriorities(),
         location_entered: locationInput.value,
         session_submission_count: currentSubmissionCount,
-        officials_count: data.sent_count || currentReps.length
+        officials_count: data.sent_count || selectedReps.length
       });
     })
     .catch(function(err) {
@@ -526,8 +563,8 @@
       letterTextarea.value = data.letter || "";
 
       showResultsState("results");
-      showSendState("idle");
       renderRepCards();
+      showSendState("idle");
 
       currentSubmissionCount = incrementSubmissionCount();
       gtagEvent("take_action_submit", {
@@ -570,7 +607,7 @@
       location_entered: locationInput.value,
       session_submission_count: currentSubmissionCount
     });
-    var text = currentReps.map(function(rep) {
+    var text = getSelectedReps().map(function(rep) {
       return rep.name + ", " + rep.title + ", " + rep.organization + " - " + rep.email;
     }).join("\n");
     navigator.clipboard.writeText(text).then(function() {

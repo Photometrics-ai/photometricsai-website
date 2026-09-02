@@ -139,11 +139,6 @@ enableGitInfo = true
   weight = 4
   parent = "about"
 
-[[menus.main]]
-  name = "Newsletter"
-  url = "/civil-lighting-design/"
-  weight = 5
-
 # Footer navigation
 [[menus.footer]]
   name = "Privacy Policy"

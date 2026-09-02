@@ -2481,10 +2481,26 @@ section {
   flex-direction: column;
   justify-content: space-between;
   padding: var(--space-md);
+  transition: opacity var(--duration) var(--ease);
+}
+
+.ta-rep-card.ta-rep-excluded {
+  opacity: 0.5;
 }
 
 .ta-rep-info {
   margin-bottom: var(--space-sm);
+}
+
+.ta-rep-include {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+  margin-bottom: var(--space-sm);
+  cursor: pointer;
 }
 
 .ta-rep-name {
