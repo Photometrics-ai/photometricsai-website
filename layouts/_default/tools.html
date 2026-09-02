@@ -1220,7 +1220,8 @@
       container: 'sl-map',
       style: {
         version: 8,
-        sources: { carto: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 16, attribution: 'Basemap &copy; Esri, HERE, Garmin, FAO, NOAA, USGS | Data: NHTSA FARS, Photometrics AI' } },
+        sources: { carto: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 16, attribution: 'Basemap &copy; Esri, HERE, Garmin, FAO, NOAA, USGS | Data: NHTSA FARS, Photometrics AI' },
+                   labels: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 16 } },
         layers: [{ id: 'carto', type: 'raster', source: 'carto' }]
       },
       center: [-96.5, 38.5], zoom: 3.6, minZoom: 2, maxZoom: 16, attributionControl: { compact: true }
@@ -1233,6 +1234,8 @@
         paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 1, 8, 2, 14, 4], 'circle-color': '#8a8f99', 'circle-opacity': 0.35 } });
       map.addLayer({ id: 'crashes-on', type: 'circle', source: 'crashes', filter: ['==', ['get', 'evStreetlightsOn'], true],
         paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 2.2, 8, 4, 14, 7], 'circle-color': '#ffcf5a', 'circle-opacity': 0.85, 'circle-stroke-color': '#7a5a00', 'circle-stroke-width': 0.4 } });
+      // place names, roads and boundaries drawn above the points (transparent reference tiles)
+      map.addLayer({ id: 'labels', type: 'raster', source: 'labels', paint: { 'raster-opacity': 0.9 } });
       map.on('click', 'crashes-on', showPopup);
       map.on('click', 'crashes-off', showPopup);
       map.on('mouseenter', 'crashes-on', function() { map.getCanvas().style.cursor = 'pointer'; });
