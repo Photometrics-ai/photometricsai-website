@@ -167,10 +167,8 @@
             <div class="ta-manual-options">
               <p style="color: var(--text-subtle); font-size: 0.875rem; margin-bottom: var(--space-sm); text-align: center;">Prefer to send it yourself?</p>
               <div class="ta-actions-bar">
-                <button class="ta-send-btn ta-send-gmail" id="ta-send-all-gmail">Open All in Gmail</button>
                 <button class="ta-send-btn ta-send-copy" id="ta-copy-letter">Copy Letter</button>
                 <button class="ta-send-btn ta-send-copy" id="ta-copy-reps">Copy Representatives</button>
-                <button class="ta-send-btn ta-send-mailto" id="ta-send-all-email">Use Your Mail App</button>
               </div>
             </div>
 
@@ -209,8 +207,6 @@
   var customPriority = document.getElementById("ta-custom-priority");
   var retryBtn = document.getElementById("ta-retry");
   var startOverBtn = document.getElementById("ta-start-over");
-  var sendAllEmailBtn = document.getElementById("ta-send-all-email");
-  var sendAllGmailBtn = document.getElementById("ta-send-all-gmail");
   var copyLetterBtn = document.getElementById("ta-copy-letter");
   var copyRepsBtn = document.getElementById("ta-copy-reps");
   var priorityCheckboxes = document.querySelectorAll(".ta-priority-card input[type=checkbox]");
@@ -313,49 +309,6 @@
   function updateGenerateBtn() {
     var hasPriority = getSelectedPriorities().length > 0;
     generateBtn.disabled = !hasPriority;
-  }
-
-  function buildGroupSalutation(reps) {
-    if (!reps.length) return "";
-    var names = reps.map(function(rep) {
-      // Extract title prefix and last name, e.g. "Mayor Jane Smith" -> "Mayor Smith"
-      var parts = rep.name.trim().split(/\s+/);
-      var title = rep.title || "";
-      // Use title prefix (first word of title) + last name
-      var lastName = parts[parts.length - 1];
-      var titlePrefix = title.split(/\s+/)[0] || "";
-      return titlePrefix ? titlePrefix + " " + lastName : lastName;
-    });
-    if (names.length === 1) return names[0];
-    if (names.length === 2) return names[0] + " and " + names[1];
-    return names.slice(0, -1).join(", ") + ", and " + names[names.length - 1];
-  }
-
-  function prepareLetterForEmail() {
-    var letter = letterTextarea.value;
-    var salutation = buildGroupSalutation(currentReps);
-    return letter.replace(/\[Official Name\]/g, salutation);
-  }
-
-  function buildMailtoUrl() {
-    var emails = currentReps.map(function(rep) { return rep.email; }).join(",");
-    var body = prepareLetterForEmail();
-    var subject = "Intelligent Street Lighting for " + locationInput.value;
-    return "mailto:" + emails +
-      "?subject=" + encodeURIComponent(subject) +
-      "&bcc=take-action@photometrics.ai" +
-      "&body=" + encodeURIComponent(body);
-  }
-
-  function buildGmailUrl() {
-    var emails = currentReps.map(function(rep) { return rep.email; }).join(",");
-    var body = prepareLetterForEmail();
-    var subject = "Intelligent Street Lighting for " + locationInput.value;
-    return "https://mail.google.com/mail/?view=cm" +
-      "&to=" + encodeURIComponent(emails) +
-      "&su=" + encodeURIComponent(subject) +
-      "&bcc=take-action@photometrics.ai" +
-      "&body=" + encodeURIComponent(body);
   }
 
   function trackEvent(event, repEmail) {
@@ -485,12 +438,15 @@
 
     showSendState("loading");
 
+    // Send the raw letter, [Official Name] placeholder intact — the backend
+    // sends one email per official and substitutes each one's own name, so
+    // no one recipient sees a salutation naming the other three.
     var payload = {
       session_id: sessionId,
       name: nameInput.value.trim(),
       email: email,
       location: locationInput.value.trim(),
-      letter: prepareLetterForEmail(),
+      letter: letterTextarea.value,
       representatives: currentReps
     };
 
@@ -594,30 +550,6 @@
   });
 
   // === Unified action buttons ===
-  sendAllEmailBtn.addEventListener("click", function() {
-    if (!currentReps.length) return;
-    gtagEvent("send_intent_clicked", {
-      method: "mailto",
-      priorities: analyticsPriorities(),
-      location_entered: locationInput.value,
-      session_submission_count: currentSubmissionCount
-    });
-    window.location.href = buildMailtoUrl();
-    trackEvent("click_mailto_all", currentReps.map(function(r) { return r.email; }).join(","));
-  });
-
-  sendAllGmailBtn.addEventListener("click", function() {
-    if (!currentReps.length) return;
-    gtagEvent("send_intent_clicked", {
-      method: "gmail",
-      priorities: analyticsPriorities(),
-      location_entered: locationInput.value,
-      session_submission_count: currentSubmissionCount
-    });
-    window.open(buildGmailUrl(), "_blank");
-    trackEvent("click_gmail_all", currentReps.map(function(r) { return r.email; }).join(","));
-  });
-
   copyLetterBtn.addEventListener("click", function() {
     gtagEvent("send_intent_clicked", {
       method: "copy_letter",

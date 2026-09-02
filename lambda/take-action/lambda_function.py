@@ -912,7 +912,21 @@ def already_sent(session_id):
     return "Item" in resp
 
 
-def log_send(session_id, constituent_email, location, representatives_sent, message_id):
+def build_single_salutation(rep):
+    """Title-prefix + last name for one official, e.g. 'Mayor Smith' — the
+    per-recipient counterpart to what used to be a single group salutation
+    when one mailto/Gmail message went to all officials at once. Now that
+    each official gets their own email, each one sees only their own name."""
+    name = (rep.get("name") or "").strip()
+    title = (rep.get("title") or "").strip()
+    if not name:
+        return title or "Official"
+    last_name = name.split()[-1]
+    title_prefix = title.split()[0] if title else ""
+    return f"{title_prefix} {last_name}".strip() if title_prefix else last_name
+
+
+def log_send(session_id, constituent_email, location, representatives_sent, message_ids):
     """Log a managed-send event. 1-year TTL to match the retention already
     used for the rest of the take-action log (session, letter, reps) —
     see the take-action privacy-policy note for why this needs disclosure."""
@@ -924,7 +938,7 @@ def log_send(session_id, constituent_email, location, representatives_sent, mess
         "constituent_email": {"S": constituent_email},
         "location": {"S": location},
         "representatives_sent": {"L": [{"S": e} for e in representatives_sent]},
-        "message_id": {"S": message_id},
+        "message_ids": {"L": [{"S": m} for m in message_ids]},
         "ttl": {"N": str(ttl)},
     }
 
@@ -966,54 +980,71 @@ def handle_send(body):
     if verified_emails is None:
         return respond(400, {"error": "We couldn't verify this session. Please generate your letter again."})
 
-    to_addresses = []
+    verified_reps = []
     for rep in representatives:
-        email = rep.get("email", "") if isinstance(rep, dict) else ""
-        email = email.strip()
+        if not isinstance(rep, dict):
+            continue
+        email = (rep.get("email") or "").strip()
         if is_valid_email(email) and email.lower() in verified_emails:
-            to_addresses.append(email)
-    if not to_addresses:
+            verified_reps.append({
+                "email": email,
+                "name": sanitize_string(rep.get("name", ""), 200),
+                "title": sanitize_string(rep.get("title", ""), 200),
+            })
+    if not verified_reps:
         return respond(400, {"error": "No valid, verified representative email addresses to send to."})
 
     letter = letter.strip()[:20000]
     sender_name = constituent_name or "A Concerned Resident"
     subject = f"Street Lighting Improvement Request – {location}" if location else "Street Lighting Improvement Request"
 
-    send_kwargs = {
-        "FromEmailAddress": f'"{sender_name}" <{SES_SENDER_EMAIL}>',
-        "Destination": {
-            "ToAddresses": to_addresses,
-            "CcAddresses": [constituent_email],
-            "BccAddresses": [SES_SENDER_EMAIL],
-        },
-        "ReplyToAddresses": [constituent_email],
-        "Content": {
-            "Simple": {
-                "Subject": {"Data": subject, "Charset": "UTF-8"},
-                "Body": {"Text": {"Data": letter, "Charset": "UTF-8"}},
-            }
-        },
-    }
-    if SES_CONFIGURATION_SET:
-        send_kwargs["ConfigurationSetName"] = SES_CONFIGURATION_SET
+    # One SES call per official (not one message with all officials in To) —
+    # each gets their own message personalized with their own name, and a
+    # bounce/complaint on one address never affects delivery to the others.
+    sent = []
+    failed = []
+    for rep in verified_reps:
+        personalized_letter = letter.replace("[Official Name]", build_single_salutation(rep))
+        send_kwargs = {
+            "FromEmailAddress": f'"{sender_name}" <{SES_SENDER_EMAIL}>',
+            "Destination": {
+                "ToAddresses": [rep["email"]],
+                "CcAddresses": [constituent_email],
+                "BccAddresses": [SES_SENDER_EMAIL],
+            },
+            "ReplyToAddresses": [constituent_email],
+            "Content": {
+                "Simple": {
+                    "Subject": {"Data": subject, "Charset": "UTF-8"},
+                    "Body": {"Text": {"Data": personalized_letter, "Charset": "UTF-8"}},
+                }
+            },
+        }
+        if SES_CONFIGURATION_SET:
+            send_kwargs["ConfigurationSetName"] = SES_CONFIGURATION_SET
 
-    try:
-        result = ses.send_email(**send_kwargs)
-    except Exception as e:
-        print(f"SES send error: {e}")
+        try:
+            result = ses.send_email(**send_kwargs)
+            sent.append({"email": rep["email"], "message_id": result.get("MessageId", "")})
+        except Exception as e:
+            print(f"SES send error for {rep['email']}: {e}")
+            failed.append(rep["email"])
+
+    if not sent:
         return respond(502, {"error": "Failed to send email. Please try again or use the manual options below."})
 
     log_send(
         session_id=session_id,
         constituent_email=constituent_email,
         location=location,
-        representatives_sent=to_addresses,
-        message_id=result.get("MessageId", ""),
+        representatives_sent=[s["email"] for s in sent],
+        message_ids=[s["message_id"] for s in sent],
     )
 
     return respond(200, {
         "status": "sent",
-        "sent_count": len(to_addresses),
+        "sent_count": len(sent),
+        "failed_count": len(failed),
     })
 
 
@@ -1078,7 +1109,7 @@ def handle_track(body):
     event = sanitize_string(body.get("event", ""), 50)
     rep_email = sanitize_string(body.get("representative_email", ""), 200)
 
-    valid_events = {"click_mailto", "click_gmail", "click_copy"}
+    valid_events = {"click_copy"}
     if event not in valid_events:
         return respond(400, {"error": "Invalid event type."})
 
