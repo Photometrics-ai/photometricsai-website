@@ -17,7 +17,7 @@
             <span class="ta-card-badge">1</span>
             <h3>Where do you live?</h3>
           </div>
-          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">We'll find the right officials who influence street lighting decisions in your area.</p>
+          <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">We'll find the right representatives who influence street lighting decisions in your area.</p>
 
           <div class="form-group">
             <label for="ta-location">City, state, or ZIP code</label>
@@ -32,7 +32,7 @@
           <div class="form-group" style="margin-bottom: 0;">
             <label for="ta-email">Your email <span style="font-weight: 400; color: var(--text-subtle);">(only needed if you want us to send it for you)</span></label>
             <input type="email" id="ta-email" placeholder="e.g. jane@example.com" maxlength="200" autocomplete="email">
-            <p style="color: var(--text-subtle); font-size: 0.8125rem; margin-top: var(--space-xs);">We'll CC you on the email and route any reply from the official back to you.</p>
+            <p style="color: var(--text-subtle); font-size: 0.8125rem; margin-top: var(--space-xs);">We'll CC you on the email and route any reply from the representative back to you.</p>
           </div>
         </div>
       </div>
@@ -112,7 +112,7 @@
           <div class="ta-loading" id="ta-loading" style="display: none;">
             <div class="ta-loading-spinner"></div>
             <p style="color: var(--text-body); font-size: 1.125rem; margin-top: var(--space-md);">Finding and verifying your representatives, then drafting your letter...</p>
-            <p style="color: var(--text-subtle); font-size: 0.875rem;">This usually takes 20-30 seconds as we verify each official is current.</p>
+            <p style="color: var(--text-subtle); font-size: 0.875rem;">This usually takes 20-30 seconds as we verify each representative is current.</p>
           </div>
 
           <!-- Error state -->
@@ -128,7 +128,7 @@
             <!-- Representatives -->
             <div style="margin-bottom: var(--space-lg);">
               <h4 style="color: var(--text-dark); margin-bottom: var(--space-xs);">Recommended Representatives</h4>
-              <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Based on your location and priorities, we recommend contacting these officials about street lighting improvements.</p>
+              <p style="color: var(--text-subtle); margin-bottom: var(--space-md);">Based on your location and priorities, we recommend contacting these representatives about street lighting improvements.</p>
               <div class="ta-reps-grid" id="ta-reps-grid">
                 <!-- Rep cards injected by JS -->
               </div>
@@ -145,7 +145,7 @@
 
             <!-- Managed send (primary) -->
             <div class="ta-managed-send" id="ta-managed-send" style="display: none;">
-              <p style="color: var(--text-subtle); font-size: 0.875rem; margin-bottom: var(--space-sm);">By clicking Send, you authorize Photometrics AI to send this letter on your behalf to the officials above. You'll be CC'd, and any reply goes directly to your email.</p>
+              <p style="color: var(--text-subtle); font-size: 0.875rem; margin-bottom: var(--space-sm);">By clicking Send, you authorize Photometrics AI to send this letter on your behalf to the representatives above. You'll be CC'd, and any reply goes directly to your email.</p>
               <p id="ta-send-inline-error" style="display: none; color: var(--text-dark); font-weight: 600; font-size: 0.875rem; margin-bottom: var(--space-sm);"></p>
 
               <div style="text-align: center; margin-bottom: var(--space-lg);">
@@ -193,7 +193,7 @@
 
   // Managed send (SES) is live: SES use-case description updated, SNS topic
   // + configuration set wired for bounce/complaint tracking (which also
-  // feeds get_bounced_emails() in the Lambda so bounced officials stop being
+  // feeds get_bounced_emails() in the Lambda so bounced representatives stop being
   // suggested), ses:SendEmail granted (scoped to take-action@photometrics.ai),
   // and the /send route deployed.
   var MANAGED_SEND_ENABLED = true;
@@ -427,8 +427,8 @@
   function updateSendButtonLabel() {
     var count = getSelectedReps().length;
     sendManagedBtn.textContent = count > 0
-      ? "Send to " + count + (count === 1 ? " Official" : " Officials")
-      : "Select at least one official";
+      ? "Send to " + count + (count === 1 ? " Representative" : " Representatives")
+      : "Select at least one representative";
     sendManagedBtn.disabled = count === 0;
   }
 
@@ -510,8 +510,8 @@
 
     showSendState("loading");
 
-    // Send the raw letter, [Official Name] placeholder intact — the backend
-    // sends one email per official and substitutes each one's own name, so
+    // Send the raw letter, [Representative Name] placeholder intact — the backend
+    // sends one email per representative and substitutes each one's own name, so
     // no one recipient sees a salutation naming the other three. Only the
     // reps the user left checked are included — the backend independently
     // verifies each against the session's search results either way.
@@ -543,7 +543,7 @@
         priorities: analyticsPriorities(),
         location_entered: locationInput.value,
         session_submission_count: currentSubmissionCount,
-        officials_count: data.sent_count || selectedReps.length
+        representatives_count: data.sent_count || selectedReps.length
       });
     })
     .catch(function(err) {
@@ -697,7 +697,7 @@
   var PRIORITY_MESSAGES = {
     "Light Pollution": "We are losing our dark sky legacy for our children. More precise lighting is how we get it back.",
     "Migratory Birds": "Every spring and fall, billions of birds navigate by starlight over our cities. Our streetlights are killing them. Precision lighting can stop it.",
-    "Crime & Safety": "Brighter streets aren\u2019t safer streets. Research shows it\u2019s the right light that reduces crime, not more of it. Your officials need to know.",
+    "Crime & Safety": "Brighter streets aren\u2019t safer streets. Research shows it\u2019s the right light that reduces crime, not more of it. Your representatives need to know.",
     "Transportation Safety": "Nearly half of all traffic fatalities happen at night on just 25% of the driving. Better-aimed streetlights at the right intersections can change that.",
     "Energy Waste": "Your city is burning electricity lighting empty streets at 3 AM. Software can fix this without replacing a single light fixture.",
     "Environmental Impact": "Street lighting affects everything from insect populations to human sleep. Precision means less waste, less disruption, less harm."
