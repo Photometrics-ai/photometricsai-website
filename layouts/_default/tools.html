@@ -104,12 +104,6 @@
 .sl-fine strong { color: var(--text-body); }
 .maplibregl-ctrl-attrib { font-size: 10px; }
 .sl-pop { font-size: 12px; line-height: 1.45; color: #222; font-family: var(--font-body); }
-.sl-pop-head { margin-bottom: 0.35rem; }
-.sl-pop-on { color: #a06a00; font-weight: 600; }
-.sl-pop-off { color: #555; font-weight: 600; }
-.sl-pop-body p { margin: 0 0 0.4rem; }
-.sl-pop-body ul { margin: 0 0 0.4rem 1rem; padding: 0; }
-.sl-pop-meta { color: #666; font-size: 11px; }
 .maplibregl-popup-content { padding: 10px 12px; }
 </style>
 
@@ -1248,28 +1242,14 @@
   function showPopup(e) {
     var p = e.features[0].properties;
     var on = (p.evStreetlightsOn === true || p.evStreetlightsOn === 'true');
-    var head = '<div class="sl-pop"><div class="sl-pop-head"><strong>' + esc(p.crash_id) + '</strong> &middot; ' +
-      (on ? '<span class="sl-pop-on">Street lighting providing visibility</span>' : '<span class="sl-pop-off">Sun providing visibility</span>') + ' &middot; ' + esc(p.evPhase) + '</div>';
     if (popup) popup.remove();
-    popup = new maplibregl.Popup({ closeButton: true, maxWidth: '360px' }).setLngLat(e.lngLat).setHTML(head + '<div class="sl-pop-body">Loading details&hellip;</div></div>').addTo(map);
-    var cid = String(p.crash_id);
-    fetch(CHAT_URL + '?crash_id=' + encodeURIComponent(cid)).then(function(r) { return r.json().then(function(j) { if (!r.ok) throw new Error(j.error || r.status); return j; }); })
+    popup = new maplibregl.Popup({ closeButton: true, maxWidth: '340px' }).setLngLat(e.lngLat).setHTML('<div class="sl-pop">Loading&hellip;</div>').addTo(map);
+    fetch(CHAT_URL + '?crash_id=' + encodeURIComponent(String(p.crash_id))).then(function(r) { return r.json().then(function(j) { if (!r.ok) throw new Error(j.error || r.status); return j; }); })
       .then(function(d) {
         if (!popup || !popup.isOpen()) return;
-        var people = (d.people || []).map(function(q) {
-          var s = esc(q.person_group || q.per_typ_label || 'person') + (q.age != null ? ', ' + esc(q.age) : '') + (q.sex_label === 'Male' || q.sex_label === 'Female' ? ' ' + q.sex_label[0] : '');
-          s += ' &ndash; ' + esc(q.inj_sev_label || '');
-          if (q.is_drinking_driver) s += ' &middot; drinking driver' + (q.bac != null ? ' (BAC ' + esc(q.bac.toFixed(2)) + ')' : '');
-          return '<li>' + s + '</li>';
-        }).join('');
-        var c = d.crash || {}, L = d.lighting || {};
-        var html = head + '<div class="sl-pop-body"><p>' + esc(d.description) + '</p>' +
-          '<ul>' + people + '</ul>' +
-          '<div class="sl-pop-meta">' + [c.road_class ? esc(c.road_class) : null, c.rural_urban ? esc(c.rural_urban) : null, c.weather_label ? esc(c.weather_label) : null,
-            L.police_reported_light_condition ? 'Police-reported light condition: ' + esc(L.police_reported_light_condition) + ' (reference only)' : null].filter(Boolean).join(' &middot; ') + '</div></div></div>';
-        popup.setHTML(html);
+        popup.setHTML('<div class="sl-pop">' + (d.lines || []).map(esc).join('<br>') + '</div>');
       })
-      .catch(function(err) { if (popup && popup.isOpen()) popup.setHTML(head + '<div class="sl-pop-body">Details unavailable (' + esc(err.message) + ').</div></div>'); });
+      .catch(function(err) { if (popup && popup.isOpen()) popup.setHTML('<div class="sl-pop">Details unavailable (' + esc(err.message) + ').</div>'); });
   }
   function loadYear(year) {
     currentYear = year;
