@@ -116,6 +116,87 @@ def sanitize_priorities(priorities):
     return cleaned
 
 
+def filter_excluded(officials, excluded_emails):
+    """Hard filter: drop any official whose 'email' matches (case-insensitively)
+    an entry in excluded_emails. This is the enforcement layer behind the
+    EXCLUDED EMAILS prompt section in search_officials() — the model is told
+    not to use these addresses, but nothing stopped it from doing so anyway
+    until this filter existed. An official with no email (or an empty one) is
+    KEPT, since there is nothing to exclude on. excluded_emails may be None or
+    empty, in which case the input list is returned unchanged. Pure function:
+    no I/O, no globals, does not mutate its arguments."""
+    if not excluded_emails:
+        return list(officials)
+    excluded_lower = {e.lower() for e in excluded_emails}
+    kept = []
+    for official in officials:
+        email = (official.get("email") or "").strip()
+        if email and email.lower() in excluded_lower:
+            continue
+        kept.append(official)
+    return kept
+
+
+SOURCE_KEYS = (
+    "utm_source", "utm_medium", "utm_campaign", "utm_content",
+    "utm_term", "utm_match", "gclid", "landed_priorities", "referrer",
+)
+
+
+def sanitize_source(raw):
+    """Sanitize the /generate request's campaign-attribution `source` object
+    per the data contract: only the 9 known keys are kept (any other key in
+    raw is dropped), every value is coerced to a string and truncated to 200
+    chars, and a key whose value is empty/whitespace after that is omitted —
+    DynamoDB rejects an empty string in a map. Returns {} (never raises) for
+    anything that isn't a dict, so a missing/malformed `source` in the
+    request body just means no `source` attribute gets written on the
+    generate row. Pure function: no I/O, no globals, does not mutate raw."""
+    if not isinstance(raw, dict):
+        return {}
+    cleaned = {}
+    for key in SOURCE_KEYS:
+        if key not in raw or raw[key] is None:
+            continue
+        value = str(raw[key]).strip()[:200]
+        if value:
+            cleaned[key] = value
+    return cleaned
+
+
+def normalized_location(parsed, location):
+    """Resolve city/state/country for the generate row from the Haiku JSON
+    dict `parsed` that search_officials() already parses out of its
+    response (it may or may not contain a `normalized_location`
+    sub-dict with city/state/country keys — see the prompt/schema change in
+    search_officials()). Fallback chain, and it never raises: if `parsed` is
+    not a dict, its `normalized_location` value isn't a dict, or a
+    particular field is absent/not-a-string/empty-after-strip, city/state
+    fall back to parse_location(location) and country falls back to 'US'.
+    Each resolved value is sanitized to <=100 chars. Pure function: no I/O,
+    no globals, does not mutate its arguments. Returns
+    {"location_city": ..., "location_state": ..., "location_country": ...}."""
+    raw = parsed.get("normalized_location") if isinstance(parsed, dict) else None
+
+    city = state = country = ""
+    if isinstance(raw, dict):
+        city = sanitize_string(raw.get("city", ""), 100)
+        state = sanitize_string(raw.get("state", ""), 100)
+        country = sanitize_string(raw.get("country", ""), 100)
+
+    if not city or not state:
+        fallback_city, fallback_state = parse_location(location)
+        if not city:
+            city = sanitize_string(fallback_city, 100)
+        if not state:
+            state = sanitize_string(fallback_state, 100)
+
+    if not country:
+        country = "US"
+
+    return {"location_city": city, "location_state": state, "location_country": country}
+
+
 def get_boosted_officials(location):
     """Find officials who have been emailed before or manually flagged for this area."""
     boosted = {}
@@ -199,8 +280,42 @@ def parse_location(location):
     return city, region
 
 
+def _parse_officials_response(text):
+    """Try to parse one candidate block of Haiku's response text as the
+    {"officials": [...], "normalized_location": {...}} object search_officials()
+    now asks for. Falls back to a bare officials JSON array (no
+    normalized_location) for robustness against a response that ignores the
+    updated output format. Returns (officials_list, payload_dict) on
+    success — payload_dict is whatever was parsed at the top level, suitable
+    to pass straight into normalized_location(payload_dict, location) — or
+    None if no valid officials JSON could be extracted from this text."""
+    obj_match = re.search(r"\{[\s\S]*\}", text)
+    if obj_match:
+        try:
+            parsed = json.loads(obj_match.group(0), strict=False)
+        except json.JSONDecodeError:
+            parsed = None
+        if isinstance(parsed, dict) and isinstance(parsed.get("officials"), list):
+            return parsed["officials"], parsed
+
+    arr_match = re.search(r"\[[\s\S]*\]", text)
+    if arr_match:
+        try:
+            parsed = json.loads(arr_match.group(0), strict=False)
+        except json.JSONDecodeError:
+            parsed = None
+        if isinstance(parsed, list):
+            return parsed, {}
+
+    return None
+
+
 def search_officials(location, priorities, civic_officials=None, boosted_officials=None, excluded_emails=None):
-    """Use Haiku + web search to find verified current officials."""
+    """Use Haiku + web search to find verified current officials. Returns
+    (officials, haiku_payload) — haiku_payload is the raw dict Haiku
+    responded with (may contain a "normalized_location" sub-dict; see
+    normalized_location()), or {} if only a legacy bare officials array
+    could be parsed out of the response."""
     priorities_text = ", ".join(priorities)
     city, region = parse_location(location)
 
@@ -269,22 +384,31 @@ INSTRUCTIONS:
      transportation safety -> state DOT district engineer, traffic safety
      light pollution -> planning commission, dark sky program
 4. Each official must be from a different agency. No duplicates.
+5. Also determine the normalized city, state, and country for "{location}" — state as the
+   2-letter US postal code when the location is in the US, country as an ISO-2 code.
 
-CRITICAL: You MUST output a JSON array with 4 officials no matter what. Do NOT refuse or
-explain why you can't find someone. If you could only find a department email instead of a
-personal one, use the department email. If you can't find an exact match for a slot, pick
-the closest relevant official you can find.
+CRITICAL: You MUST output a JSON object with an "officials" array of 4 officials no matter
+what. Do NOT refuse or explain why you can't find someone. If you could only find a
+department email instead of a personal one, use the department email. If you can't find an
+exact match for a slot, pick the closest relevant official you can find.
 
-Output ONLY a JSON array. No text before or after it. No markdown fences.
-[
-  {{{{
-    "name": "Full Name",
-    "title": "Current title",
-    "organization": "City/County/State agency",
-    "email": "contact@email.gov",
-    "relevance": "Why this person matters for the citizen's priorities"
+Output ONLY a JSON object. No text before or after it. No markdown fences.
+{{{{
+  "officials": [
+    {{{{
+      "name": "Full Name",
+      "title": "Current title",
+      "organization": "City/County/State agency",
+      "email": "contact@email.gov",
+      "relevance": "Why this person matters for the citizen's priorities"
+    }}}}
+  ],
+  "normalized_location": {{{{
+    "city": "Normalized city name",
+    "state": "2-letter US postal code if US, otherwise state/province/region name",
+    "country": "ISO-2 country code"
   }}}}
-]"""
+}}}}"""
 
     tool_def = {
         "type": "web_search_20250305",
@@ -306,7 +430,7 @@ Output ONLY a JSON array. No text before or after it. No markdown fences.
         "messages": [
             {"role": "user", "content": prompt},
             {"role": "assistant", "content": "I'll search for current officials now."},
-            {"role": "user", "content": "Go ahead. Remember: output ONLY the JSON array when done. No commentary."},
+            {"role": "user", "content": "Go ahead. Remember: output ONLY the JSON object (with 'officials' and 'normalized_location') when done. No commentary."},
         ],
     })
 
@@ -367,7 +491,7 @@ Output ONLY a JSON array. No text before or after it. No markdown fences.
         block_types2 = [b.get("type") for b in result.get("content", [])]
         print(f"Haiku continue: stop_reason={stop_reason2}, block_types={block_types2}")
 
-    # Collect all text blocks — the JSON array is typically in the last one
+    # Collect all text blocks — the JSON object is typically in the last one
     text_blocks = [
         block["text"] for block in result.get("content", [])
         if block.get("type") == "text" and block.get("text", "").strip()
@@ -382,36 +506,31 @@ Output ONLY a JSON array. No text before or after it. No markdown fences.
     for i, tb in enumerate(text_blocks):
         print(f"Haiku text block {i}: {tb[:500]}")
 
-    # Try each text block from last to first looking for the JSON array
+    # Try each text block from last to first looking for the officials JSON
     officials = None
+    haiku_payload = {}
     for tb in reversed(text_blocks):
         tb = tb.strip()
         tb = re.sub(r"```(?:json)?\s*\n?", "", tb)
         tb = re.sub(r"\n?```\s*", "", tb)
-        match = re.search(r"\[[\s\S]*\]", tb)
-        if match:
-            try:
-                officials = json.loads(match.group(0), strict=False)
-                break
-            except json.JSONDecodeError:
-                continue
+        parsed_pair = _parse_officials_response(tb)
+        if parsed_pair is not None:
+            officials, haiku_payload = parsed_pair
+            break
 
     if officials is None:
         # Last resort: concatenate ALL text blocks and try to find JSON
         all_text = "\n".join(text_blocks)
         all_text = re.sub(r"```(?:json)?\s*\n?", "", all_text)
         all_text = re.sub(r"\n?```\s*", "", all_text)
-        match = re.search(r"\[[\s\S]*\]", all_text)
-        if match:
-            try:
-                officials = json.loads(match.group(0), strict=False)
-            except json.JSONDecodeError:
-                pass
+        parsed_pair = _parse_officials_response(all_text)
+        if parsed_pair is not None:
+            officials, haiku_payload = parsed_pair
 
     if officials is None:
         last_text = text_blocks[-1] if text_blocks else "(empty)"
         print(f"PARSE FAILURE: {len(text_blocks)} text blocks, last={last_text[:1000]}")
-        raise RuntimeError(f"No valid JSON array found in {len(text_blocks)} text blocks")
+        raise RuntimeError(f"No valid JSON found in {len(text_blocks)} text blocks")
     if not isinstance(officials, list) or len(officials) == 0:
         raise ValueError("No officials returned from search")
 
@@ -420,7 +539,7 @@ Output ONLY a JSON array. No text before or after it. No markdown fences.
             if field not in rep:
                 rep[field] = ""
 
-    return officials
+    return officials, haiku_payload
 
 
 def research_location(location, priorities):
@@ -703,8 +822,15 @@ def dynamo_serialize(obj):
     return {"S": str(obj)}
 
 
-def log_generation(session_id, location, name, priorities, representatives, letter):
-    """Log a generation event to DynamoDB."""
+def log_generation(session_id, location, name, priorities, representatives, letter,
+                    source=None, location_city="", location_state="", location_country=""):
+    """Log a generation event to DynamoDB.
+
+    source/location_city/location_state/location_country are the new
+    campaign-attribution and normalized-location fields (see
+    sanitize_source() and normalized_location()) — each is omitted entirely
+    when empty rather than written as an empty S/M, since DynamoDB rejects
+    an empty string."""
     ttl = int(time.time()) + (365 * 24 * 60 * 60)  # 1 year TTL
 
     item = {
@@ -720,6 +846,16 @@ def log_generation(session_id, location, name, priorities, representatives, lett
 
     if name:
         item["name"] = {"S": name}
+
+    if source:
+        item["source"] = {"M": {k: {"S": v} for k, v in source.items()}}
+
+    if location_city:
+        item["location_city"] = {"S": location_city}
+    if location_state:
+        item["location_state"] = {"S": location_state}
+    if location_country:
+        item["location_country"] = {"S": location_country}
 
     try:
         dynamodb.put_item(TableName=DYNAMO_TABLE, Item=item)
@@ -759,6 +895,7 @@ def handle_generate(body):
     location = sanitize_string(body.get("location", ""), 200)
     name = sanitize_string(body.get("name", ""), 100)
     priorities = sanitize_priorities(body.get("priorities", []))
+    source = sanitize_source(body.get("source"))
 
     if not location or len(location) < 2:
         return respond(400, {"error": "Location is required (minimum 2 characters)."})
@@ -783,10 +920,18 @@ def handle_generate(body):
 
         # Officials are required — propagate errors
         try:
-            verified_reps = officials_future.result()
+            verified_reps, haiku_payload = officials_future.result()
         except Exception as e:
             print(f"Official search error: {e}")
             return respond(502, {"error": f"Failed to verify representatives: {e}"})
+
+        # Hard filter: the EXCLUDED EMAILS section in the search prompt is a
+        # soft instruction the model can ignore — this makes exclusion
+        # actually enforced before the letter is ever written for these reps.
+        before_filter_count = len(verified_reps)
+        verified_reps = filter_excluded(verified_reps, excluded_emails)
+        n_dropped = before_filter_count - len(verified_reps)
+        print(f"Hard filter dropped {n_dropped} excluded officials")
 
         # Research is optional — swallow errors
         try:
@@ -794,6 +939,11 @@ def handle_generate(body):
         except Exception as e:
             print(f"Local research error: {e}")
             local_context = ""
+
+    # Resolve the normalized city/state/country for this generate row from
+    # Haiku's normalized_location field, with a robust parse_location/'US'
+    # fallback — see normalized_location().
+    location_fields = normalized_location(haiku_payload, location)
 
     # Step 3: Sonnet writes the letter using verified reps + local context
     try:
@@ -810,6 +960,10 @@ def handle_generate(body):
         priorities=priorities,
         representatives=result["representatives"],
         letter=result["letter"],
+        source=source,
+        location_city=location_fields["location_city"],
+        location_state=location_fields["location_state"],
+        location_country=location_fields["location_country"],
     )
 
     return respond(200, {
@@ -845,17 +999,28 @@ def handle_flag(body):
 
 
 def get_flagged_emails():
-    """Return set of emails that users have flagged as not current."""
+    """Return set of emails that users have flagged as not current. Paginates
+    the full table via LastEvaluatedKey — a plain single scan silently
+    truncates at ~1MB and would let flagged addresses past the truncation
+    point keep being suggested."""
     flagged = set()
     try:
-        resp = dynamodb.scan(
-            TableName=FLAGGED_TABLE,
-            ProjectionExpression="email",
-        )
-        for item in resp.get("Items", []):
-            email = item.get("email", {}).get("S", "")
-            if email:
-                flagged.add(email.lower())
+        exclusive_start_key = None
+        while True:
+            scan_kwargs = {
+                "TableName": FLAGGED_TABLE,
+                "ProjectionExpression": "email",
+            }
+            if exclusive_start_key:
+                scan_kwargs["ExclusiveStartKey"] = exclusive_start_key
+            resp = dynamodb.scan(**scan_kwargs)
+            for item in resp.get("Items", []):
+                email = item.get("email", {}).get("S", "")
+                if email:
+                    flagged.add(email.lower())
+            exclusive_start_key = resp.get("LastEvaluatedKey")
+            if not exclusive_start_key:
+                break
     except Exception as e:
         print(f"Flagged scan error: {e}")
     return flagged
@@ -866,22 +1031,32 @@ def get_bounced_emails():
     on a prior managed send, so they're excluded from future suggestions the
     same way a manually flagged 'Not current?' email is. Transient bounces
     (mailbox full, temporary server issue) are excluded from this set — those
-    are delivery hiccups, not evidence the official is no longer there."""
+    are delivery hiccups, not evidence the official is no longer there.
+    Paginates the full table via LastEvaluatedKey for the same reason as
+    get_flagged_emails() above."""
     bounced = set()
     try:
-        resp = dynamodb.scan(
-            TableName=BOUNCE_TABLE,
-            ProjectionExpression="email, event_type, #st",
-            ExpressionAttributeNames={"#st": "subtype"},  # "subtype" is a DynamoDB reserved word
-        )
-        for item in resp.get("Items", []):
-            email = item.get("email", {}).get("S", "")
-            event_type = item.get("event_type", {}).get("S", "")
-            subtype = item.get("subtype", {}).get("S", "")
-            if not email:
-                continue
-            if event_type == "Complaint" or (event_type == "Bounce" and subtype == "Permanent"):
-                bounced.add(email.lower())
+        exclusive_start_key = None
+        while True:
+            scan_kwargs = {
+                "TableName": BOUNCE_TABLE,
+                "ProjectionExpression": "email, event_type, #st",
+                "ExpressionAttributeNames": {"#st": "subtype"},  # "subtype" is a DynamoDB reserved word
+            }
+            if exclusive_start_key:
+                scan_kwargs["ExclusiveStartKey"] = exclusive_start_key
+            resp = dynamodb.scan(**scan_kwargs)
+            for item in resp.get("Items", []):
+                email = item.get("email", {}).get("S", "")
+                event_type = item.get("event_type", {}).get("S", "")
+                subtype = item.get("subtype", {}).get("S", "")
+                if not email:
+                    continue
+                if event_type == "Complaint" or (event_type == "Bounce" and subtype == "Permanent"):
+                    bounced.add(email.lower())
+            exclusive_start_key = resp.get("LastEvaluatedKey")
+            if not exclusive_start_key:
+                break
     except Exception as e:
         print(f"Bounced scan error: {e}")
     return bounced
@@ -944,10 +1119,20 @@ def build_single_salutation(rep):
     return f"{title_prefix} {last_name}".strip() if title_prefix else last_name
 
 
-def log_send(session_id, constituent_email, location, representatives_sent, message_ids):
+def log_send(session_id, constituent_email, location, representatives_sent, message_ids, representatives_failed=None):
     """Log a managed-send event. 1-year TTL to match the retention already
     used for the rest of the take-action log (session, letter, reps) —
-    see the take-action privacy-policy note for why this needs disclosure."""
+    see the take-action privacy-policy note for why this needs disclosure.
+
+    Also copies a few fields from this session's /generate row (priorities,
+    source, location_city, location_state, and a representatives_offered
+    count) via a single get_item, so the sends row can be compared against
+    what was actually offered. source/location_city/location_state are new
+    generate-row attributes that a separate item is adding going forward —
+    existing generate rows (all 118 as of the Phase 1 baseline) don't have
+    them yet, so each is copied only if present; DynamoDB rejects an empty
+    S value, so an absent field is omitted entirely rather than written as
+    an empty string/list/map."""
     ttl = int(time.time()) + (365 * 24 * 60 * 60)
 
     item = {
@@ -957,8 +1142,44 @@ def log_send(session_id, constituent_email, location, representatives_sent, mess
         "location": {"S": location},
         "representatives_sent": {"L": [{"S": e} for e in representatives_sent]},
         "message_ids": {"L": [{"S": m} for m in message_ids]},
+        "representatives_failed": {
+            "L": [
+                {"M": {"email": {"S": f["email"]}, "reason": {"S": f["reason"]}}}
+                for f in (representatives_failed or [])
+            ]
+        },
         "ttl": {"N": str(ttl)},
     }
+
+    try:
+        gen_resp = dynamodb.get_item(
+            TableName=DYNAMO_TABLE,
+            Key={"session_id": {"S": session_id}},
+        )
+        gen_item = gen_resp.get("Item")
+    except Exception as e:
+        print(f"Generate row lookup error for sends log: {e}")
+        gen_item = None
+
+    if gen_item:
+        priorities = gen_item.get("priorities", {}).get("L")
+        if priorities:
+            item["priorities"] = {"L": priorities}
+
+        source = gen_item.get("source", {}).get("M")
+        if source:
+            item["source"] = {"M": source}
+
+        location_city = gen_item.get("location_city", {}).get("S")
+        if location_city:
+            item["location_city"] = {"S": location_city}
+
+        location_state = gen_item.get("location_state", {}).get("S")
+        if location_state:
+            item["location_state"] = {"S": location_state}
+
+        representatives = gen_item.get("representatives", {}).get("L") or []
+        item["representatives_offered"] = {"N": str(len(representatives))}
 
     try:
         dynamodb.put_item(TableName=SEND_LOG_TABLE, Item=item)
@@ -1012,6 +1233,21 @@ def handle_send(body):
     if not verified_reps:
         return respond(400, {"error": "No valid, verified representative email addresses to send to."})
 
+    # Suppression: an ADDITIONAL filter layered after the open-relay
+    # verification above, never a replacement for it — every rep here has
+    # already passed get_verified_representative_emails. This just stops a
+    # hard-bounced or user-flagged address from actually being mailed, even
+    # if it slipped past the /generate-time hard filter (e.g. a session
+    # generated before this address was flagged/bounced).
+    excluded = get_bounced_emails() | get_flagged_emails()
+    failed = []
+    to_send = []
+    for rep in verified_reps:
+        if rep["email"].lower() in excluded:
+            failed.append({"email": rep["email"], "reason": "suppressed"})
+        else:
+            to_send.append(rep)
+
     letter = letter.strip()[:20000]
     sender_name = constituent_name or "A Concerned Resident"
     subject = f"Street Lighting Improvement Request – {location}" if location else "Street Lighting Improvement Request"
@@ -1020,8 +1256,7 @@ def handle_send(body):
     # each gets their own message personalized with their own name, and a
     # bounce/complaint on one address never affects delivery to the others.
     sent = []
-    failed = []
-    for rep in verified_reps:
+    for rep in to_send:
         personalized_letter = letter.replace("[Representative Name]", build_single_salutation(rep))
         send_kwargs = {
             "FromEmailAddress": f'"{sender_name}" <{SES_SENDER_EMAIL}>',
@@ -1046,7 +1281,7 @@ def handle_send(body):
             sent.append({"email": rep["email"], "message_id": result.get("MessageId", "")})
         except Exception as e:
             print(f"SES send error for {rep['email']}: {e}")
-            failed.append(rep["email"])
+            failed.append({"email": rep["email"], "reason": "ses_error"})
 
     if not sent:
         return respond(502, {"error": "Failed to send email. Please try again or use the manual options below."})
@@ -1057,12 +1292,14 @@ def handle_send(body):
         location=location,
         representatives_sent=[s["email"] for s in sent],
         message_ids=[s["message_id"] for s in sent],
+        representatives_failed=failed,
     )
 
     return respond(200, {
         "status": "sent",
         "sent_count": len(sent),
         "failed_count": len(failed),
+        "failed": failed,
     })
 
 
@@ -1083,8 +1320,19 @@ def record_bounce_event(message, event_type):
         recipients = [r.get("emailAddress", "") for r in detail.get("complainedRecipients", [])]
         subtype = detail.get("complaintFeedbackType", "")
 
+    sender_email_lower = SES_SENDER_EMAIL.lower()
     for email in recipients:
         if not email:
+            continue
+        if email.lower() == sender_email_lower:
+            # Our own sender/reply-to address bouncing is not a signal about
+            # a discovered official's address — recording it here would pull
+            # take-action@photometrics.ai into get_bounced_emails() and start
+            # excluding it from things that check that set, plus it pollutes
+            # the bounce table with rows that were never a suggestable
+            # official in the first place (see p1-baseline-data-HANDOFF.md:
+            # 6 such self-bounce rows were already found in this table).
+            print(f"WARNING: bounce for sender address {email} — not recording")
             continue
         try:
             dynamodb.put_item(

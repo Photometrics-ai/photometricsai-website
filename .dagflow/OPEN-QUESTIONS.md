@@ -28,7 +28,7 @@ reasonable" if the decision genuinely has no safe default>
 **Question:** Every letter BCCs `take-action@photometrics.ai` so you keep a copy, and that BCC hard-bounces every time. SES has already put the address on the account-level suppression list (reason BOUNCE, since 2026-09-01), so nothing sent to it is even attempted now. Pick one: (A) create `take-action@photometrics.ai` in Google Workspace (a Google Group with you as member is the cheapest, no license seat), then I clear the SES suppression entry; or (B) change the Lambda's `SES_SENDER_EMAIL` env var to a mailbox that already exists (which address?), and I apply it with the command in `.dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md`.
 **Why it matters / what's blocked:** Phase 2 entry criterion. You never receive copies today, and each send adds a bounce to your SES reputation once the suppression entry is cleared without a mailbox behind it.
 **Lead's suggested default, if forced to guess:** (B) with an existing @photometrics.ai mailbox you read. Zero Workspace admin work, one env-var change, no suppression cleanup needed.
-**Status:** open
+**Status:** answered — Ari: the alias already exists on his personal mailbox. Lead cleared the SES suppression entry and sent a test message (MessageId 010f01a068e942dc-…) on 2026-09-03; see Phase 2 notes for the bounce check result. (2026-09-03)
 
 ---
 
@@ -37,6 +37,14 @@ reasonable" if the decision genuinely has no safe default>
 **Question:** Keyword Planner results (US, phrase match) in `.dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md`. Approve adding: Migratory Birds → "lights out for birds" (100–1K/mo) and "bird friendly lighting" (10–100); Environmental Impact → "light pollution effects on environment" (10–100), optionally "street light too bright" (10–100, borderline fit); Energy Waste → "led streetlight conversion" (10–100). Crime & Safety: no candidate showed volume; keep "crime prevention lighting" as its only live keyword. Leave the 4 ineligible keywords in place for now.
 **Why it matters / what's blocked:** Migratory Birds cannot serve at all today, and 58 of 118 real sessions chose Migratory Birds as top priority. Phase 5 is blocked on this. Applying is a Google Ads change, so it is your click or your explicit go-ahead for me to do it.
 **Lead's suggested default, if forced to guess:** Add all four recommended keywords, skip "street light too bright", pause nothing yet.
-**Status:** open
+**Status:** open — Ari wants to review the list first (2026-09-03). Nothing applied.
+
+---
+## 2026-09-03 — Standing authorizations from Ari
+
+**Question:** n/a — record of authorizations.
+**Why it matters / what's blocked:** Lambda production deploys are pre-authorized ("3) preauthorized"). Commits to master are authorized ("commit now"). Ari asked the lead not to stop at phase boundaries: "do everything you can to push things forward without me. Phases are an artificial stop." Lead interprets this as authorization for reversible, previously-approved changes (Ads Final URL suffix, GA4 custom dimensions/key events) but NOT for the keyword additions, which Ari explicitly wants to review first.
+**Lead's suggested default, if forced to guess:** n/a
+**Status:** answered (2026-09-03)
 
 ---

@@ -11,6 +11,13 @@ using ONLY SES mailbox-simulator addresses:
                                                        sent to (proves /send
                                                        only mails the reps in
                                                        the request body)
+    dead.official@simulator.amazonses.com         -> never actually mailed;
+                                                       seeded as a prior
+                                                       Permanent bounce so
+                                                       check-regenerate can
+                                                       prove /send suppresses
+                                                       it instead of calling
+                                                       SES
 
 SAFETY RULES (see README.md for the full writeup):
   - No real official inbox and no inbox other than the configured --cc-email
@@ -25,9 +32,10 @@ SAFETY RULES (see README.md for the full writeup):
     Function-URL event, never over HTTPS.
 
 Subcommands: seed, send, wait-bounce, check-sends, check-exclusion,
-cleanup, all. Run `funnel_test.py --help` or `funnel_test.py <cmd> --help`
-for details. State is persisted between separate invocations in
-.funnel_test_state.json next to this script (git-ignored).
+check-regenerate, cleanup, all. Run `funnel_test.py --help` or
+`funnel_test.py <cmd> --help` for details. State is persisted between
+separate invocations in .funnel_test_state.json next to this script
+(git-ignored).
 
 --dry-run prints every intended AWS action and makes ZERO AWS calls — it
 never constructs a live boto3 client, so it works even with bogus/empty
@@ -54,9 +62,47 @@ LAMBDA_NAME = "photometrics-take-action"
 DYNAMO_TABLE = "photometrics-take-action"
 SEND_LOG_TABLE = "photometrics-take-action-sends"
 BOUNCE_TABLE = "photometrics-email-bounces"
+BOOSTED_TABLE = "photometrics-boosted-officials"
 
 LOCATION = "Austin, TX"
 PRIORITIES = ["Transportation Safety"]
+
+# Attribution + normalized location seeded onto the generate row's `source`
+# map and location_* attributes, per the data contract: source is an M of S
+# (utm_source, utm_medium, utm_campaign, utm_content, utm_term, utm_match,
+# gclid, landed_priorities, referrer — each <=200 chars, absent keys
+# omitted), and location_city/location_state/location_country are top-level
+# S attributes.
+SOURCE_FIELDS = {
+    "utm_source": "google",
+    "utm_medium": "cpc",
+    "utm_campaign": "TESTCAMP",
+    "utm_content": "TBD-1",
+    "utm_term": "streetlight safety",
+    "utm_match": "p",
+    "gclid": "TESTGCLID",
+    "landed_priorities": "Transportation Safety",
+    "referrer": "https://www.google.com/",
+}
+LOCATION_CITY = "Austin"
+LOCATION_STATE = "TX"
+LOCATION_COUNTRY = "US"
+
+# check-regenerate's hard-bounced address. Never actually mailed — SES never
+# sees it, because the point of check-regenerate is to prove /send suppresses
+# a known-bad address BEFORE attempting delivery.
+DEAD_OFFICIAL_EMAIL = "dead.official@simulator.amazonses.com"
+DEAD_OFFICIAL = {
+    "email": DEAD_OFFICIAL_EMAIL,
+    "name": "Test Dead Official",
+    "title": "Commissioner",
+    "organization": "City of Austin",
+    "relevance": (
+        "Seeded by funnel_test.py check-regenerate — hard-bounced and also "
+        "present in photometrics-boosted-officials, to prove suppression at "
+        "send time wins even over a boosted/trusted official."
+    ),
+}
 
 # The three seeded representatives, in the exact order required. Only the
 # first two are ever passed to /send — the third ("deselected") proves the
@@ -159,6 +205,12 @@ def to_python(item):
     return {k: deserializer.deserialize(v) for k, v in item.items()}
 
 
+def build_source_item():
+    """The `source` M seeded on generate rows — contract keys per
+    SOURCE_FIELDS, serialized the same way dynamo_serialize() would."""
+    return dynamo_serialize(SOURCE_FIELDS)
+
+
 def get_bounced_emails_paginated(ddb):
     """Re-implementation of lambda_function.py's get_bounced_emails()
     (~line 864) semantics, but with a PAGINATED scan (the production
@@ -209,6 +261,10 @@ def cmd_seed(args, clients):
         "actions": {"L": []},
         "ttl": {"N": str(ttl)},
         "name": {"S": "Funnel Test"},
+        "source": build_source_item(),
+        "location_city": {"S": LOCATION_CITY},
+        "location_state": {"S": LOCATION_STATE},
+        "location_country": {"S": LOCATION_COUNTRY},
     }
 
     print(f"[seed] session_id={session_id}")
@@ -417,32 +473,272 @@ def cmd_check_exclusion(args, clients):
     print("[check-exclusion] OK — bounce@simulator.amazonses.com is correctly excluded")
 
 
+def cmd_check_regenerate(args, clients):
+    """Prove a hard-bounced address is refused at /send time (reason
+    'suppressed') rather than being re-mailed. Fully self-contained — seeds
+    its own dedicated session (never reuses the main seed/send state), so it
+    can run standalone or as part of `all`.
+
+    Also seeds a matching photometrics-boosted-officials row for the same
+    address, so this proves suppression wins even over a "boosted"/trusted
+    official — not just an address /send has never seen before."""
+    state = load_state()
+    regen_session_id = f"test-regen-{int(time.time())}"
+    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    bounce_ttl = int(time.time()) + (180 * 24 * 60 * 60)  # matches record_bounce_event()
+    gen_ttl = int(time.time()) + 86400  # 1 day — test row, not the 1-year prod TTL
+
+    # success rep + the hard-bounced dead official — representatives_offered
+    # on the sends row should equal len(this list) == 2.
+    regen_reps = [REPS[0], DEAD_OFFICIAL]
+    letter = LETTER_TEMPLATE
+
+    gen_item = {
+        "session_id": {"S": regen_session_id},
+        "timestamp": {"S": now},
+        "location": {"S": LOCATION},
+        "priorities": {"L": [{"S": p} for p in PRIORITIES]},
+        "letter": {"S": letter},
+        "representatives": dynamo_serialize(regen_reps),
+        "actions": {"L": []},
+        "ttl": {"N": str(gen_ttl)},
+        "name": {"S": "Funnel Test"},
+        "source": build_source_item(),
+        "location_city": {"S": LOCATION_CITY},
+        "location_state": {"S": LOCATION_STATE},
+        "location_country": {"S": LOCATION_COUNTRY},
+    }
+
+    bounce_item = {
+        "email": {"S": DEAD_OFFICIAL_EMAIL},
+        "timestamp": {"S": now},
+        "event_type": {"S": "Bounce"},
+        "subtype": {"S": "Permanent"},
+        "ttl": {"N": str(bounce_ttl)},
+    }
+
+    # Key schema for photometrics-boosted-officials, confirmed via
+    # `aws dynamodb describe-table` at build time: region (HASH, S),
+    # email (RANGE, S). See tools/README.md for the raw output.
+    boosted_key = {"region": {"S": LOCATION}, "email": {"S": DEAD_OFFICIAL_EMAIL}}
+    boosted_item = dict(boosted_key)
+    boosted_item.update({
+        "name": {"S": DEAD_OFFICIAL["name"]},
+        "title": {"S": DEAD_OFFICIAL["title"]},
+        "organization": {"S": DEAD_OFFICIAL["organization"]},
+        "reason": {"S": "Seeded by funnel_test.py check-regenerate — hard-bounced, must be suppressed."},
+    })
+
+    send_reps = [{"email": r["email"], "name": r["name"], "title": r["title"]} for r in regen_reps]
+    body = {
+        "session_id": regen_session_id,
+        "name": "Funnel Test",
+        "email": args.cc_email,
+        "location": LOCATION,
+        "letter": letter,
+        "representatives": send_reps,
+    }
+    event_payload = {
+        "rawPath": "/send",
+        "requestContext": {"http": {"method": "POST"}},
+        "body": json.dumps(body),
+        "isBase64Encoded": False,
+    }
+
+    print(f"[check-regenerate] regen_session_id={regen_session_id}")
+    print(f"[check-regenerate] representatives: {[r['email'] for r in regen_reps]}")
+    print(f"[check-regenerate] hard-bounced address under test: {DEAD_OFFICIAL_EMAIL}")
+
+    if args.dry_run:
+        print(f"[dry-run] would put_item into {BOUNCE_TABLE} (Permanent bounce for {DEAD_OFFICIAL_EMAIL}):")
+        print(json.dumps(bounce_item, indent=2))
+        print(f"[dry-run] would put_item into {BOOSTED_TABLE} (region={LOCATION!r}, matching key schema "
+              f"region=HASH/email=RANGE):")
+        print(json.dumps(boosted_item, indent=2))
+        print(f"[dry-run] would put_item into {DYNAMO_TABLE} (generate row with {DEAD_OFFICIAL_EMAIL} "
+              f"added to representatives, plus source/location_city/location_state/location_country):")
+        print(json.dumps(gen_item, indent=2))
+        print(f"[dry-run] would lambda.invoke(FunctionName='{LAMBDA_NAME}') with event:")
+        print(json.dumps(event_payload, indent=2))
+        print("[dry-run] would then assert statusCode==200, sent_count==1, failed_count==1, "
+              f"failed==[{{'email': {DEAD_OFFICIAL_EMAIL!r}, 'reason': 'suppressed'}}]")
+        print(f"[dry-run] would get_item({SEND_LOG_TABLE}, session_id={regen_session_id}) and assert "
+              f"representatives_failed contains the suppressed entry, {DEAD_OFFICIAL_EMAIL} is NOT in "
+              f"representatives_sent, representatives_offered==2, and priorities/source/location_city match")
+        state["regen_session_id"] = regen_session_id
+        save_state(state)
+        return
+
+    ddb = clients["dynamodb"]
+
+    ddb.put_item(TableName=BOUNCE_TABLE, Item=bounce_item)
+    print(f"[check-regenerate] seeded Permanent bounce row for {DEAD_OFFICIAL_EMAIL} in {BOUNCE_TABLE}")
+
+    ddb.put_item(TableName=BOOSTED_TABLE, Item=boosted_item)
+    print(f"[check-regenerate] seeded {BOOSTED_TABLE} row region={LOCATION!r} email={DEAD_OFFICIAL_EMAIL}")
+
+    ddb.put_item(TableName=DYNAMO_TABLE, Item=gen_item)
+    print(f"[check-regenerate] seeded generate row session_id={regen_session_id} in {DYNAMO_TABLE} "
+          f"(representatives includes {DEAD_OFFICIAL_EMAIL}, passing the open-relay guard)")
+
+    state["regen_session_id"] = regen_session_id
+    save_state(state)
+
+    resp = clients["lambda"].invoke(
+        FunctionName=LAMBDA_NAME,
+        InvocationType="RequestResponse",
+        Payload=json.dumps(event_payload).encode("utf-8"),
+    )
+    raw = resp["Payload"].read()
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        raise FunnelTestError(f"Lambda returned non-JSON payload: {raw!r}")
+
+    if resp.get("FunctionError"):
+        raise FunnelTestError(f"Lambda FunctionError={resp['FunctionError']}: {payload}")
+
+    print(f"[check-regenerate] raw Lambda response: {payload}")
+
+    if payload.get("statusCode") != 200:
+        raise FunnelTestError(f"Expected statusCode 200, got {payload.get('statusCode')}: {payload.get('body')}")
+
+    try:
+        parsed_body = json.loads(payload.get("body", "{}"))
+    except json.JSONDecodeError:
+        raise FunnelTestError(f"/send body was not valid JSON: {payload.get('body')!r}")
+
+    if parsed_body.get("sent_count") != 1:
+        raise FunnelTestError(f"Expected sent_count == 1, got: {parsed_body}")
+    if parsed_body.get("failed_count") != 1:
+        raise FunnelTestError(f"Expected failed_count == 1, got: {parsed_body}")
+
+    failed_list = parsed_body.get("failed") or []
+    matching_failed = [
+        f for f in failed_list if isinstance(f, dict) and f.get("email") == DEAD_OFFICIAL_EMAIL
+    ]
+    if len(matching_failed) != 1:
+        raise FunnelTestError(
+            f"Expected exactly one 'failed' entry for {DEAD_OFFICIAL_EMAIL} in the /send response, "
+            f"got: {failed_list}"
+        )
+    if matching_failed[0].get("reason") != "suppressed":
+        raise FunnelTestError(
+            f"Expected /send response failed reason 'suppressed' for {DEAD_OFFICIAL_EMAIL}, "
+            f"got: {matching_failed[0]}"
+        )
+
+    print(f"[check-regenerate] /send response OK: sent_count=1, failed_count=1, failed={failed_list}")
+
+    sends_resp = ddb.get_item(TableName=SEND_LOG_TABLE, Key={"session_id": {"S": regen_session_id}})
+    sends_item = sends_resp.get("Item")
+    if not sends_item:
+        raise FunnelTestError(f"No row found in {SEND_LOG_TABLE} for session_id={regen_session_id}")
+
+    print(f"[check-regenerate] sends row: {json.dumps(to_python(sends_item), indent=2, default=str)}")
+
+    reps_sent = {r["S"] for r in sends_item.get("representatives_sent", {}).get("L", [])}
+    if DEAD_OFFICIAL_EMAIL in reps_sent:
+        raise FunnelTestError(
+            f"{DEAD_OFFICIAL_EMAIL} unexpectedly present in representatives_sent: {reps_sent} "
+            f"— a suppressed address must never be mailed"
+        )
+    if REPS[0]["email"] not in reps_sent:
+        raise FunnelTestError(f"Expected {REPS[0]['email']} in representatives_sent, got: {reps_sent}")
+
+    reps_failed_raw = sends_item.get("representatives_failed", {}).get("L", [])
+    reps_failed = [
+        {k: v.get("S") for k, v in rf.get("M", {}).items()} for rf in reps_failed_raw
+    ]
+    matching_row = [
+        rf for rf in reps_failed
+        if rf.get("email") == DEAD_OFFICIAL_EMAIL and rf.get("reason") == "suppressed"
+    ]
+    if not matching_row:
+        raise FunnelTestError(
+            f"sends row representatives_failed missing a suppressed entry for {DEAD_OFFICIAL_EMAIL}: "
+            f"{reps_failed}"
+        )
+
+    reps_offered = sends_item.get("representatives_offered", {}).get("N")
+    if reps_offered != str(len(regen_reps)):
+        raise FunnelTestError(
+            f"Expected sends row representatives_offered == {len(regen_reps)}, got: {reps_offered!r}"
+        )
+
+    priorities_on_row = [p.get("S") for p in sends_item.get("priorities", {}).get("L", [])]
+    if priorities_on_row != PRIORITIES:
+        raise FunnelTestError(f"Expected sends row priorities == {PRIORITIES}, got: {priorities_on_row}")
+
+    source_map = sends_item.get("source", {}).get("M")
+    if not source_map:
+        raise FunnelTestError("Expected sends row to carry a non-empty 'source' map, got none")
+    source_on_row = {k: v.get("S") for k, v in source_map.items()}
+    for key, expected_value in SOURCE_FIELDS.items():
+        if source_on_row.get(key) != expected_value:
+            raise FunnelTestError(
+                f"sends row source.{key} mismatch: expected {expected_value!r}, got {source_on_row.get(key)!r}"
+            )
+
+    location_city_on_row = sends_item.get("location_city", {}).get("S")
+    if location_city_on_row != LOCATION_CITY:
+        raise FunnelTestError(
+            f"Expected sends row location_city == {LOCATION_CITY!r}, got {location_city_on_row!r}"
+        )
+
+    print(
+        "[check-regenerate] OK — hard-bounced (and boosted) representative was correctly suppressed "
+        "at send time, never mailed, and the sends row carries representatives_failed, "
+        "representatives_offered, priorities, source, and location_city"
+    )
+
+
 def cmd_cleanup(args, clients):
     state = load_state()
     session_id = state.get("session_id")
+    regen_session_id = state.get("regen_session_id")
     print(f"[cleanup] session_id in state: {session_id}")
+    print(f"[cleanup] regen_session_id in state: {regen_session_id}")
+
+    # Deterministic key for the boosted-officials row check-regenerate seeds
+    # (region=HASH, email=RANGE, per describe-table — see README.md). Scoped
+    # to the synthetic dead.official@simulator.amazonses.com address, so it
+    # is always safe to target even if check-regenerate never ran this time.
+    boosted_key = {"region": {"S": LOCATION}, "email": {"S": DEAD_OFFICIAL_EMAIL}}
 
     if args.dry_run:
-        print(f"[dry-run] would delete_item({DYNAMO_TABLE}, session_id={session_id})")
-        print(f"[dry-run] would delete_item({SEND_LOG_TABLE}, session_id={session_id})")
+        for sid in (session_id, regen_session_id):
+            print(f"[dry-run] would delete_item({DYNAMO_TABLE}, session_id={sid})")
+            print(f"[dry-run] would delete_item({SEND_LOG_TABLE}, session_id={sid})")
+        print(f"[dry-run] would delete_item({BOOSTED_TABLE}, key={boosted_key})")
         print(f"[dry-run] would describe_table({BOUNCE_TABLE}) to discover its key schema, then "
               f"paginate-scan it and delete_item every row whose email ends with "
-              f"'@simulator.amazonses.com'")
+              f"'@simulator.amazonses.com' (this also covers the {DEAD_OFFICIAL_EMAIL} bounce row "
+              f"check-regenerate seeds)")
         print("[dry-run] would clear the state file")
         return
 
     deleted = []
 
-    if session_id:
-        clients["dynamodb"].delete_item(TableName=DYNAMO_TABLE, Key={"session_id": {"S": session_id}})
-        deleted.append((DYNAMO_TABLE, {"session_id": session_id}))
-        print(f"[cleanup] deleted {DYNAMO_TABLE} session_id={session_id}")
+    for sid in (session_id, regen_session_id):
+        if not sid:
+            continue
+        clients["dynamodb"].delete_item(TableName=DYNAMO_TABLE, Key={"session_id": {"S": sid}})
+        deleted.append((DYNAMO_TABLE, {"session_id": sid}))
+        print(f"[cleanup] deleted {DYNAMO_TABLE} session_id={sid}")
 
-        clients["dynamodb"].delete_item(TableName=SEND_LOG_TABLE, Key={"session_id": {"S": session_id}})
-        deleted.append((SEND_LOG_TABLE, {"session_id": session_id}))
-        print(f"[cleanup] deleted {SEND_LOG_TABLE} session_id={session_id}")
-    else:
-        print("[cleanup] no session_id in state; skipping session/sends row deletion")
+        clients["dynamodb"].delete_item(TableName=SEND_LOG_TABLE, Key={"session_id": {"S": sid}})
+        deleted.append((SEND_LOG_TABLE, {"session_id": sid}))
+        print(f"[cleanup] deleted {SEND_LOG_TABLE} session_id={sid}")
+
+    if not session_id and not regen_session_id:
+        print("[cleanup] no session_id/regen_session_id in state; skipping session/sends row deletion")
+
+    # Idempotent — delete_item on a non-existent key is a no-op, so this is
+    # safe to run even when check-regenerate didn't seed the row this time.
+    clients["dynamodb"].delete_item(TableName=BOOSTED_TABLE, Key=boosted_key)
+    deleted.append((BOOSTED_TABLE, {"region": LOCATION, "email": DEAD_OFFICIAL_EMAIL}))
+    print(f"[cleanup] deleted {BOOSTED_TABLE} region={LOCATION!r} email={DEAD_OFFICIAL_EMAIL}")
 
     # Bounce table key schema is discovered at runtime — it may be a single
     # partition key or composite (partition + sort). Never assume 'email' is
@@ -495,7 +791,7 @@ def cmd_cleanup(args, clients):
 
 
 def cmd_all(args, clients, dispatch):
-    steps = ["seed", "send", "wait-bounce", "check-sends", "check-exclusion"]
+    steps = ["seed", "send", "wait-bounce", "check-sends", "check-exclusion", "check-regenerate"]
     failure = None
 
     for step in steps:
@@ -569,9 +865,20 @@ def build_parser():
         "check-exclusion",
         help="Verify the bounced address is excluded per get_bounced_emails() semantics.",
     )
+    subparsers.add_parser(
+        "check-regenerate",
+        help=(
+            "Seed a Permanent bounce + boosted-officials row for a hard-bounced address, add it to "
+            "a fresh seeded session, invoke /send, and assert it is suppressed (not mailed)."
+        ),
+    )
     subparsers.add_parser("cleanup", help="Delete all test rows created by this harness.")
     subparsers.add_parser(
-        "all", help="Run seed -> send -> wait-bounce -> check-sends -> check-exclusion -> cleanup.",
+        "all",
+        help=(
+            "Run seed -> send -> wait-bounce -> check-sends -> check-exclusion -> "
+            "check-regenerate -> cleanup."
+        ),
     )
     return parser
 
@@ -597,6 +904,7 @@ def main():
         "wait-bounce": cmd_wait_bounce,
         "check-sends": cmd_check_sends,
         "check-exclusion": cmd_check_exclusion,
+        "check-regenerate": cmd_check_regenerate,
         "cleanup": cmd_cleanup,
     }
 

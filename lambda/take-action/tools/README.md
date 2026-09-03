@@ -19,7 +19,10 @@ works, without risking a real inbox and without spending Anthropic tokens.
      included in a `/send` request. It exists to prove `/send` only mails
      the recipients actually present in the request body, not every rep
      ever associated with the session.
-2. **This tool never calls `/generate`.** It writes the seeded session row
+   - `dead.official@simulator.amazonses.com` — never actually mailed. It is
+     seeded as a prior Permanent bounce (and as a boosted/trusted official)
+     so `check-regenerate` can prove `/send` refuses to mail it at all.
+2. **This tool never calls `/generate`.** It writes the seeded session row(s)
    directly into DynamoDB (mirroring what `/generate` would have written)
    and only ever invokes `/send`. Zero Anthropic tokens spent.
 3. **Every row this tool creates uses a `session_id` prefixed `test-`** and
@@ -39,7 +42,7 @@ python -c "import boto3; print(boto3.__version__)"
 python funnel_test.py --help
 
 # Full funnel run against live AWS (seed -> send -> wait-bounce ->
-# check-sends -> check-exclusion -> cleanup)
+# check-sends -> check-exclusion -> check-regenerate -> cleanup)
 python funnel_test.py all
 
 # Same, but leave the test rows in place for manual inspection
@@ -57,6 +60,16 @@ python funnel_test.py send
 python funnel_test.py wait-bounce
 python funnel_test.py check-sends
 python funnel_test.py check-exclusion
+python funnel_test.py check-regenerate
+python funnel_test.py cleanup
+```
+
+`check-regenerate` is fully self-contained — it seeds its own dedicated
+`test-regen-<unixts>` session and doesn't depend on `seed`/`send` having run
+first, so it can also be run entirely on its own:
+
+```bash
+python funnel_test.py check-regenerate
 python funnel_test.py cleanup
 ```
 
@@ -74,7 +87,16 @@ python funnel_test.py cleanup
 - **`seed`** — `put_item`s a synthetic session row into
   `photometrics-take-action`, matching `log_generation()`'s shape in
   `lambda_function.py` exactly (`session_id`, `timestamp`, `location`,
-  `priorities`, `letter`, `representatives`, `actions`, `ttl`, `name`).
+  `priorities`, `letter`, `representatives`, `actions`, `ttl`, `name`), plus
+  the new attribution/location contract fields:
+  - `source` (M) — the UTM/attribution contract keys (`utm_source`,
+    `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `utm_match`,
+    `gclid`, `landed_priorities`, `referrer`), seeded with recognizable
+    test values (`utm_source='google'`, `utm_campaign='TESTCAMP'`,
+    `gclid='TESTGCLID'`, etc. — see `SOURCE_FIELDS` in the script).
+  - `location_city='Austin'`, `location_state='TX'`,
+    `location_country='US'` — normalized location, top-level S attributes.
+
   `session_id = "test-<unixts>"`, `location = "Austin, TX"`,
   `priorities = ["Transportation Safety"]`, `ttl` is 1 day (not the 1-year
   production value). The letter contains the literal `[Representative
@@ -100,24 +122,62 @@ python funnel_test.py cleanup
   but with a **paginated** scan (the production function does a single
   non-paginated scan). Asserts `bounce@simulator.amazonses.com` is in the
   resulting set and prints the full set.
-- **`cleanup`** — deletes the test session row, the test sends row, and
-  every row in the bounce table whose email ends with
-  `@simulator.amazonses.com`. Discovers the bounce table's key schema via
-  `describe_table` at runtime (it may be a single partition key or a
-  composite partition+sort key — never assumed) and builds delete keys
-  from the actual schema. Prints every key deleted, then clears the state
-  file.
+- **`check-regenerate`** — proves a hard-bounced address is refused at
+  `/send` time (reason `'suppressed'`) instead of being re-mailed. Fully
+  self-contained: it seeds its own dedicated `test-regen-<unixts>` session,
+  independent of whatever `seed`/`send` left in state, so it works whether
+  run inside `all` or entirely on its own.
+  1. Seeds a Permanent bounce row for `dead.official@simulator.amazonses.com`
+     into `photometrics-email-bounces` (`event_type='Bounce'`,
+     `subtype='Permanent'`), shaped like the rows `record_bounce_event()`
+     writes.
+  2. Seeds a matching row into `photometrics-boosted-officials` for region
+     `'Austin, TX'` (key schema `region` HASH + `email` RANGE, confirmed via
+     `aws dynamodb describe-table`) — proving suppression wins even over a
+     "boosted"/trusted official, not just an address `/send` has never seen.
+  3. Seeds a fresh generate row (with the new `source`/`location_city`
+     fields) whose `representatives` list includes both
+     `success@simulator.amazonses.com` and
+     `dead.official@simulator.amazonses.com`, so the dead address passes the
+     `/send` open-relay guard (which only allows addresses stored on the
+     session's generate row).
+  4. Invokes `/send` (via the Lambda Invoke API, exactly like `send`) with a
+     request body listing both representatives.
+  5. Asserts: the response reports `failed_count == 1` and a `failed` entry
+     `{email: 'dead.official@simulator.amazonses.com', reason: 'suppressed'}`;
+     `sent_count == 1`; the dead address is **not** in the sends row's
+     `representatives_sent`; the sends row's `representatives_failed`
+     contains the suppressed entry; and the sends row also carries
+     `representatives_offered == 2`, `priorities`, `source`, and
+     `location_city` matching what was seeded. Exits non-zero (via
+     `FunnelTestError`) on any assertion failure.
+  6. `dead.official@simulator.amazonses.com` is never actually mailed by
+     SES — that's the entire point of the assertion.
+- **`cleanup`** — deletes the main test session row and sends row, the
+  `check-regenerate` session row and sends row (if any), the
+  `check-regenerate` boosted-officials row (deterministic
+  `region='Austin, TX'`/`email='dead.official@simulator.amazonses.com'`
+  key — safe to target unconditionally since delete_item on a missing key
+  is a no-op), and every row in the bounce table whose email ends with
+  `@simulator.amazonses.com` (this also covers the
+  `dead.official@simulator.amazonses.com` bounce row `check-regenerate`
+  seeds — no separate code path needed for it). Discovers the bounce
+  table's key schema via `describe_table` at runtime (it may be a single
+  partition key or a composite partition+sort key — never assumed) and
+  builds delete keys from the actual schema. Prints every key deleted,
+  then clears the state file.
 - **`all`** — runs `seed -> send -> wait-bounce -> check-sends ->
-  check-exclusion -> cleanup`, stopping at the first failure but always
-  attempting cleanup afterwards unless `--keep` was passed.
+  check-exclusion -> check-regenerate -> cleanup`, stopping at the first
+  failure but always attempting cleanup afterwards unless `--keep` was
+  passed.
 
 ## State file
 
 `lambda/take-action/tools/.funnel_test_state.json` (git-ignored) holds the
-current test `session_id`, the seeded letter text, the seed/send
-timestamps, the `EDIT-MARKER` string, and the `--cc-email` used for `send`,
-so each subcommand can be run independently in its own shell invocation.
-`cleanup` clears it.
+current test `session_id`, the `check-regenerate` session's `regen_session_id`,
+the seeded letter text, the seed/send timestamps, the `EDIT-MARKER` string,
+and the `--cc-email` used for `send`, so each subcommand can be run
+independently in its own shell invocation. `cleanup` clears it.
 
 ## Notes for operators
 
@@ -125,6 +185,11 @@ so each subcommand can be run independently in its own shell invocation.
   `MSYS_NO_PATHCONV=1` (otherwise `/aws/lambda/...` gets path-mangled), and
   set `AWS_PAGER=''` for AWS CLI calls.
 - This harness only ever touches `photometrics-take-action`,
-  `photometrics-take-action-sends`, and `photometrics-email-bounces` in
+  `photometrics-take-action-sends`, `photometrics-email-bounces`, and (for
+  `check-regenerate`/`cleanup` only) `photometrics-boosted-officials`, all in
   `us-east-2`. It never modifies `lambda_function.py`, Lambda configuration,
   IAM, Google Ads, GA4, or Google Workspace.
+- **`/generate` is still never called by any subcommand**, including
+  `check-regenerate` — despite the name, it only ever seeds DynamoDB rows
+  directly (as `/generate` would have written them) and invokes `/send`.
+  Zero Anthropic tokens spent.
