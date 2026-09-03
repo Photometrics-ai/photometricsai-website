@@ -1,0 +1,10 @@
+{
+  "_note": "Placeholder ids TBD-1..TBD-7 map to ad group NAMES only. Before this report tool is used against real utm_content values, the lead must replace each placeholder key below with the REAL numeric Google Ads ad group ID (Google Ads UI: campaign 'Take Action - Street Lighting Advocacy' -> Ad groups -> Columns -> add 'Ad group ID'). utm_content is expected to carry that numeric ad group ID once ads are tagged with it. An id present in a generate/send row's source.utm_content that is NOT a key in this map (after the TBD ids are replaced) prints raw in the report.",
+  "TBD-1": "Transportation Safety",
+  "TBD-2": "Light Pollution",
+  "TBD-3": "Migratory Birds",
+  "TBD-4": "Energy Waste",
+  "TBD-5": "Crime & Safety",
+  "TBD-6": "Environmental Impact",
+  "TBD-7": "Ad group 1"
+}

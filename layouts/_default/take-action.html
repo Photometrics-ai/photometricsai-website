@@ -230,6 +230,14 @@
   var topPriority = null;
   var secondaryPriority = null;
 
+  // First-touch campaign attribution (populated below, before any GA4 event
+  // can fire) and the validity-checked preselect flag used alongside it.
+  var urlParams = new URLSearchParams(window.location.search);
+  var taSource = {};
+  var landedPriorities = "";
+  var utmContent = "";
+  var preselected = false;
+
   // === Utility functions ===
   function generateUUID() {
     if (crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -249,6 +257,31 @@
     if (typeof window.gtag === "function") {
       window.gtag("event", name, params);
     }
+  }
+
+  // First-touch attribution: if ta_source is already in sessionStorage, that
+  // stored value wins (a reload or internal nav with a bare URL must not
+  // clobber the original campaign attribution). Otherwise the freshly-read
+  // source is stored and returned. Every storage access is isolated in its
+  // own try/catch so private mode / blocked storage never breaks the page.
+  function readFirstTouchSource(currentSource) {
+    var stored = null;
+    try {
+      stored = sessionStorage.getItem("ta_source");
+    } catch (e) {
+      stored = null;
+    }
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return currentSource;
+      }
+    }
+    try {
+      sessionStorage.setItem("ta_source", JSON.stringify(currentSource));
+    } catch (e) {}
+    return currentSource;
   }
 
   function getSubmissionCount() {
@@ -505,7 +538,10 @@
       method: "managed_send",
       priorities: analyticsPriorities(),
       location_entered: locationInput.value,
-      session_submission_count: currentSubmissionCount
+      session_submission_count: currentSubmissionCount,
+      landed_priorities: landedPriorities,
+      utm_content: utmContent,
+      preselected: preselected
     });
 
     showSendState("loading");
@@ -543,7 +579,10 @@
         priorities: analyticsPriorities(),
         location_entered: locationInput.value,
         session_submission_count: currentSubmissionCount,
-        representatives_count: data.sent_count || selectedReps.length
+        representatives_count: data.sent_count || selectedReps.length,
+        landed_priorities: landedPriorities,
+        utm_content: utmContent,
+        preselected: preselected
       });
     })
     .catch(function(err) {
@@ -552,6 +591,25 @@
       showSendState("error");
     });
   }
+
+  // === Attribution capture (first-touch) ===
+  // Read campaign params + the priorities param (mapped to landed_priorities)
+  // + referrer, keep only non-empty values, and persist the first-touch
+  // snapshot for the rest of the session (see readFirstTouchSource above).
+  (function captureAttribution() {
+    var rawSource = {};
+    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "utm_match", "gclid"].forEach(function(key) {
+      var val = urlParams.get(key);
+      if (val) rawSource[key] = val;
+    });
+    var rawPriorities = urlParams.get("priorities");
+    if (rawPriorities) rawSource.landed_priorities = rawPriorities;
+    if (document.referrer) rawSource.referrer = document.referrer;
+
+    taSource = readFirstTouchSource(rawSource);
+    landedPriorities = taSource.landed_priorities || "";
+    utmContent = taSource.utm_content || "";
+  })();
 
   // === Card 1: Location validation ===
   locationInput.addEventListener("input", function() {
@@ -590,7 +648,8 @@
       session_id: sessionId,
       location: locationInput.value.trim(),
       name: nameInput.value.trim(),
-      priorities: getSelectedPriorities()
+      priorities: getSelectedPriorities(),
+      source: taSource
     };
 
     fetch(API_BASE + "/generate", {
@@ -620,7 +679,10 @@
         priorities: analyticsPriorities(),
         location_entered: locationInput.value,
         has_name: !!nameInput.value.trim(),
-        session_submission_count: currentSubmissionCount
+        session_submission_count: currentSubmissionCount,
+        landed_priorities: landedPriorities,
+        utm_content: utmContent,
+        preselected: preselected
       });
     })
     .catch(function(err) {
@@ -641,7 +703,10 @@
       method: "copy_letter",
       priorities: analyticsPriorities(),
       location_entered: locationInput.value,
-      session_submission_count: currentSubmissionCount
+      session_submission_count: currentSubmissionCount,
+      landed_priorities: landedPriorities,
+      utm_content: utmContent,
+      preselected: preselected
     });
     navigator.clipboard.writeText(letterTextarea.value).then(function() {
       copiedFeedback(copyLetterBtn);
@@ -654,7 +719,10 @@
       method: "copy_reps",
       priorities: analyticsPriorities(),
       location_entered: locationInput.value,
-      session_submission_count: currentSubmissionCount
+      session_submission_count: currentSubmissionCount,
+      landed_priorities: landedPriorities,
+      utm_content: utmContent,
+      preselected: preselected
     });
     var text = getSelectedReps().map(function(rep) {
       return rep.name + ", " + rep.title + ", " + rep.organization + " - " + rep.email;
@@ -703,7 +771,6 @@
     "Environmental Impact": "Street lighting affects everything from insect populations to human sleep. Precision means less waste, less disruption, less harm."
   };
 
-  var urlParams = new URLSearchParams(window.location.search);
   var preselect = urlParams.get("priorities");
   if (preselect) {
     var requestedValues = preselect.split(",");
@@ -712,6 +779,12 @@
       var value = card.getAttribute("data-value");
       if (requestedValues.indexOf(value) !== -1) validValues.push(value);
     });
+    // preselected is true only when at least one requested value matched a
+    // real priority card above — the same validity check used to build
+    // validValues. A bare URL never enters this branch (preselected stays
+    // false, its initial value); an unrecognised value leaves validValues
+    // empty, so preselected stays false here too.
+    preselected = validValues.length > 0;
     // Preserve the order requested in the URL, not DOM order
     validValues.sort(function(a, b) {
       return requestedValues.indexOf(a) - requestedValues.indexOf(b);
