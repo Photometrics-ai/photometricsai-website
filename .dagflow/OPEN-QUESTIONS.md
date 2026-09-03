@@ -37,7 +37,7 @@ reasonable" if the decision genuinely has no safe default>
 **Question:** Keyword Planner results (US, phrase match) in `.dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md`. Approve adding: Migratory Birds → "lights out for birds" (100–1K/mo) and "bird friendly lighting" (10–100); Environmental Impact → "light pollution effects on environment" (10–100), optionally "street light too bright" (10–100, borderline fit); Energy Waste → "led streetlight conversion" (10–100). Crime & Safety: no candidate showed volume; keep "crime prevention lighting" as its only live keyword. Leave the 4 ineligible keywords in place for now.
 **Why it matters / what's blocked:** Migratory Birds cannot serve at all today, and 58 of 118 real sessions chose Migratory Birds as top priority. Phase 5 is blocked on this. Applying is a Google Ads change, so it is your click or your explicit go-ahead for me to do it.
 **Lead's suggested default, if forced to guess:** Add all four recommended keywords, skip "street light too bright", pause nothing yet.
-**Status:** open — Ari wants to review the list first (2026-09-03). Nothing applied.
+**Status:** answered/applied — Ari: "get them into the campaign" (2026-09-03). Lead added 71 phrase-match keywords across six ad groups at ~23:30 UTC; see Ads/google/keywords.md. Five contested candidates held (next entry).
 
 ---
 ## 2026-09-03 — Standing authorizations from Ari
@@ -48,3 +48,11 @@ reasonable" if the decision genuinely has no safe default>
 **Status:** answered (2026-09-03)
 
 ---
+
+---
+## 2026-09-03 — Five held-back keywords
+
+**Question:** Add or skip: (1) "led streetlight conversion" (Energy Waste), (2) "street light too bright" (Environmental Impact) — both rejected by you earlier, then "include everything tried"; (3) the bare CPTED terms "cpted", "cpted principles", "crime prevention through environmental design" (Crime & Safety, 1K–10K / 100–1K / 1K–10K, mostly concept lookups)?
+**Why it matters / what's blocked:** Nothing blocked; the other 71 keywords are live. The CPTED terms are the only high-volume candidates and would dominate spend in Crime & Safety if added.
+**Lead's suggested default, if forced to guess:** Add (1) and (2); skip the three bare CPTED terms.
+**Status:** open
