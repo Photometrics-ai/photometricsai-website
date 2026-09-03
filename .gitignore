@@ -40,3 +40,6 @@ tools/gis-service-search/web/__pycache__/
 tools/gis-service-search/web/.aws-sam/
 tools/gis-service-search/web/**/__pycache__/
 tools/gis-service-search/web/.pytest_cache/
+
+# Take Action funnel test harness state
+lambda/take-action/tools/.funnel_test_state.json

@@ -1,0 +1,515 @@
+# Phase 01 DAG
+
+Authoritative machine-readable copy: `plan.json` (same directory). Statuses below are updated by the lead after each scheduler run.
+
+## Work Item: p1-harness-build
+
+```yaml
+id: "p1-harness-build"
+kind: "implementation"
+purpose: "Create a reusable, safety-constrained boto3 CLI harness that exercises the Take Action send/bounce/exclusion path end to end against SES mailbox-simulator addresses, so this phase (and Phase 2's re-test) has a repeatable, non-interactive way to prove the funnel works."
+hard_prereqs: []
+inputs: ["C:/Users/aisaa/Projects/photometricsai-website/lambda/take-action/lambda_function.py"]
+owns: ["C:/Users/aisaa/Projects/photometricsai-website/lambda/take-action/tools/funnel_test.py", "C:/Users/aisaa/Projects/photometricsai-website/lambda/take-action/tools/README.md", "C:/Users/aisaa/Projects/photometricsai-website/.gitignore", ".dagflow/phases/01-verify-funnel/items/p1-harness-build-HANDOFF.md"]
+shared_resources: []
+acceptance_criteria: ["File C:/Users/aisaa/Projects/photometricsai-website/lambda/take-action/tools/funnel_test.py exists and `python -m py_compile lambda/take-action/tools/funnel_test.py` exits 0.", "`python lambda/take-action/tools/funnel_test.py --dry-run all` exits 0 and makes ZERO AWS API calls (it must still exit 0 when run with deliberately bogus AWS credentials in the environment).", "argparse exposes exactly these subcommands: seed, send, wait-bounce, check-sends, check-exclusion, cleanup, all — each runnable independently, and `--help` lists them.", "seed writes a photometrics-take-action row whose attribute shape matches log_generation() in lambda_function.py exactly (session_id S, timestamp S ISO %Y-%m-%dT%H:%M:%SZ, location S, priorities L of S, letter S, representatives L of M, actions L empty, ttl N, name S), with session_id = 'test-<unixts>', location 'Austin, TX', priorities ['Transportation Safety'], a letter containing the literal '[Representative Name]' placeholder plus a body, and exactly three representative maps: success@simulator.amazonses.com / bounce@simulator.amazonses.com / success+deselected@simulator.amazonses.com.", "send invokes Lambda 'photometrics-take-action' with a synthetic Function-URL event ({'rawPath':'/send','requestContext':{'http':{'method':'POST'}},'body':<json string>,'isBase64Encoded':False}) whose representatives list contains ONLY the first two seeded reps, and whose letter is the seeded letter with an appended 'EDIT-MARKER <ts>' sentence; it asserts statusCode 200, sent_count == 2, failed_count == 0.", "The ONLY email addresses appearing anywhere in the file are @simulator.amazonses.com addresses and the configurable --cc-email default ari@sdgis.com; grep confirms no other real address is hardcoded.", "cleanup discovers the photometrics-email-bounces key schema via describe_table (handling a composite key) rather than assuming a single 'email' partition key, and deletes: the test session row, the test sends row, and every bounce row whose email is a simulator address.", "check-exclusion re-implements get_bounced_emails() semantics (paginated scan, include when event_type == 'Complaint' OR (event_type == 'Bounce' AND subtype == 'Permanent')) and prints the full resulting set.", "State is persisted between subcommands in lambda/take-action/tools/.funnel_test_state.json, and that path is added to the repo .gitignore.", "Any assertion failure causes a non-zero exit; `all` stops at the first failure but still attempts cleanup unless --keep is passed.", "lambda/take-action/tools/README.md documents every subcommand, the state file, and the safety rules (simulator addresses only, test- prefix, cleanup obligation)."]
+verification_commands: ["cd C:/Users/aisaa/Projects/photometricsai-website && python -m py_compile lambda/take-action/tools/funnel_test.py && echo COMPILE_OK", "cd C:/Users/aisaa/Projects/photometricsai-website && AWS_ACCESS_KEY_ID=bogus AWS_SECRET_ACCESS_KEY=bogus AWS_SESSION_TOKEN= AWS_PROFILE= python lambda/take-action/tools/funnel_test.py --dry-run all; echo \"EXIT=$?\"  # must be EXIT=0 and must show no credential/network error", "cd C:/Users/aisaa/Projects/photometricsai-website && python lambda/take-action/tools/funnel_test.py --help", "cd C:/Users/aisaa/Projects/photometricsai-website && grep -nE \"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\" lambda/take-action/tools/funnel_test.py  # every hit must be @simulator.amazonses.com or ari@sdgis.com", "cd C:/Users/aisaa/Projects/photometricsai-website && grep -n \"describe_table\" lambda/take-action/tools/funnel_test.py && grep -n \"LastEvaluatedKey\" lambda/take-action/tools/funnel_test.py", "cd C:/Users/aisaa/Projects/photometricsai-website && grep -n \"funnel_test_state\" .gitignore", "cd C:/Users/aisaa/Projects/photometricsai-website && git status --porcelain  # lambda_function.py and take-action.html must NOT appear as modified", "cd C:/Users/aisaa/Projects/photometricsai-website && test -f lambda/take-action/tools/README.md && grep -ni \"simulator\" lambda/take-action/tools/README.md"]
+downstream: ["p1-harness-run"]
+context_budget_pct: 35
+max_correction_rounds: 2
+security_critical: true
+implementer_model: "sonnet"
+implementer_effort: "high"
+verifier_model: "opus"
+verifier_effort: "high"
+model_rationale: "Sonnet/high matches the lead's 'harness scripts -> sonnet/high implementer' guidance. Verifier deviates upward from the guidance's sonnet/high to opus/high because this script constructs the recipient list handed to handle_send: a defect that leaks a non-simulator address into the representatives list, or a cleanup that deletes the wrong bounce rows, mails or destroys real data. That is the lead's 'anything touching handle_send -> verifier opus' rule, which outranks the generic harness rule."
+status: "done"
+```
+
+**Assignment brief:**
+
+OBJECTIVE
+Build a self-contained boto3 CLI harness that exercises the Photometrics AI 'Take Action' managed-send path end to end using ONLY SES mailbox-simulator addresses. You are writing the tool in this item; a separate item runs it against production. Do not run it against production yourself beyond `--dry-run`.
+
+REPO / PATHS
+- Repo root: C:/Users/aisaa/Projects/photometricsai-website
+- Read (do not modify): lambda/take-action/lambda_function.py
+- You create: lambda/take-action/tools/funnel_test.py and lambda/take-action/tools/README.md
+- You may add exactly one line to the repo .gitignore for lambda/take-action/tools/.funnel_test_state.json
+
+SYSTEM UNDER TEST
+Lambda 'photometrics-take-action', region us-east-2, account 794038225197. It is fronted by a Function URL but you must invoke it with the AWS Lambda Invoke API using a synthetic Function-URL event, NOT over HTTPS. Routing is by rawPath suffix (lambda_handler ~line 1141): the handler checks `path.endswith('/send')`. The event shape you must send:
+  {'rawPath': '/send', 'requestContext': {'http': {'method': 'POST'}}, 'body': <JSON STRING>, 'isBase64Encoded': False}
+The response is a Function-URL style dict with 'statusCode' and a JSON-string 'body'.
+
+DynamoDB tables (us-east-2):
+- photometrics-take-action — PK session_id (S)
+- photometrics-take-action-sends — PK session_id (S)
+- photometrics-email-bounces — key schema MUST be discovered at runtime via describe_table; it may be composite (email + timestamp). Do not hardcode it.
+
+EXACT ROW SHAPE TO MIRROR (from log_generation(), lambda_function.py ~line 706 — read it yourself and match it):
+    item = {
+        'session_id': {'S': session_id},
+        'timestamp': {'S': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())},
+        'location': {'S': location},
+        'priorities': {'L': [{'S': p} for p in priorities]},
+        'letter': {'S': letter},
+        'representatives': dynamo_serialize(representatives),
+        'actions': {'L': []},
+        'ttl': {'N': str(ttl)},
+    }
+    if name: item['name'] = {'S': name}
+Each representative map has keys email, name, title, organization, relevance. Use ttl = now + 86400 (1 day) for test rows, NOT the production 1-year value.
+
+WHY THE SHAPE MATTERS: handle_send() calls get_verified_representative_emails(session_id) (~line 890), which reads item['representatives']['L'][i]['M']['email']['S'] and lowercases it. This is the open-relay guard — /send will only mail addresses already stored on the session row. If your seeded shape is wrong, /send returns 400 and the test proves nothing.
+
+SUBCOMMANDS (argparse)
+- seed: put_item the row described above. session_id = 'test-<unixts>'. location 'Austin, TX'. priorities ['Transportation Safety']. name 'Funnel Test'. letter = a short advocacy body that CONTAINS the literal token [Representative Name] (handle_send replaces it per recipient via build_single_salutation()). representatives, in this order:
+    1. success@simulator.amazonses.com — name 'Test Mayor', title 'Mayor'
+    2. bounce@simulator.amazonses.com — name 'Test Director', title 'Director'
+    3. success+deselected@simulator.amazonses.com — name 'Test Council', title 'Council Member'
+  Persist session_id and a seed timestamp to the state file.
+- send: build the /send body: {session_id, name 'Funnel Test', email <--cc-email, default ari@sdgis.com>, location 'Austin, TX', letter <seeded letter + '\n\nEDIT-MARKER <ts>'>, representatives [rep1, rep2]}. Rep 3 is deliberately omitted — it is the 'deselected' rep and must NOT receive mail. Invoke the Lambda, then ASSERT statusCode == 200, parsed body sent_count == 2, failed_count == 0. Record the marker string and send timestamp in state. The appended EDIT-MARKER proves that the letter text from the request body (i.e. user-edited text) is what actually ships, rather than the stored letter.
+- wait-bounce: poll photometrics-email-bounces for up to 150 seconds (scan with a filter expression on email; remember 'subtype' is a DynamoDB reserved word and needs ExpressionAttributeNames) until a row exists for bounce@simulator.amazonses.com with event_type 'Bounce' and subtype 'Permanent'. Print each poll attempt. Fail (non-zero) on timeout.
+- check-sends: get_item on photometrics-take-action-sends for the test session_id. Assert representatives_sent is exactly ['success@simulator.amazonses.com', 'bounce@simulator.amazonses.com'] (order-insensitive set equality is fine, but assert length 2 and that success+deselected@simulator.amazonses.com is ABSENT), len(message_ids) == 2, and constituent_email == the --cc-email value. Print the full row.
+- check-exclusion: re-implement get_bounced_emails() (lambda_function.py ~line 864) semantics — paginated scan of the bounce table, include an email when event_type == 'Complaint' OR (event_type == 'Bounce' AND subtype == 'Permanent'). Note the production function uses a NON-paginated scan; yours must paginate with LastEvaluatedKey. Assert bounce@simulator.amazonses.com is in the resulting set, and print the entire set.
+- cleanup: delete the test session row, the test sends row, and ALL rows in the bounce table whose email ends with '@simulator.amazonses.com' or contains '+' before '@simulator.amazonses.com'. Discover the bounce table key schema with describe_table and build delete keys from the actual schema (single or composite). Print every key deleted. Clear the state file.
+- all: seed -> send -> wait-bounce -> check-sends -> check-exclusion -> cleanup, stopping at the first failure but ALWAYS attempting cleanup afterwards unless --keep was passed.
+
+GLOBAL FLAGS: --dry-run (print every intended AWS action, make zero AWS calls, exit 0), --keep (skip cleanup in `all`), --cc-email (default ari@sdgis.com), --region (default us-east-2). --dry-run must not even construct a live client in a way that requires credentials; it must exit 0 with bogus AWS credentials in the environment.
+
+STATE: lambda/take-action/tools/.funnel_test_state.json holds session_id, seed/send timestamps, and the edit marker so subcommands can be run individually in separate shell invocations. Add it to .gitignore.
+
+STANDING RULES (apply to this item):
+(1) No real official and no real inbox other than Ari's (ari@sdgis.com) may receive any email; send tests use only SES mailbox simulator addresses (success@simulator.amazonses.com, bounce@simulator.amazonses.com, and plus-addressed variants like success+deselected@simulator.amazonses.com).
+(2) Do not change Google Ads, GA4, Google Workspace, IAM, Lambda code, or Lambda configuration; if a change there is needed, stop and return needs_human_decision with the exact proposed change.
+(3) All test rows use session_id prefixed 'test-' and must be deleted by the item that created them; record every created key in the handoff.
+(4) Region us-east-2.
+(5) Every item writes a handoff to .dagflow/phases/01-verify-funnel/items/<id>-HANDOFF.md including raw command output as evidence.
+(6) The generate endpoint costs real Anthropic API tokens (Haiku web search + Sonnet); call it at most twice in this phase in total across all items.
+
+EXTRA CONSTRAINTS FOR THIS ITEM
+- You must NOT modify lambda/take-action/lambda_function.py or layouts/_default/take-action.html. This phase changes no production code.
+- The harness must never call /generate. It seeds DynamoDB directly, which is why it costs no Anthropic tokens.
+- Under Git Bash on Windows, prefix any `aws logs` command with MSYS_NO_PATHCONV=1 because '/aws/lambda/...' gets path-mangled. Set AWS_PAGER='' for AWS CLI calls.
+- Verify boto3 is importable first: `python -c 'import boto3; print(boto3.__version__)'`.
+
+OWNERSHIP BOUNDARY: you own lambda/take-action/tools/funnel_test.py, lambda/take-action/tools/README.md, and one added .gitignore line. Touch nothing else.
+
+DEFINITION OF DONE: py_compile passes; `--dry-run all` exits 0 with bogus credentials; README documents usage and safety rules; handoff written to .dagflow/phases/01-verify-funnel/items/p1-harness-build-HANDOFF.md containing the --help output, the full --dry-run all output, and a short note on the bounce-table key schema handling strategy.
+
+---
+
+## Work Item: p1-harness-run
+
+```yaml
+id: "p1-harness-run"
+kind: "test"
+purpose: "Execute the harness against production once and independently corroborate every assertion with direct AWS CLI reads, producing the evidence record that the send path, the bounce pipeline, and the bounce-exclusion read all work today."
+hard_prereqs: ["p1-harness-build"]
+inputs: [".dagflow/phases/01-verify-funnel/items/p1-harness-build-HANDOFF.md", "C:/Users/aisaa/Projects/photometricsai-website/lambda/take-action/tools/funnel_test.py"]
+owns: [".dagflow/phases/01-verify-funnel/items/p1-harness-run-HANDOFF.md"]
+shared_resources: ["aws:take-action-tables", "aws:lambda:photometrics-take-action", "aws:ses-sending"]
+acceptance_criteria: ["`funnel_test.py --keep all` was run against production and its complete stdout/stderr is pasted in the handoff.", "The Lambda /send invocation returned statusCode 200 with sent_count 2 and failed_count 0, and both SES MessageIds are recorded in the handoff.", "Independent `aws dynamodb` CLI reads (NOT the harness's own assertions) are pasted in the handoff showing: the seeded test row in photometrics-take-action, the sends row with representatives_sent of exactly the two expected simulator addresses and two message_ids, and the Permanent Bounce row for bounce@simulator.amazonses.com in photometrics-email-bounces.", "The handoff explicitly confirms that success+deselected@simulator.amazonses.com appears nowhere in representatives_sent — proving the deselect path is honored server-side.", "The handoff explicitly confirms the EDIT-MARKER text was present in the request body, and states whether the shipped letter therefore came from the request body rather than the stored row.", "The handoff contains an explicit statement that check-exclusion proves only that the bounce READ works, and that exclusion is advisory-only today (excluded_emails is passed as prompt text to the Haiku officials search and is hard-filtered only against boosted officials) — the hard filter is Phase 2 work.", "The handoff states whether any NEW bounce row for take-action@photometrics.ai appeared during the test window, with the row(s) or a negative result pasted as evidence.", "Cleanup was run and post-cleanup CLI scans show zero rows with session_id beginning 'test-' in photometrics-take-action and photometrics-take-action-sends, and zero simulator-address rows in photometrics-email-bounces.", "No production code or Lambda configuration was changed (`git status --porcelain` shows no modification to lambda_function.py or take-action.html)."]
+verification_commands: ["export AWS_PAGER='' && aws dynamodb scan --region us-east-2 --table-name photometrics-take-action --filter-expression \"begins_with(session_id, :p)\" --expression-attribute-values '{\":p\":{\"S\":\"test-\"}}' --select COUNT  # must be Count 0", "export AWS_PAGER='' && aws dynamodb scan --region us-east-2 --table-name photometrics-take-action-sends --filter-expression \"begins_with(session_id, :p)\" --expression-attribute-values '{\":p\":{\"S\":\"test-\"}}' --select COUNT  # must be Count 0", "export AWS_PAGER='' && aws dynamodb scan --region us-east-2 --table-name photometrics-email-bounces --filter-expression \"contains(email, :s)\" --expression-attribute-values '{\":s\":{\"S\":\"simulator.amazonses.com\"}}' --select COUNT  # must be Count 0", "export AWS_PAGER='' && aws dynamodb scan --region us-east-2 --table-name photometrics-take-action --select COUNT && aws dynamodb scan --region us-east-2 --table-name photometrics-take-action-sends --select COUNT  # compare against the pre-test counts recorded in the handoff", "test -f .dagflow/phases/01-verify-funnel/items/p1-harness-run-HANDOFF.md && grep -c \"sent_count\" .dagflow/phases/01-verify-funnel/items/p1-harness-run-HANDOFF.md", "grep -n \"success+deselected\" .dagflow/phases/01-verify-funnel/items/p1-harness-run-HANDOFF.md  # must be discussed as ABSENT from representatives_sent", "grep -niE \"advisory|prompt text|soft\" .dagflow/phases/01-verify-funnel/items/p1-harness-run-HANDOFF.md  # the exclusion-gap statement must be present", "grep -n \"take-action@photometrics.ai\" .dagflow/phases/01-verify-funnel/items/p1-harness-run-HANDOFF.md", "cd C:/Users/aisaa/Projects/photometricsai-website && git status --porcelain"]
+downstream: ["p1-docs"]
+context_budget_pct: 30
+max_correction_rounds: 2
+security_critical: true
+implementer_model: "sonnet"
+implementer_effort: "high"
+verifier_model: "opus"
+verifier_effort: "high"
+model_rationale: "Sonnet/high runs the procedure and reads DynamoDB output competently. Verifier is opus/high per the lead's rule that anything touching handle_send or the open-relay guard gets an opus verifier: this item actually fires SES from the production sending domain, and the verifier must judge both that no real recipient was touched and that the corroborating evidence genuinely independent of the harness's own assertions."
+status: "done"
+```
+
+**Assignment brief:**
+
+OBJECTIVE
+Run the funnel test harness once against production, then independently corroborate every one of its assertions using direct AWS CLI reads, and record the whole thing as evidence. Independent corroboration is the point of this item: a verifier must be able to believe the funnel works without trusting the harness's own pass/fail output.
+
+REQUIRED READING (read before doing anything)
+- .dagflow/phases/01-verify-funnel/items/p1-harness-build-HANDOFF.md
+- C:/Users/aisaa/Projects/photometricsai-website/lambda/take-action/tools/README.md
+- C:/Users/aisaa/Projects/photometricsai-website/lambda/take-action/lambda_function.py — at minimum handle_send() (~line 969), log_send() (~line 947), get_bounced_emails() (~line 864), get_verified_representative_emails() (~line 890)
+
+ENVIRONMENT
+- Region us-east-2, account 794038225197. AWS CLI is authenticated as IAM user 'ari' with admin access. Set AWS_PAGER='' on every AWS CLI call. Under Git Bash on Windows prefix `aws logs` commands with MSYS_NO_PATHCONV=1 because '/aws/lambda/...' gets path-mangled.
+- Baseline row counts before your test: photometrics-take-action 120, photometrics-take-action-sends 4, photometrics-email-bounces 14. Record the actual pre-test counts yourself; if they differ materially, note it.
+
+PROCEDURE
+1. Record pre-test counts of all three tables (`aws dynamodb scan --select COUNT`).
+2. Run `python lambda/take-action/tools/funnel_test.py --keep all` from the repo root. Capture complete stdout and stderr verbatim. --keep is important: it leaves the rows in place so you can inspect them independently.
+3. Independently inspect, with `aws dynamodb get-item` / `scan` (NOT via the harness):
+   - photometrics-take-action: the seeded test-<ts> row. Confirm three representatives are stored.
+   - photometrics-take-action-sends: the row for that session_id. Confirm representatives_sent has exactly success@simulator.amazonses.com and bounce@simulator.amazonses.com, that success+deselected@simulator.amazonses.com is absent, that message_ids has 2 entries, and that constituent_email is ari@sdgis.com.
+   - photometrics-email-bounces: the row for bounce@simulator.amazonses.com with event_type Bounce and subtype Permanent, plus its timestamp.
+4. Independently replicate get_bounced_emails() logic with a one-off CLI scan or short python snippet and confirm bounce@simulator.amazonses.com is in the excluded set. Paste the full set.
+5. Check for new bounce rows for take-action@photometrics.ai created during your test window (scan the bounce table filtered on that address and compare timestamps against your test start time). This is evidence for the known sender-mailbox bug — the Bcc to SES_SENDER_EMAIL hard-bounces on every send. Report presence or absence plainly.
+6. Optionally pull the Lambda's CloudWatch logs for the invocation (MSYS_NO_PATHCONV=1 aws logs ...) if anything is ambiguous.
+7. Run `python lambda/take-action/tools/funnel_test.py cleanup`, then independently re-scan all three tables to prove no test residue remains, and record post-cleanup counts.
+
+INTERPRETATION YOU MUST WRITE DOWN
+check-exclusion proves the bounce-exclusion READ path works — get_bounced_emails() returns the right set. It does NOT prove exclusion is enforced. In handle_generate, excluded_emails (bounced ∪ flagged) is hard-filtered only against boosted officials and is otherwise passed as PROMPT TEXT to the Haiku officials search, which is advisory: the model may still return an excluded address. State this gap explicitly in the handoff and note that Phase 2 fixes it. Do not fix it here.
+
+STANDING RULES (apply to this item):
+(1) No real official and no real inbox other than Ari's (ari@sdgis.com) may receive any email; send tests use only SES mailbox simulator addresses (success@simulator.amazonses.com, bounce@simulator.amazonses.com, and plus-addressed variants like success+deselected@simulator.amazonses.com).
+(2) Do not change Google Ads, GA4, Google Workspace, IAM, Lambda code, or Lambda configuration; if a change there is needed, stop and return needs_human_decision with the exact proposed change.
+(3) All test rows use session_id prefixed 'test-' and must be deleted by the item that created them; record every created key in the handoff.
+(4) Region us-east-2.
+(5) Every item writes a handoff to .dagflow/phases/01-verify-funnel/items/<id>-HANDOFF.md including raw command output as evidence.
+(6) The generate endpoint costs real Anthropic API tokens (Haiku web search + Sonnet); call it at most twice in this phase in total across all items.
+
+EXTRA CONSTRAINTS
+- Do NOT call /generate. This item spends no Anthropic budget.
+- Do not edit funnel_test.py. If the harness is broken, stop and report the exact failure so the harness item can be corrected; do not patch around it.
+- Do not edit lambda_function.py or take-action.html.
+
+OWNERSHIP BOUNDARY: you own only .dagflow/phases/01-verify-funnel/items/p1-harness-run-HANDOFF.md. You mutate production DynamoDB only via the harness's own seed/send/cleanup, and you must leave the tables exactly as you found them.
+
+DEFINITION OF DONE: handoff written with pre-test counts, full harness output, the independent CLI evidence for all three tables, both SES MessageIds, the deselect confirmation, the EDIT-MARKER confirmation, the advisory-exclusion statement, the take-action@photometrics.ai bounce finding, and post-cleanup counts proving zero residue.
+
+---
+
+## Work Item: p1-browser-ui-check
+
+```yaml
+id: "p1-browser-ui-check"
+kind: "investigation"
+purpose: "Confirm the live front-end funnel behaves as designed for an ad-driven visitor — priority pre-selection from the ?priorities= param, letter generation, per-rep deselection updating the send count, and letter editing — and that GA4 receives take_action_submit, without sending any email."
+hard_prereqs: []
+inputs: ["C:/Users/aisaa/Projects/photometricsai-website/layouts/_default/take-action.html"]
+owns: [".dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-HANDOFF.md", ".dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-*.png"]
+shared_resources: ["aws:take-action-tables", "anthropic-api-budget", "browser:chrome-mcp"]
+acceptance_criteria: ["Handoff records that https://photometrics.ai/take-action/?priorities=Transportation%20Safety&gclid=TEST loaded with the Transportation Safety card pre-selected and the tailored emotional message displayed (screenshot or page-text evidence).", "Handoff records that a generate run with location 'Austin, TX' and name 'UI Test' returned representatives, listing each returned official's name, title, and email verbatim.", "Handoff records that unchecking one representative's 'Include in send' checkbox changed the Send button label to reflect one fewer recipient, with before/after evidence.", "Handoff records that an extra sentence typed at the end of the letter textarea is present in the textarea's value (read back via page text or DOM), with the exact sentence quoted.", "Handoff records GA4 evidence that take_action_submit fired, and states which params (priorities, location_entered) were observable and which were not, naming the GA4 surface used (Realtime or DebugView).", "The DynamoDB session row created by this run is identified by session_id in the handoff and has been deleted; a scan for name 'UI Test' in photometrics-take-action returns zero rows.", "Handoff states explicitly that no Send was performed and that photometrics-take-action-sends gained no new row (evidenced by a count before and after).", "Exactly one /generate call was made and this is stated in the handoff."]
+verification_commands: ["export AWS_PAGER='' && aws dynamodb scan --region us-east-2 --table-name photometrics-take-action --filter-expression \"#n = :v\" --expression-attribute-names '{\"#n\":\"name\"}' --expression-attribute-values '{\":v\":{\"S\":\"UI Test\"}}' --select COUNT  # must be Count 0", "export AWS_PAGER='' && aws dynamodb scan --region us-east-2 --table-name photometrics-take-action-sends --select COUNT  # must match the pre-run count stated in the handoff", "test -f .dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-HANDOFF.md && grep -niE \"session_id\" .dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-HANDOFF.md", "grep -niE \"take_action_submit\" .dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-HANDOFF.md", "grep -niE \"deselect|uncheck|include in send\" .dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-HANDOFF.md", "ls .dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-*.png 2>/dev/null || echo 'no screenshots (optional)'", "cd C:/Users/aisaa/Projects/photometricsai-website && git status --porcelain"]
+downstream: ["p1-docs"]
+context_budget_pct: 40
+max_correction_rounds: 2
+security_critical: true
+implementer_model: "sonnet"
+implementer_effort: "medium"
+verifier_model: "opus"
+verifier_effort: "medium"
+model_rationale: "Sonnet/medium is right for scripted browser observation against a known page. Verifier is opus/medium because the failure mode is emailing real Austin officials whom the AI just looked up — a live-recipient exposure the verifier must reason about from evidence it cannot re-create (the browser session is gone), judging the residue in DynamoDB and the honesty of the 'no send occurred' claim."
+status: "done"
+```
+
+**Assignment brief:**
+
+OBJECTIVE
+Drive the live Take Action page in a real browser exactly as an ad-clicking citizen would, up to but NOT including sending, and record what the UI actually does. Then confirm the GA4 event fired and clean up the DynamoDB row your run created.
+
+THIS ITEM SPENDS REAL MONEY: it makes exactly ONE call to /generate (Haiku web search + Sonnet). Only two /generate calls are permitted in this entire phase. Do not retry generate on a transient UI problem without saying so in the handoff — reload and reuse the existing result where possible.
+
+BROWSER SETUP
+Chrome MCP tools (mcp__claude-in-chrome__*) are available. Load them with ToolSearch first, then call mcp__claude-in-chrome__tabs_context_mcp BEFORE anything else, and create your OWN tab with tabs_create_mcp. Never reuse or navigate a tab you did not create.
+
+STEPS
+1. Open https://photometrics.ai/take-action/?priorities=Transportation%20Safety&gclid=TEST in a new tab.
+2. Confirm the 'Transportation Safety' priority card is pre-selected (the page matches ?priorities= verbatim against each card's data-value) and that the tailored emotional subtitle from PRIORITY_MESSAGES is shown instead of the generic one. Capture evidence.
+3. Enter location 'Austin, TX' and name 'UI Test'. Click Generate. Wait up to 90 seconds for representatives to appear.
+4. Record every returned representative: name, title, organization, email.
+5. Uncheck ONE representative's 'Include in send' checkbox. Confirm the Send button label updates to reflect one fewer recipient. Capture before and after.
+6. Type an extra sentence at the very end of the letter textarea (e.g. 'This sentence was added by the UI verification run.'). Read the textarea's value back and confirm the sentence is in it.
+7. DO NOT click Send. DO NOT click any copy/mailto/Gmail button that could trigger a send or open a compose window addressed to a real official. If you are unsure whether a control sends, do not click it.
+8. GA4: open https://analytics.google.com/analytics/web/#/a38272233p529600118/reports/realtime (property 529600118 'Photometrics AI', measurement ID G-10FLC6K72Z) and confirm take_action_submit appears. Note that GA4 has ZERO custom dimensions registered, so the priorities and location_entered params may not be visible as reportable dimensions — Realtime 'event count by event name' showing take_action_submit is acceptable evidence; DebugView shows params but usually requires debug_mode. Report honestly what you could and could not see; a negative finding about param visibility is a valuable result, not a failure.
+9. Find your session row: scan photometrics-take-action (region us-east-2, AWS_PAGER='') filtering on name = 'UI Test' and a timestamp within the last ~15 minutes. Record the session_id and the stored representatives.
+10. Delete that row with `aws dynamodb delete-item`. Re-scan to prove it is gone.
+11. Count photometrics-take-action-sends before and after your session to prove no send occurred.
+
+SCREENSHOTS: save to .dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-*.png and reference them in the handoff.
+
+STANDING RULES (apply to this item):
+(1) No real official and no real inbox other than Ari's (ari@sdgis.com) may receive any email; send tests use only SES mailbox simulator addresses (success@simulator.amazonses.com, bounce@simulator.amazonses.com, and plus-addressed variants like success+deselected@simulator.amazonses.com).
+(2) Do not change Google Ads, GA4, Google Workspace, IAM, Lambda code, or Lambda configuration; if a change there is needed, stop and return needs_human_decision with the exact proposed change.
+(3) All test rows use session_id prefixed 'test-' and must be deleted by the item that created them; record every created key in the handoff.
+(4) Region us-east-2.
+(5) Every item writes a handoff to .dagflow/phases/01-verify-funnel/items/<id>-HANDOFF.md including raw command output as evidence.
+(6) The generate endpoint costs real Anthropic API tokens (Haiku web search + Sonnet); call it at most twice in this phase in total across all items.
+
+Note on rule (3): the session_id for this run is generated by the live front end and will NOT have a 'test-' prefix. The deletion obligation still applies in full — identify it by name 'UI Test' + recent timestamp, record the exact session_id, and delete it.
+
+GA4 IS READ-ONLY. Do not create custom dimensions, audiences, or conversions.
+
+OWNERSHIP BOUNDARY: you own .dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-HANDOFF.md and your screenshots. Change no repo source file.
+
+DEFINITION OF DONE: handoff covers all nine observations above, names the deleted session_id, proves the row is gone and no send row was created, and states the /generate call count as 1.
+
+---
+
+## Work Item: p1-sender-mailbox
+
+```yaml
+id: "p1-sender-mailbox"
+kind: "investigation"
+purpose: "Establish exactly why take-action@photometrics.ai hard-bounces on every send (it is Bcc'd on every outgoing letter) and hand Ari a decision with two fully-specified, ready-to-run remedies."
+hard_prereqs: []
+inputs: ["C:/Users/aisaa/Projects/photometricsai-website/lambda/take-action/lambda_function.py"]
+owns: [".dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md"]
+shared_resources: []
+acceptance_criteria: ["Handoff contains raw output of `aws sesv2 get-suppressed-destination --email-address take-action@photometrics.ai`, `aws sesv2 list-suppressed-destinations`, and `aws sesv2 list-email-identities` for us-east-2.", "Handoff reports the count and timestamps of bounce rows in photometrics-email-bounces whose email is take-action@photometrics.ai.", "Handoff reports whether advocacy@photometrics.ai (or any alternative sender address) appears in the git history of lambda/take-action/lambda_function.py, with the `git log -S` output.", "Handoff shows the Lambda's current environment variables from `aws lambda get-function-configuration`, with the values of ANTHROPIC_API_KEY and GOOGLE_CIVIC_API_KEY REDACTED and every other key/value intact.", "Option B includes a complete, copy-pasteable `aws lambda update-function-configuration --function-name photometrics-take-action --environment ...` command whose Variables map preserves ALL existing env vars (only SES_SENDER_EMAIL changed), presented with the two secret values shown as placeholders the human must substitute.", "Handoff states whether take-action@photometrics.ai must be removed from the SES suppression list after a fix, and if so gives the exact `aws sesv2 delete-suppressed-destination` command.", "The item terminates in needs_human_decision presenting Option A (create the mailbox/alias in Google Workspace) and Option B (change SES_SENDER_EMAIL) — this outcome is the successful completion of this item, not a failure.", "No AWS resource, Lambda configuration, SES suppression entry, or Google Workspace object was modified."]
+verification_commands: ["test -f .dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md", "grep -niE \"REDACT\" .dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md", "export AWS_PAGER='' && aws lambda get-function-configuration --function-name photometrics-take-action --region us-east-2 --query 'Environment.Variables' --output json | python -c \"import json,sys; d=json.load(sys.stdin); print(sorted(d.keys()))\"  # every key here must appear in the handoff's Option B command", "python - <<'EOF'\nimport re,subprocess,json\nh=open('.dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md',encoding='utf-8').read()\nenv=json.loads(subprocess.run(['aws','lambda','get-function-configuration','--function-name','photometrics-take-action','--region','us-east-2','--query','Environment.Variables','--output','json'],capture_output=True,text=True).stdout)\nfor k in ('ANTHROPIC_API_KEY','GOOGLE_CIVIC_API_KEY'):\n    v=env.get(k,'')\n    print(k,'LEAKED' if v and v in h else 'not leaked')\nprint('missing keys in handoff:',[k for k in env if k not in h])\nEOF", "export AWS_PAGER='' && aws lambda get-function-configuration --function-name photometrics-take-action --region us-east-2 --query 'Environment.Variables.SES_SENDER_EMAIL'  # must still be the pre-existing value; this item changes nothing", "grep -niE \"needs_human_decision|Option A|Option B\" .dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md", "grep -n \"delete-suppressed-destination\" .dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md"]
+downstream: []
+context_budget_pct: 20
+max_correction_rounds: 1
+security_critical: true
+implementer_model: "sonnet"
+implementer_effort: "medium"
+verifier_model: "opus"
+verifier_effort: "medium"
+model_rationale: "Sonnet/medium handles read-only AWS enumeration and command drafting. Verifier is opus/medium because two failure modes are security failures rather than quality ones: leaking ANTHROPIC_API_KEY or GOOGLE_CIVIC_API_KEY into a repo file, and publishing an update-function-configuration command that silently drops an env var and takes production down. Both need a verifier that reads the proposed command against the real deployed env map rather than pattern-matching."
+status: "blocked-on-question"
+```
+
+**Assignment brief:**
+
+OBJECTIVE
+Diagnose the known sender-mailbox bug and produce a decision package for Ari. Do not fix anything.
+
+BACKGROUND
+handle_send() in lambda/take-action/lambda_function.py (~line 969) Bcc's SES_SENDER_EMAIL (default take-action@photometrics.ai) on every outgoing letter, and sets FromEmailAddress to '"<sender name>" <take-action@photometrics.ai>'. That Bcc appears to hard-bounce every single time — photometrics-email-bounces already holds 6 rows for this address. The likely cause is that the mailbox does not exist in Google Workspace: the domain is verified for SENDING in SES, which does not require a real inbox, but the Bcc copy has nowhere to be delivered. That cannot be checked from the CLI; only Ari can look in Google Workspace admin.
+
+EVIDENCE TO GATHER (region us-east-2, AWS_PAGER='' on every call)
+1. `aws sesv2 get-suppressed-destination --email-address take-action@photometrics.ai --region us-east-2` (a NotFoundException is itself a meaningful result — record it verbatim).
+2. `aws sesv2 list-suppressed-destinations --region us-east-2`
+3. `aws sesv2 list-email-identities --region us-east-2` — note whether the identity is the domain photometrics.ai, the specific address, or both, and each identity's verification status.
+4. `aws sesv2 get-account --region us-east-2` if useful for suppression-list configuration (auto-suppression on BOUNCE/COMPLAINT).
+5. Count and list bounce rows for the sender: scan photometrics-email-bounces filtered on email = take-action@photometrics.ai; record email, event_type, subtype, timestamp for each.
+6. In C:/Users/aisaa/Projects/photometricsai-website run `git log -S advocacy@photometrics.ai --oneline -- lambda/take-action/lambda_function.py` and `git log -S SES_SENDER_EMAIL --oneline -- lambda/take-action/lambda_function.py`. Report whether any alternative sender address was ever used, and which commits changed it.
+7. `aws lambda get-function-configuration --function-name photometrics-take-action --region us-east-2` — capture the full Environment.Variables map. Confirm SES_SENDER_EMAIL and SES_CONFIGURATION_SET as actually deployed (the code defaults SES_CONFIGURATION_SET to empty string, but production is believed to set it to 'take-action-sends' — state what is actually there).
+
+SECRET HANDLING — MANDATORY
+The env map contains ANTHROPIC_API_KEY and GOOGLE_CIVIC_API_KEY. Their VALUES must never appear in the handoff file, in your final message, or in any command you echo. Write them as <ANTHROPIC_API_KEY_REDACTED> and <GOOGLE_CIVIC_API_KEY_REDACTED>. Every other env var must be reproduced exactly, because Option B's command must preserve them — `update-function-configuration --environment` REPLACES the entire variables map, so an omitted key is a silent production outage.
+
+DELIVERABLE — needs_human_decision with exactly two options
+Option A: Ari creates take-action@photometrics.ai as a real mailbox, alias, or Google Group in Google Workspace. State precisely what Ari must check and create, and what evidence would confirm it worked (a subsequent send producing no new bounce row for that address).
+Option B: Switch SES_SENDER_EMAIL to an existing, real mailbox. Give the complete `aws lambda update-function-configuration --function-name photometrics-take-action --region us-east-2 --environment 'Variables={...}'` command with the full merged map (secrets as placeholders), and state which existing address you recommend and why. Note any SES identity/verification prerequisite for that address.
+For BOTH options: state whether take-action@photometrics.ai must afterwards be removed from the SES suppression list, and give the exact command (`aws sesv2 delete-suppressed-destination --email-address take-action@photometrics.ai --region us-east-2`) plus how to tell whether it is currently on the list.
+Also note the tradeoff: the Bcc exists so Ari has a copy of every letter sent; Option B moves that copy to a different inbox rather than eliminating it.
+
+STANDING RULES (apply to this item):
+(1) No real official and no real inbox other than Ari's (ari@sdgis.com) may receive any email; send tests use only SES mailbox simulator addresses (success@simulator.amazonses.com, bounce@simulator.amazonses.com, and plus-addressed variants like success+deselected@simulator.amazonses.com).
+(2) Do not change Google Ads, GA4, Google Workspace, IAM, Lambda code, or Lambda configuration; if a change there is needed, stop and return needs_human_decision with the exact proposed change.
+(3) All test rows use session_id prefixed 'test-' and must be deleted by the item that created them; record every created key in the handoff.
+(4) Region us-east-2.
+(5) Every item writes a handoff to .dagflow/phases/01-verify-funnel/items/<id>-HANDOFF.md including raw command output as evidence.
+(6) The generate endpoint costs real Anthropic API tokens (Haiku web search + Sonnet); call it at most twice in this phase in total across all items.
+
+This item is READ-ONLY against AWS. Send no email. Modify no configuration. Ending in needs_human_decision is the correct successful outcome here.
+
+OWNERSHIP BOUNDARY: you own only .dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md.
+
+DEFINITION OF DONE: handoff contains all seven evidence items with raw output, secrets redacted, both options fully specified with runnable commands, and a clear needs_human_decision block at the end.
+
+---
+
+## Work Item: p1-keyword-research
+
+```yaml
+id: "p1-keyword-research"
+kind: "investigation"
+purpose: "Replace the four Google Ads keywords that cannot serve due to low search volume — most urgently the Migratory Birds group's only keyword, which leaves that whole ad group unable to show — with volume-validated, citizen-language phrase-match candidates, presented as a decision for Ari."
+hard_prereqs: []
+inputs: ["C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md"]
+owns: [".dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md", ".dagflow/phases/01-verify-funnel/items/p1-keyword-research-*.png"]
+shared_resources: ["browser:chrome-mcp"]
+acceptance_criteria: ["Handoff contains a markdown table with, for each of the 4 currently-ineligible keywords, its avg monthly US searches and competition as read from Google Ads Keyword Planner.", "Handoff proposes 2-3 phrase-match candidate keywords per ineligible keyword (8-12 candidates total), each with avg monthly US searches and competition from Keyword Planner.", "The Migratory Birds ad group is handled first and most thoroughly, with the reason stated: \"bird safe outdoor lighting\" is that group's ONLY keyword, so the group currently cannot serve at all.", "Candidates are written in citizen language, not lighting-industry jargon, and the handoff briefly justifies each against what a non-professional would actually type.", "Handoff states plainly which candidates also show low/no volume, rather than presenting only the flattering ones.", "The item ends in needs_human_decision listing recommended adds grouped by ad group (Migratory Birds, Environmental Impact, Crime & Safety, Energy Waste) — this outcome is the successful completion of this item, not a failure.", "Nothing was added, paused, edited, or removed in Google Ads; the handoff states this explicitly."]
+verification_commands: ["test -f .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md", "grep -c \"|\" .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md  # markdown table must be present and substantial", "grep -niE \"bird safe outdoor lighting|Migratory Birds\" .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md", "grep -niE \"environmental impact street lighting\" .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md && grep -niE \"reduce crime streetlights\" .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md && grep -niE \"streetlight energy savings\" .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md", "grep -niE \"needs_human_decision\" .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md", "grep -niE \"avg monthly|monthly searches\" .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md", "MANUAL: open Google Ads campaign 24212880671 keyword list read-only and confirm the keyword set still matches the 13 keywords documented in C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md — nothing added or removed"]
+downstream: []
+context_budget_pct: 35
+max_correction_rounds: 1
+security_critical: false
+implementer_model: "sonnet"
+implementer_effort: "medium"
+verifier_model: "sonnet"
+verifier_effort: "medium"
+model_rationale: "Follows the lead's investigation default of sonnet/medium implementer and verifier. The work is read-only UI navigation plus keyword judgment; the verifier's job is to confirm the table is populated with real Keyword Planner figures, that Migratory Birds is prioritized, and that the campaign is unchanged — all checkable without deep reasoning."
+status: "blocked-on-question"
+```
+
+**Assignment brief:**
+
+OBJECTIVE
+Use Google Ads Keyword Planner, strictly read-only, to find phrase-match keywords that can actually serve, replacing four keywords currently flagged 'Not eligible: Low search volume'. Return a recommendation for Ari to approve. Do not change the campaign.
+
+CONTEXT
+- Google Ads account 673-574-9140 ('Photometrics AI Ads'), owned by ari@sdgis.com. One live campaign: 'Take Action - Street Lighting Advocacy', campaignId 24212880671, Search, 7 ad groups, $12.93/day.
+- Every ad group sends traffic to https://photometrics.ai/take-action/ with a ?priorities= parameter matching that group's theme. The 6 valid priority values are exactly: Light Pollution, Migratory Birds, Crime & Safety, Transportation Safety, Energy Waste, Environmental Impact.
+- INELIGIBLE (Low search volume), by ad group:
+  * Migratory Birds — "bird safe outdoor lighting"  <-- HIGHEST PRIORITY: this is the ONLY keyword in that ad group, so the entire group cannot serve.
+  * Environmental Impact — "environmental impact street lighting"
+  * Crime & Safety — "reduce crime streetlights"
+  * Energy Waste — "streetlight energy savings"
+- ELIGIBLE today (context for what volume level actually works here): sustainable street lighting, crime prevention lighting, municipal street lighting, smart street lighting, report streetlight outage, led streetlight upgrade, streetlight safety, pedestrian safety lighting, dark sky lighting, reduce light pollution.
+
+AUDIENCE NOTE THAT SHOULD DRIVE YOUR CANDIDATES
+The landing page is a citizen-advocacy tool: a resident picks the street-lighting issue they care about and the tool drafts a letter to their local officials. The searcher is a concerned resident, a birder, a neighbor annoyed by a glaring light — NOT a lighting engineer or a procurement officer. Candidates should read like what such a person types. 'bird safe outdoor lighting' fails partly because it is trade phrasing; things people actually search look more like 'lights out for birds', 'birds hitting windows at night', 'street light in my window', 'street light too bright'. Test hypotheses like these in Keyword Planner rather than assuming.
+
+BROWSER PROCEDURE
+Chrome MCP tools (mcp__claude-in-chrome__*) are available. Load them with ToolSearch first, call mcp__claude-in-chrome__tabs_context_mcp BEFORE anything else, and create your OWN tab. Navigate to Google Ads, then Tools -> Planning -> Keyword Planner. Use both 'Discover new keywords' (for candidate generation) and 'Get search volume and forecasts' (to price the 4 current keywords and your candidates). Set targeting to United States, English. Record avg monthly searches and competition for every keyword you look at.
+
+HARD READ-ONLY BOUNDARY
+Do NOT click 'Add keywords', 'Save to plan' in a way that writes to the campaign, 'Create campaign', or any control that modifies the account. Keyword Planner plans are a scratchpad, but if you cannot tell whether a control writes to the live campaign, do not click it. If Google Ads prompts to apply a recommendation, dismiss it.
+
+OUTPUT
+A markdown table in the handoff:
+| Ad group | Keyword | Status (current/candidate) | Avg monthly searches (US) | Competition | Citizen-language rationale |
+Then a needs_human_decision block: for each of the four ad groups, the specific phrase-match keywords you recommend Ari add, in priority order, and whether you recommend pausing or keeping the existing ineligible keyword (keeping a zero-volume keyword is harmless but clutters; say which you'd do and why). Be honest where your candidates also came back low-volume — for a niche like this, 'no good option exists at phrase match, consider broad match or a different theme' is a legitimate and useful finding.
+
+STANDING RULES (apply to this item):
+(1) No real official and no real inbox other than Ari's (ari@sdgis.com) may receive any email; send tests use only SES mailbox simulator addresses (success@simulator.amazonses.com, bounce@simulator.amazonses.com, and plus-addressed variants like success+deselected@simulator.amazonses.com).
+(2) Do not change Google Ads, GA4, Google Workspace, IAM, Lambda code, or Lambda configuration; if a change there is needed, stop and return needs_human_decision with the exact proposed change.
+(3) All test rows use session_id prefixed 'test-' and must be deleted by the item that created them; record every created key in the handoff.
+(4) Region us-east-2.
+(5) Every item writes a handoff to .dagflow/phases/01-verify-funnel/items/<id>-HANDOFF.md including raw command output as evidence.
+(6) The generate endpoint costs real Anthropic API tokens (Haiku web search + Sonnet); call it at most twice in this phase in total across all items.
+
+This item makes NO /generate calls and touches no AWS resource.
+
+OWNERSHIP BOUNDARY: you own only .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md (screenshots to .dagflow/phases/01-verify-funnel/items/p1-keyword-research-*.png are welcome evidence).
+
+DEFINITION OF DONE: the table is complete for 4 current + 8-12 candidate keywords with real Keyword Planner numbers, Migratory Birds is covered first, and the handoff ends in needs_human_decision with per-ad-group recommendations and an explicit statement that nothing in Google Ads was changed.
+
+---
+
+## Work Item: p1-baseline-data
+
+```yaml
+id: "p1-baseline-data"
+kind: "analysis"
+purpose: "Capture the pre-change state of all three DynamoDB tables as a quantitative baseline — including the hard-bounce rate of AI-discovered official email addresses — so Phase 4's report can measure what actually changed."
+hard_prereqs: []
+inputs: ["C:/Users/aisaa/Projects/photometricsai-website/lambda/take-action/lambda_function.py"]
+owns: [".dagflow/phases/01-verify-funnel/items/p1-baseline-data-HANDOFF.md"]
+shared_resources: ["aws:take-action-tables"]
+acceptance_criteria: ["Handoff reports total row counts for photometrics-take-action, photometrics-take-action-sends, and photometrics-email-bounces, obtained via fully paginated scans, with the scan method shown.", "Handoff contains a table of generate rows grouped by raw location string (top 30, counts descending) and a table grouped by first priority value.", "Handoff reports the count of generate rows with a non-empty actions list.", "Handoff reports, for the sends table: total count, the per-row count of representatives_sent, and constituent email DOMAINS only — no full constituent email address appears anywhere in the handoff.", "Handoff contains the full bounce table listing: email, event_type, subtype, timestamp for every row.", "Handoff reports the number of distinct official email addresses across all generate rows, the number of those that appear in the bounce table with a Permanent bounce, and the resulting hard-bounce rate as a percentage with both numerator and denominator shown.", "Any rows with session_id beginning 'test-' are excluded from all counts and the handoff states how many such rows were seen and excluded (expected: 0).", "Analysis was performed with a script or paginated CLI calls; the handoff shows the commands or script used, not just conclusions."]
+verification_commands: ["test -f .dagflow/phases/01-verify-funnel/items/p1-baseline-data-HANDOFF.md", "export AWS_PAGER='' && aws dynamodb scan --region us-east-2 --table-name photometrics-take-action --select COUNT && aws dynamodb scan --region us-east-2 --table-name photometrics-take-action-sends --select COUNT && aws dynamodb scan --region us-east-2 --table-name photometrics-email-bounces --select COUNT  # compare against the counts in the handoff", "python - <<'EOF'\nimport boto3,re\nh=open('.dagflow/phases/01-verify-funnel/items/p1-baseline-data-HANDOFF.md',encoding='utf-8').read()\nd=boto3.client('dynamodb',region_name='us-east-2')\nleaks=[]\np=d.get_paginator('scan')\nfor pg in p.paginate(TableName='photometrics-take-action-sends'):\n    for it in pg.get('Items',[]):\n        e=it.get('constituent_email',{}).get('S','')\n        if e and e in h: leaks.append(e)\nprint('CONSTITUENT EMAIL LEAKS:',leaks or 'none')\nEOF", "grep -niE \"hard-bounce rate|bounce rate\" .dagflow/phases/01-verify-funnel/items/p1-baseline-data-HANDOFF.md", "grep -niE \"actions\" .dagflow/phases/01-verify-funnel/items/p1-baseline-data-HANDOFF.md", "grep -niE \"test-\" .dagflow/phases/01-verify-funnel/items/p1-baseline-data-HANDOFF.md  # must state how many test- rows were excluded", "cd C:/Users/aisaa/Projects/photometricsai-website && git status --porcelain"]
+downstream: ["p1-docs"]
+context_budget_pct: 30
+max_correction_rounds: 2
+security_critical: true
+implementer_model: "sonnet"
+implementer_effort: "medium"
+verifier_model: "opus"
+verifier_effort: "medium"
+model_rationale: "Sonnet/medium is sufficient for scripted aggregation over ~140 small rows. Verifier is opus/medium because this item's real failure mode is data exposure: writing constituent email addresses into a file that lives in a git repo. The verifier must scan the artifact for PII and independently re-derive at least the top-line counts, which requires judgment about what counts as an exposed address versus a public official's."
+status: "done"
+```
+
+**Assignment brief:**
+
+OBJECTIVE
+Produce the quantitative baseline for the Take Action funnel as it stands on 2026-09-03, before any Phase 2 changes. This is read-only analysis and is the reference document Phase 4's report will be measured against.
+
+TABLES (region us-east-2, account 794038225197; set AWS_PAGER='')
+- photometrics-take-action — PK session_id. Fields: timestamp (S, ISO), location (S), priorities (L of S), letter (S), representatives (L of M with email/name/title/organization/relevance), actions (L), ttl (N), name (S, optional).
+- photometrics-take-action-sends — PK session_id. Fields: constituent_email, location, representatives_sent (L of S), message_ids (L of S), ttl, timestamp.
+- photometrics-email-bounces — email (lowercased), timestamp, event_type (Bounce|Complaint), subtype (Permanent|Transient|...), ttl. Key schema may be composite; discover with describe-table if you need to.
+
+Expected approximate sizes today: 120 generate rows, 4 sends rows, 14 bounce rows. Report the actual numbers; if they differ, say so — another item in this phase may have been running concurrently, so note the time of your scan.
+
+METHOD
+Write a short python/boto3 script (put it in the scratchpad directory, NOT in the repo) that paginates properly with LastEvaluatedKey and aggregates. Do not paste 120 raw rows into your context or the handoff — aggregate first. The 'letter' field is large; use a ProjectionExpression to fetch only the attributes you need (note: 'name', 'timestamp', and 'location' may be DynamoDB reserved words — use ExpressionAttributeNames).
+
+REQUIRED OUTPUTS (all as markdown tables in the handoff)
+1. Row counts for all three tables, plus the timestamp of your scan.
+2. Generate rows by raw location string, top 30, descending. Use the RAW string — do not normalize. (Location normalization is Phase 3 work; the messiness of this column is itself a finding, so note how many distinct raw strings there are and call out obvious near-duplicates like 'Austin, TX' vs 'austin texas'.)
+3. Generate rows by first priority value (priorities[0]), all values, descending.
+4. Count of generate rows whose actions list is non-empty.
+5. Sends: total count; for each send row, how many addresses were in representatives_sent; and a count of constituent email DOMAINS (e.g. 'gmail.com: 2'). NEVER write a full constituent email address into the handoff.
+6. Bounces: complete listing of email, event_type, subtype, timestamp for every row.
+7. Hard-bounce rate of AI-found addresses: collect the set of distinct official email addresses across the representatives lists of ALL generate rows; intersect with the set of emails in the bounce table having event_type Bounce and subtype Permanent (or event_type Complaint — report those separately). Give numerator, denominator, and percentage. State the caveat plainly: only addresses that were actually SENT to can bounce, and only 4 sends have ever happened, so this rate is a floor computed over a tiny sent sample, not a measurement of address quality across all 120 sessions. Report how many of the distinct official addresses have ever been in a send at all.
+
+EXCLUSIONS: skip any row whose session_id begins 'test-'. Report how many you excluded (expected 0 — another item's test rows should have been cleaned up before you ran).
+
+PRIVACY: constituent email addresses are personal data and this handoff lives in a git repo. Domains only, always. Official (representative) email addresses ARE in scope to report since they are public officials' work addresses, but you do not need to list all of them — counts and the bounced subset are enough.
+
+STANDING RULES (apply to this item):
+(1) No real official and no real inbox other than Ari's (ari@sdgis.com) may receive any email; send tests use only SES mailbox simulator addresses (success@simulator.amazonses.com, bounce@simulator.amazonses.com, and plus-addressed variants like success+deselected@simulator.amazonses.com).
+(2) Do not change Google Ads, GA4, Google Workspace, IAM, Lambda code, or Lambda configuration; if a change there is needed, stop and return needs_human_decision with the exact proposed change.
+(3) All test rows use session_id prefixed 'test-' and must be deleted by the item that created them; record every created key in the handoff.
+(4) Region us-east-2.
+(5) Every item writes a handoff to .dagflow/phases/01-verify-funnel/items/<id>-HANDOFF.md including raw command output as evidence.
+(6) The generate endpoint costs real Anthropic API tokens (Haiku web search + Sonnet); call it at most twice in this phase in total across all items.
+
+This item is strictly READ-ONLY: no put_item, no delete_item, no /generate, no email.
+
+OWNERSHIP BOUNDARY: you own only .dagflow/phases/01-verify-funnel/items/p1-baseline-data-HANDOFF.md. Your analysis script goes in the scratchpad directory, not the repo. Include the script's source in the handoff so the numbers are reproducible.
+
+DEFINITION OF DONE: all seven required outputs present as tables, the script source included, no full constituent email addresses anywhere in the file.
+
+---
+
+## Work Item: p1-docs
+
+```yaml
+id: "p1-docs"
+kind: "implementation"
+purpose: "Fold the phase's verified findings into the campaign document that Ari actually reads, so the funnel's current state — what works, the sender-mailbox bug, the advisory-only exclusion gap, and the ineligible keywords — is captured in the one place written to be read cold."
+hard_prereqs: ["p1-harness-run", "p1-browser-ui-check", "p1-baseline-data"]
+inputs: [".dagflow/phases/01-verify-funnel/items/p1-harness-run-HANDOFF.md", ".dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-HANDOFF.md", ".dagflow/phases/01-verify-funnel/items/p1-baseline-data-HANDOFF.md", ".dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md", ".dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md"]
+owns: ["C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md", ".dagflow/phases/01-verify-funnel/items/p1-docs-HANDOFF.md"]
+shared_resources: []
+acceptance_criteria: ["C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md contains a new '## Funnel verification (2026-09-03)' section positioned immediately BEFORE the existing '## Suggested next check-ins (nothing urgent, no action required right now)' heading.", "The new section contains a results table covering: the seeded-session send path, the deselect behavior, the edited-letter behavior, the bounce pipeline, the bounce-exclusion read, and the live UI/GA4 check — each with a pass/fail/partial result.", "The new section documents the take-action@photometrics.ai sender-mailbox bug and the soft-exclusion gap (bounced/flagged emails are passed to the officials search as prompt text, hard-filtered only against boosted officials).", "The new section notes the four keywords that cannot serve for low search volume, and that the Migratory Birds ad group's only keyword is among them so that group cannot serve at all.", "The new section points to the test harness at lambda/take-action/tools/funnel_test.py in the photometricsai-website repo.", "A short 'Test harness' bullet is added under the existing '## Reference — where the actual code lives' section.", "The section matches the file's existing voice: present tense, current state, readable with zero prior context, no changelog-style entries and no 'we then did X' narration of the verification process itself.", "No other section of the file is modified — a diff shows only the inserted section and the added Reference bullet.", "All factual claims in the new section trace to a specific predecessor handoff; no numbers are invented."]
+verification_commands: ["grep -n \"^## \" \"C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md\"  # '## Funnel verification (2026-09-03)' must appear immediately before '## Suggested next check-ins'", "grep -n \"Funnel verification (2026-09-03)\" \"C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md\"", "grep -n \"funnel_test.py\" \"C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md\"  # must appear in the new section AND under Reference", "grep -niE \"take-action@photometrics.ai\" \"C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md\"", "grep -niE \"bird safe outdoor lighting\" \"C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md\"", "python - <<'EOF'\nimport re\np=r'C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md'\nt=open(p,encoding='utf-8').read()\ni=t.find('## Funnel verification (2026-09-03)')\nj=t.find('## Suggested next check-ins')\nprint('new section found:',i!=-1,'| before check-ins:',i!=-1 and j!=-1 and i<j)\nprint('history section untouched heading present:',\"## How the campaign got here\" in t)\nEOF", "MANUAL: read the new section and confirm each factual claim appears in one of the predecessor handoffs under .dagflow/phases/01-verify-funnel/items/ — specifically the send result, the bounce result, the GA4 result, and the exclusion-gap description", "MANUAL: confirm the section is present-tense current state with no changelog entry and no addition to the chronological history section"]
+downstream: []
+context_budget_pct: 30
+max_correction_rounds: 2
+security_critical: false
+implementer_model: "sonnet"
+implementer_effort: "medium"
+verifier_model: "sonnet"
+verifier_effort: "medium"
+model_rationale: "Deviates upward from the lead's 'docs -> haiku/medium implementer' default. This is not transcription: it synthesizes three technical handoffs into a stated 'readable cold' voice, must place a section precisely without disturbing a 21KB document, and must resist rounding partial results (GA4 params unobservable, exclusion advisory-only) up to passes. Haiku is likely to either flatten the voice or overstate the findings. Verifier sonnet/medium can diff the file and trace each claim to a handoff."
+status: "done"
+```
+
+**Assignment brief:**
+
+OBJECTIVE
+Update the human-facing campaign document with what this phase verified about the Take Action funnel.
+
+FILE YOU EDIT (note: OUTSIDE the code repo)
+C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md
+
+REQUIRED READING — read all of these before writing a word
+- The whole of C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md, to absorb its voice and structure.
+- .dagflow/phases/01-verify-funnel/items/p1-harness-run-HANDOFF.md
+- .dagflow/phases/01-verify-funnel/items/p1-browser-ui-check-HANDOFF.md
+- .dagflow/phases/01-verify-funnel/items/p1-baseline-data-HANDOFF.md
+- If they exist (they may not — these two items end in a human decision and may still be open), also read and incorporate: .dagflow/phases/01-verify-funnel/items/p1-sender-mailbox-HANDOFF.md and .dagflow/phases/01-verify-funnel/items/p1-keyword-research-HANDOFF.md. If a file is absent, write the section from the facts already established below rather than blocking or guessing.
+
+WHAT TO ADD
+1. A new section headed exactly `## Funnel verification (2026-09-03)`, inserted immediately BEFORE the existing heading `## Suggested next check-ins (nothing urgent, no action required right now)` (currently around line 106). It should cover:
+   - What was tested and how (a boto3 harness that seeds a session directly in DynamoDB and invokes the Lambda's /send route with SES mailbox-simulator recipients; a live browser pass through the real page).
+   - A results table: one row per checked behavior, with the result. Cover at minimum: managed send delivers one email per official; a deselected official receives nothing; the letter text the user edited is what actually ships; SES bounces flow through the configuration set and SNS into the bounce table; the bounce-exclusion lookup returns the right set; the ?priorities= landing variant pre-selects the right card; GA4 receives take_action_submit.
+   - The sender-mailbox bug: take-action@photometrics.ai is Bcc'd on every letter so Ari keeps a copy, and that Bcc hard-bounces every time — the mailbox most likely does not exist in Google Workspace (the domain is verified for sending in SES, which does not require a real inbox). Say what the two fixes are and that it needs Ari's decision.
+   - The exclusion gap: emails that hard-bounced or drew a complaint are collected correctly, but they are only handed to the AI officials search as prompt text — a suggestion, not a filter. The only hard filter today is against boosted officials. So a known-dead address can be suggested again. Note this is queued to be fixed.
+   - Keyword eligibility: four phrase-match keywords cannot serve for low search volume — "environmental impact street lighting", "reduce crime streetlights", "streetlight energy savings", and "bird safe outdoor lighting". Flag that the last one is the Migratory Birds ad group's only keyword, so that ad group cannot serve at all — the sharpest item here. If the keyword research handoff exists, name the recommended replacements.
+   - A pointer to the harness: `lambda/take-action/tools/funnel_test.py` in the photometricsai-website repo, with one line on what it does and the safety rule that it only ever mails SES simulator addresses.
+2. A short `**Test harness:**` bullet under the existing `## Reference — where the actual code lives` section giving the harness path and one-line purpose.
+
+STYLE — this matters as much as the content
+The file's stated contract is at the top: 'Written to be readable with zero prior context — if you're picking this up cold, read top to bottom and you'll have everything.' Match that. Write present-tense current state, not a log. Do NOT append a changelog entry, do NOT narrate the verification process as a story ('first we ran X, then we found Y'), do NOT add a dated entry to the '## How the campaign got here (full history, chronological)' section. Use the file's existing conventions: bold lead-ins, backticked identifiers, em dashes, plain declaratives. Keep the new section tight — this is a document someone reads cold, not a test report.
+
+ACCURACY
+Every factual claim must come from a predecessor handoff or from the established facts in this brief. If a handoff reports a partial or negative result (for instance, GA4 params not visible because the property has zero custom dimensions registered), write that honestly rather than rounding it up to a pass. Invent no numbers.
+
+STANDING RULES (apply to this item):
+(1) No real official and no real inbox other than Ari's (ari@sdgis.com) may receive any email; send tests use only SES mailbox simulator addresses (success@simulator.amazonses.com, bounce@simulator.amazonses.com, and plus-addressed variants like success+deselected@simulator.amazonses.com).
+(2) Do not change Google Ads, GA4, Google Workspace, IAM, Lambda code, or Lambda configuration; if a change there is needed, stop and return needs_human_decision with the exact proposed change.
+(3) All test rows use session_id prefixed 'test-' and must be deleted by the item that created them; record every created key in the handoff.
+(4) Region us-east-2.
+(5) Every item writes a handoff to .dagflow/phases/01-verify-funnel/items/<id>-HANDOFF.md including raw command output as evidence.
+(6) The generate endpoint costs real Anthropic API tokens (Haiku web search + Sonnet); call it at most twice in this phase in total across all items.
+
+Do not put constituent email addresses or API key values in this file.
+
+OWNERSHIP BOUNDARY: you own C:/Users/aisaa/Projects/Ads/google/take-action-campaign.md and .dagflow/phases/01-verify-funnel/items/p1-docs-HANDOFF.md. Change nothing in the photometricsai-website repo.
+
+DEFINITION OF DONE: the section is inserted in the right place, the Reference bullet is added, no other content is altered, and the handoff quotes the inserted section in full plus a diff or before/after line count showing that nothing else moved.
+
+---
+
