@@ -16,19 +16,19 @@ Make a bounced or flagged official address impossible to re-suggest or re-send; 
 
 ## Exit Criteria
 
-- [ ] pytest suite at lambda/take-action/tests/ is green (>=12 tests, 0 skipped) with no test weakened to pass, verified by an independent re-run.
-- [ ] Deployed CodeSha256 equals the locally built artifact hash and differs from the pre-phase value; CloudWatch shows no errors across the deploy and harness windows.
-- [ ] funnel_test.py `all` — including the new check-regenerate step — passes against production, with independent aws dynamodb corroboration that a hard-bounced address was refused with reason 'suppressed' and that the sends row carries representatives_failed, representatives_offered, priorities, source and location_city.
-- [ ] One real /generate call proved the deployed backend stores source.utm_content and location_city 'Columbus' / location_state 'OH' / location_country 'US'; its row was deleted and absence proven.
-- [ ] Zero residue: no test- rows remain beyond the two pre-existing test-gap-framing rows; table counts reconcile to the Phase 01 baseline.
-- [ ] layouts/_default/take-action.html implements the frontend source capture and the three new GA4 params, hugo builds clean, and the ?priorities= preselect behaviour is provably unchanged (lead pushes and verifies live, outside this DAG).
-- [ ] report.py runs clean against production, and its totals reconcile with the Phase 01 baseline (118 generated / 4 sends) with any deviation explained by session_id.
-- [ ] CLAUDE.md has a 'Take Action Lambda' section with the full data contract and no secret values; the campaign doc's Funnel verification section reflects current state in its existing readable-cold voice.
-- [ ] The open-relay guard (get_verified_representative_emails) and already_sent are provably unchanged from git HEAD, confirmed by an opus verifier on the security-critical items.
+- [x] pytest suite at lambda/take-action/tests/ is green (>=12 tests, 0 skipped) with no test weakened to pass, verified by an independent re-run.
+- [x] Deployed CodeSha256 equals the locally built artifact hash and differs from the pre-phase value; CloudWatch shows no errors across the deploy and harness windows.
+- [x] funnel_test.py `all` — including the new check-regenerate step — passes against production, with independent aws dynamodb corroboration that a hard-bounced address was refused with reason 'suppressed' and that the sends row carries representatives_failed, representatives_offered, priorities, source and location_city.
+- [x] One real /generate call proved the deployed backend stores source.utm_content and location_city 'Columbus' / location_state 'OH' / location_country 'US'; its row was deleted and absence proven.
+- [x] Zero residue: no test- rows remain beyond the two pre-existing test-gap-framing rows; table counts reconcile to the Phase 01 baseline.
+- [x] layouts/_default/take-action.html implements the frontend source capture and the three new GA4 params, hugo builds clean, and the ?priorities= preselect behaviour is provably unchanged (lead pushes and verifies live, outside this DAG).
+- [x] report.py runs clean against production, and its totals reconcile with the Phase 01 baseline (118 generated / 4 sends) with any deviation explained by session_id.
+- [x] CLAUDE.md has a 'Take Action Lambda' section with the full data contract and no secret values; the campaign doc's Funnel verification section reflects current state in its existing readable-cold voice.
+- [x] The open-relay guard (get_verified_representative_emails) and already_sent are provably unchanged from git HEAD, confirmed by an opus verifier on the security-critical items.
 
 ## Phase Gate
 
-Status: open — entry criteria verified by the lead 2026-09-03 (Phase 01 closed; sender mailbox confirmed by Ari; deploys pre-authorized).
+Status: closed 2026-09-03 — all 13 items verified done (12 by blind verifiers on round 0; p2-docs by verifier after a one-token lead fix). Previously: open — entry criteria verified by the lead 2026-09-03 (Phase 01 closed; sender mailbox confirmed by Ari; deploys pre-authorized).
 
 ## Concurrency Limits
 

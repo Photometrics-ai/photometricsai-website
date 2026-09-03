@@ -212,3 +212,77 @@ sam deploy          # uses samconfig.toml defaults (us-east-2, sun-phase-web sta
 | `tools/sun-phase/main_gui.py` | Desktop GUI entry point |
 | `layouts/_default/tools.html` | Hugo layout (markup + inline JS) |
 | (inline `<style>` in tools.html) | Tool-specific component styles |
+
+## Take Action Lambda (`lambda/take-action/`)
+
+Backend for the citizen-advocacy tool at `/take-action/` — a visitor picks a street-lighting priority, the Lambda finds their local officials and drafts a letter, and can send it to those officials on the visitor's behalf. The Google Ads campaign that drives traffic here is tracked outside this repo, in the separate `Ads` repo's `google/take-action-campaign.md`.
+
+- **Function:** `photometrics-take-action`
+- **Region:** `us-east-2`
+- **Account:** `794038225197`
+- **Role:** `photometrics-take-action-lambda-role`
+- **Source:** `lambda/take-action/lambda_function.py` (single file)
+
+### Routing
+
+A Lambda Function URL, dispatched on `rawPath`:
+- `/generate` — search for local officials, draft a letter, write a generate row
+- `/send` — managed SES send to the officials verified during that session's `/generate`
+- `/track` — event tracking
+- `/flag` — a visitor flags an official's address as no longer current
+- an SNS branch (not a `rawPath` route) — receives SES bounce/complaint notifications and records them
+
+### Environment variables (names only — never a value here)
+
+`DYNAMODB_TABLE`, `BOOSTED_TABLE`, `FLAGGED_TABLE`, `SEND_LOG_TABLE`, `BOUNCE_TABLE`, `ANTHROPIC_API_KEY`, `GOOGLE_CIVIC_API_KEY`, `SES_SENDER_EMAIL`, `SES_CONFIGURATION_SET`.
+
+### DynamoDB tables
+
+| Table | Key |
+|---|---|
+| `photometrics-take-action` | PK `session_id` — generate rows |
+| `photometrics-take-action-sends` | PK `session_id` — send rows |
+| `photometrics-email-bounces` | PK `email`, SK `timestamp` — bounce/complaint events |
+| `photometrics-flagged-officials` | PK `email` — user-flagged ("Not current?") addresses |
+| `photometrics-boosted-officials` | PK `region`, SK `email` — boosted/trusted officials |
+
+### SNS bounce wiring
+
+SES configuration set `take-action-sends` → SNS topic `photometrics-ses-bounces` → this Lambda → `photometrics-email-bounces`. A bounce addressed to the sender itself (`SES_SENDER_EMAIL`) is logged loudly (`WARNING: bounce for sender address ... — not recording`) and NOT written to the table — this keeps the sender's own address from ever ending up excluded via `get_bounced_emails()`.
+
+### Deploy
+
+```bash
+bash lambda/take-action/deploy.sh           # real deploy
+bash lambda/take-action/deploy.sh --dry-run # print the plan, make no AWS calls
+```
+
+Packages `lambda_function.py` into `function.zip`, updates the function code, waits for the update to settle, then compares the local artifact's SHA-256 to the deployed `CodeSha256` and fails loudly on a mismatch. `zip` is absent on this host, so the script falls back to a Python `zipfile`-module packer. Currently deployed `CodeSha256`: `r0qEhgANZ9AsaCU9a7XRMtEDlgJQNB40hIPd5IbKMbE=` (as of 2026-09-03).
+
+### Tests
+
+```bash
+python -m pytest lambda/take-action/tests -q
+```
+
+20 tests, all green. `moto` is not installed — the module-level `dynamodb`/`ses` clients are monkeypatched with in-repo fakes, so no test touches real AWS.
+
+### Harness
+
+`lambda/take-action/tools/funnel_test.py` — subcommands `seed`, `send`, `wait-bounce`, `check-sends`, `check-exclusion`, `check-regenerate`, `cleanup`, `all`. Seeds DynamoDB directly and drives `/send` via the AWS Lambda Invoke API; it never calls `/generate`. Every representative address is an SES mailbox-simulator address (`success@simulator.amazonses.com`, `bounce@simulator.amazonses.com`, plus-variants); the only real inbox it ever touches is `ari@sdgis.com` as CC. `check-regenerate` proves a hard-bounced (and simultaneously boosted/trusted) address is suppressed at send time rather than mailed.
+
+### Report
+
+```bash
+python lambda/take-action/tools/report.py            # markdown to stdout
+python lambda/take-action/tools/report.py --out DIR   # also write cut1.csv / cut2.csv / totals.csv
+```
+
+Read-only: joins generate rows to send rows on `session_id` and cuts the result two ways — (ad group × keyword × top priority × location) and (top priority × state) — plus a totals row. Ad-group names resolve through `lambda/take-action/tools/adgroups.json`, which currently maps placeholder ids `TBD-1`..`TBD-7` to the 7 real ad group names; those placeholders need to be swapped for the real numeric Google Ads ad group ids before `source.utm_content` on real traffic resolves to a name instead of printing raw.
+
+### Data contract
+
+- **Generate row** (`photometrics-take-action`): `source` — a map of up to 9 keys (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `utm_match`, `gclid`, `landed_priorities`, `referrer`), each present only if non-empty; `location_city`, `location_state`, `location_country` — normalized from the visitor's raw location string via Haiku's `normalized_location` field, falling back to a raw-string parse and `"US"` when that field is absent.
+- **Sends row** (`photometrics-take-action-sends`): `priorities`, `source`, `location_city`, `location_state` copied from the matching generate row whenever present; `representatives_offered` (count of officials on the generate row); `representatives_failed` — a list of `{email, reason}`, `reason` ∈ `suppressed` (address is hard-bounced or flagged) | `ses_error` (SES rejected the send).
+- **Frontend `/generate` payload** (`layouts/_default/take-action.html`): existing keys plus `source` — the visitor's first-touch campaign attribution (same key set as above), captured once per session and persisted in `sessionStorage['ta_source']` so later actions in the same session agree with it. This frontend change is live in production (commit `ac10a0b`, Amplify job 164).
+- **GA4 params** added to `take_action_submit`, `send_intent_clicked`, and `send_confirmed`: `landed_priorities`, `utm_content`, `preselected` (boolean — true only when the page loaded with at least one valid `?priorities=` value).

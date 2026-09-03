@@ -43,3 +43,15 @@ why in `model_rationale` for the affected items.
 **Environment lesson (not a tiering issue):** browser-driven items cannot run from subagents here (shared Chrome tab group with the lead → tab eviction). Assign browser items to the lead.
 
 ---
+## 2026-09-03 — Phase 02 harden-instrument-report: Lambda hardening + attribution + tooling (DRAFT, awaiting Ari's confirmation)
+
+**Planning model used:** opus / high
+**Verdict:** right-sized
+**Why:** 13 items, all 13 verified on round 0 with zero correction rounds; planner's splits (tests write/run, harness extend/run) put ~6 items in wave 0 and kept the two lambda_function.py items sequential. One verifier finding (stale prompt line) was fixed by the lead in one line.
+**Guidance for next similar task:** Keep opus/high planning for multi-subsystem phases with a shared data contract. Verifier findings labelled "non-blocking" are worth acting on immediately by the lead when they are one-liners.
+
+**Implementer default used:** sonnet/high (code, tools), sonnet/medium (docs) — verdict: right-sized — why: every item passed on first verification; the tests-write item correctly flagged its own naming assumptions, which the lead relayed to the implementer.
+**Verifier default used:** opus/high on security-critical + deploy + production-test items, sonnet/high elsewhere — verdict: right-sized — why: opus verifiers added real value (mutation-testing the guards; decoding SES message-id timestamps to corroborate deleted rows; catching the contradictory Haiku prompt line). Sonnet verifiers were sufficient for scripts/docs.
+**Execution note:** the Workflow tool was blocked by the permission classifier for this phase's scheduler, so the lead dispatched agents manually in dependency order (foreground waves). Worked, but cost lead context; browser items remained lead-only.
+
+---

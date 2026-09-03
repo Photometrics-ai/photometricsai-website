@@ -20,3 +20,11 @@ Also observed: GA4 event `insights_article_view` fires on every page (416 vs 424
 
 ## Frontend deploy
 Commit ac10a0b pushed to master 2026-09-03 20:43 UTC → Amplify job 164.
+
+## Live end-to-end check by the lead (2026-09-03 21:19 UTC) — PASS
+Opened the production page with `?priorities=Migratory%20Birds&utm_source=google&utm_medium=cpc&utm_campaign=24212880671&utm_content=TESTAG&utm_term=lights%20out%20for%20birds&utm_match=p&gclid=LEADTEST`, entered "Columbus, OH" / "E2E Test", clicked Generate (this was the phase's second and last /generate call).
+- Page: sessionStorage `ta_source` held all 8 captured keys (utm_*, gclid, landed_priorities).
+- GA4 dataLayer: `take_action_submit` fired with priorities, location_entered, landed_priorities, utm_content, preselected.
+- DynamoDB generate row c049016f-f0e2-4bc7-8ca8-4a6c41c38579: source = {utm_source google, utm_medium cpc, utm_campaign 24212880671, utm_content TESTAG, utm_term "lights out for birds", utm_match p, gclid LEADTEST, landed_priorities "Migratory Birds"}; location_city Columbus, location_state OH, location_country US; priorities ["Migratory Birds"]. 4 reps returned (311@columbus.gov, publicutilities@columbus.gov, devin.mingesbruney@wildohio.gov, wildlife.permits@dnr.state.oh.us).
+- Row deleted; absence confirmed; table count back to 120. No send.
+- Also observed: SES CloudTrail `DeleteSuppressedDestination take-action@photometrics.ai` at 20:15 UTC was the lead's action (see OPEN-QUESTIONS mailbox entry), not an agent's.

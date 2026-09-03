@@ -91,7 +91,7 @@ implementer_effort: "high"
 verifier_model: "opus"
 verifier_effort: "high"
 model_rationale: "Lambda code item per MODEL-TIERING guidance (sonnet/high implementer, opus/high verifier). Not security_critical — no authorization surface — but the opus verifier is retained because a malformed Haiku prompt/schema edit breaks production /generate for every visitor and cannot be re-tested cheaply (the phase allows only 2 /generate calls), so the verification is a careful static read rather than a re-run."
-status: "running"
+status: "done"
 ```
 
 **Assignment brief:**
@@ -221,7 +221,7 @@ implementer_effort: "high"
 verifier_model: "opus"
 verifier_effort: "high"
 model_rationale: "Deviates upward from the sonnet/high verifier that MODEL-TIERING suggests for test items: this item is permitted to make minimal fixes to lambda_function.py when a test exposes a real defect, so its diff can touch the send path. Marked security_critical and given an opus/high verifier, which must re-run pytest itself AND diff lambda_function.py against the p2-source-and-location state to confirm no test was weakened to pass and no guard was loosened."
-status: "pending"
+status: "done"
 ```
 
 **Assignment brief:**
@@ -343,7 +343,7 @@ implementer_effort: "high"
 verifier_model: "opus"
 verifier_effort: "high"
 model_rationale: "Deviates upward from the sonnet verifier MODEL-TIERING suggests for scripted/mechanical work: this is the item that makes the authorization change live in production. security_critical=true and an opus/high verifier, which independently re-reads CodeSha256 from AWS and re-runs the CloudWatch window rather than trusting the handoff. The implementer's own work is mechanical, so sonnet/high suffices there."
-status: "pending"
+status: "done"
 ```
 
 **Assignment brief:**
@@ -478,7 +478,7 @@ implementer_effort: "high"
 verifier_model: "opus"
 verifier_effort: "high"
 model_rationale: "Deviates upward from the sonnet verifier MODEL-TIERING suggests for harness items: this run is the only end-to-end evidence that the suppression control works in production, so a false green here ships an unenforced control. security_critical=true with an opus/high verifier that independently re-scans the three tables for residue and re-reads CloudWatch rather than trusting the pasted output."
-status: "pending"
+status: "done"
 ```
 
 **Assignment brief:**
@@ -607,7 +607,7 @@ implementer_effort: "high"
 verifier_model: "opus"
 verifier_effort: "high"
 model_rationale: "Deviates upward from a sonnet verifier: the evidence for this item is destroyed by its own mandatory cleanup, so the verifier must judge whether the pasted evidence chain (invoke response, get-item JSON, CloudWatch request id, deletion proof) is internally consistent and independently corroborate it from CloudWatch — reasoning about evidence rather than re-running a command. Re-running costs the phase's only spare Anthropic call."
-status: "pending"
+status: "done"
 ```
 
 **Assignment brief:**
@@ -746,7 +746,7 @@ implementer_effort: "high"
 verifier_model: "sonnet"
 verifier_effort: "high"
 model_rationale: "Numerical reconciliation against a documented baseline; read-only, no authorization surface, and fully re-runnable by the verifier (run report.py, run the CLI count scans, compare). sonnet/high on both sides per the MODEL-TIERING tooling default."
-status: "pending"
+status: "done"
 ```
 
 **Assignment brief:**
@@ -804,7 +804,7 @@ implementer_effort: "medium"
 verifier_model: "sonnet"
 verifier_effort: "medium"
 model_rationale: "Docs item — MODEL-TIERING guidance is sonnet/medium implementer with sonnet/medium verifier, and Phase 01's docs item passed at that tier with the verifier tracing every claim back to a handoff. Same pattern applies here."
-status: "pending"
+status: "done"
 ```
 
 **Assignment brief:**

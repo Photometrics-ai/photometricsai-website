@@ -44,3 +44,11 @@ rejected discovery — gets one entry, oldest first.
 **Decision:** approved
 
 ---
+## 2026-09-03 — p2-docs verifier rejection resolved by lead
+
+**Source:** p2-docs verifier (single finding: flagged-officials table key schema missing)
+**Change:** CLAUDE.md line 246 now states PK `email` for photometrics-flagged-officials (confirmed by verifier's describe-table). Item marked done by the lead; no correction round dispatched for a one-token fix.
+**Affected items:** p2-docs
+**Decision:** approved
+
+---
