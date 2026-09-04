@@ -1,4 +1,4 @@
-# SEO Routine Prompt (paste into Claude Code, weekly or bi-weekly)
+# SEO Routine Prompt (paste into Claude Code every two weeks)
 
 Copy everything below the line into a Claude Code session opened in this repo. Have Chrome open; Claude in Chrome will open Glyphex, Ahrefs, and Ubersuggest tabs and ask you to sign in if the sessions have expired.
 
@@ -6,17 +6,17 @@ Skill script quirks learned 2026-09-04: pass Windows-style paths (`C:/...`) to t
 
 ---
 
-Run the routine SEO check-in for photometrics.ai. Use the /seo skill for every automated step. Do not ask me to log in or check anything manually — Claude in Chrome is already signed in to Glyphex, Ahrefs Webmaster Tools, and Ubersuggest; Google Search Console and GA4 are wired through the /seo google API credentials (service account, tier 2), so pull those via the API, not the browser.
+Run the bi-weekly SEO check-in for photometrics.ai. Use the /seo skill for every automated step. Do not ask me to log in or check anything manually — Claude in Chrome is already signed in to Glyphex, Ahrefs Webmaster Tools, and Ubersuggest; Google Search Console and GA4 are wired through the /seo google API credentials (service account, tier 2), so pull those via the API, not the browser.
 
 Before starting, read the most recent file in `seo/reports/` (if any) so you can distinguish NEW issues from ones already flagged, and so you can see which rotation pages were covered last time.
 
 ## Part 1 — Google data via API (/seo google)
 
-1. `/seo google gsc` — GSC lags 2-3 days, so use explicit windows ending 3 days ago: current = last 7 full days, prior = the 7 before (14 vs 14 on a bi-weekly run). Pull four queries with the skill's script: `--dimensions date` over both windows (this gives the accurate totals — query-dimension rows are anonymized and undercount), `--dimensions query` per window, `--dimensions page` per window. Report clicks, impressions, CTR, average position with deltas. List new queries absent from the prior window. Flag high-impression/low-CTR pages as title/meta-rewrite candidates. Report any `beta.photometrics.ai` URLs that still show impressions.
+1. `/seo google gsc` — GSC lags 2-3 days, so use explicit windows ending 3 days ago: current = last 14 full days, prior = the 14 before. The site's traffic is small, so treat any week-over-week move under about 30% as noise and say so. Pull four queries with the skill's script: `--dimensions date` over both windows (this gives the accurate totals — query-dimension rows are anonymized and undercount), `--dimensions query` per window, `--dimensions page` per window. Report clicks, impressions, CTR, average position with deltas. List new queries absent from the prior window. Flag high-impression/low-CTR pages as title/meta-rewrite candidates. Report any `beta.photometrics.ai` URLs that still show impressions.
 2. `/seo google sitemaps https://photometrics.ai` — sitemap submitted, processed, no errors, discovered-URL count matches expectations.
 3. `/seo google inspect` on any page that lost impressions week-over-week, plus any page published or edited since the last report (check `git log --since` on `content/`). Report index status, canonical, and last crawl date.
 4. Core Web Vitals: CrUX has no field data for this origin (too little Chrome traffic), so skip `crux-history` and run `/seo google pagespeed https://photometrics.ai` for lab data on mobile and desktop. Report performance score, LCP, CLS, TBT, and the top opportunity. Compare to the previous report.
-5. `/seo google ga4 --days 14` and `/seo google ga4-pages --days 14` — the GA4 script only takes `--days`, so pull 14 days and split the `daily_data` into two 7-day halves yourself. Report organic sessions per window and top landing pages. Flag any landing page whose organic traffic dropped more than 25%. Note when GA4 and GSC disagree on direction.
+5. `/seo google ga4 --days 28` and `/seo google ga4-pages --days 28` — the GA4 script only takes `--days`, so pull 28 days and split the `daily_data` into two 14-day halves yourself. Report organic sessions per window and top landing pages. Flag any landing page whose organic traffic dropped more than 25%. Note when GA4 and GSC disagree on direction.
 
 ## Part 2 — Claude-seo site checks
 
@@ -25,7 +25,7 @@ Before starting, read the most recent file in `seo/reports/` (if any) so you can
 8. `/seo sitemap https://photometrics.ai/sitemap.xml` — confirm it matches actual content pages in `content/`.
 9. Run `/seo page` on the next 3 pages in this rotation (continue from where the last report left off; wrap around at the end):
    homepage, how-it-works, benefits, about, faq, tools, take-action, insights/adaptive-street-lighting, insights/beyond-led-conversion, insights/transportation-safety, insights/utility-cost-avoidance, insights/led-conversion-vs-optimization, best-practices/utilities, best-practices/birds, best-practices/public-safety, best-practices/transportation-safety, best-practices/dark-sky, press/birdcast-integration, concepts, civil-lighting-design
-10. Monthly only (first run of each month): also run `/seo geo https://photometrics.ai` for AI-search readiness and `/seo audit https://photometrics.ai` for the full health score.
+10. Every other run (roughly monthly): also run `/seo geo https://photometrics.ai` for AI-search readiness and `/seo audit https://photometrics.ai` for the full health score.
 
 ## Part 3 — Browser tools via Claude in Chrome
 
