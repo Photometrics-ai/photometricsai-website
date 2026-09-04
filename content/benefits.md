@@ -1,11 +1,11 @@
 ---
-title: "The Numbers"
+title: "Street Lighting Optimization ROI"
 subtitle: "Quantified value for municipalities, utilities, and communities"
-description: "Photometrics AI delivers $61.27 combined value per light per year. Quantified savings for municipalities, utilities, and communities."
+description: "Photometrics AI delivers $61.27 combined value per light per year: 35% energy savings, no hardware. Quantified for municipalities, utilities, and communities."
 keywords: ["street lighting ROI", "LED victory lap", "duck curve street lighting", "avoided cost street lighting", "streetlight energy savings"]
 layout: benefits
 type: page
-lastmod: 2026-03-13
+lastmod: 2026-09-04
 ---
 
 <div class="stats-grid" style="margin-bottom: var(--space-xl);">
@@ -114,10 +114,10 @@ Street lighting load arrives at sunset, the exact hours when energy is most expe
 - DarkSky Recognized Codes
 - Local outdoor lighting ordinances
 
-[^1]: Derived from [LEDSmaster street light cost data](https://claude-sources.s3.us-west-2.amazonaws.com/public/ledsmaster-street-light-costs.pdf), [OSRAM LED reliability data](https://claude-sources.s3.us-west-2.amazonaws.com/public/osram-led-reliability-lifetime-2013.pdf), and [EIA Electric Power Monthly](https://claude-sources.s3.us-west-2.amazonaws.com/public/eia-electric-power-monthly-oct2025.pdf).
+[^1]: Derived from LEDSmaster street light cost data, OSRAM LED reliability data (2013), and [EIA Electric Power Monthly](https://www.eia.gov/electricity/monthly/).
 [^2]: 35% is the weighted average of 25% savings during evening hours and 50% savings during early-morning hours (1–5 AM). See methodology in footnote 5.
-[^3]: Derived from [BJS Justice Expenditure data](https://claude-sources.s3.us-west-2.amazonaws.com/public/bjs-justice-expenditures-employment-2017.pdf), [NHTSA crash cost data](https://claude-sources.s3.us-west-2.amazonaws.com/public/nhtsa-crash-costs-2019.pdf), and [CPUC ACC Documentation](https://claude-sources.s3.us-west-2.amazonaws.com/public/cpuc-acc-documentation-2024.pdf).
-[^4]: [FHWA, Lighting as a Proven Safety Countermeasure](https://claude-sources.s3.us-west-2.amazonaws.com/public/fhwa-lighting-safety-countermeasure.pdf)
-[^5]: [Calculating the Value of Street Light Optimization: Utilities](/insights/utility-cost-avoidance/) — Ari Isaak, Photometrics AI. Based on [CPUC Avoided Cost Calculator, 2024](https://claude-sources.s3.us-west-2.amazonaws.com/public/cpuc-acc-documentation-2024.pdf).
-[^6]: [PG&E LS-2 Streetlight Tariff](https://claude-sources.s3.us-west-2.amazonaws.com/public/pge-ls2-streetlight-tariff-2026.pdf) and [AB 719 Assembly Bill Analysis](https://claude-sources.s3.us-west-2.amazonaws.com/public/AB%20719%20Assembly%20Bill%20-%20Bill%20Analysis.pdf).
-[^7]: [CPUC Avoided Cost Calculator Documentation, 2024](https://claude-sources.s3.us-west-2.amazonaws.com/public/cpuc-acc-documentation-2024.pdf) — battery storage equivalent based on ACC capacity cost assumptions.
+[^3]: Derived from [BJS Justice Expenditure and Employment Extracts, 2017](https://bjs.ojp.gov/library/publications/justice-expenditure-and-employment-extracts-2017-preliminary), [NHTSA, The Economic and Societal Impact of Motor Vehicle Crashes, 2019](https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/813403), and [CPUC Avoided Cost Calculator documentation](https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/energy-efficiency/idsm).
+[^4]: [FHWA, Lighting — Proven Safety Countermeasures](https://highways.dot.gov/safety/proven-safety-countermeasures/lighting)
+[^5]: [Calculating the Value of Street Light Optimization: Utilities](/insights/utility-cost-avoidance/) — Ari Isaak, Photometrics AI. Based on [CPUC Avoided Cost Calculator, 2024](https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/energy-efficiency/idsm).
+[^6]: [PG&E Schedule LS-2 Streetlight Tariff](https://www.pge.com/tariffs/assets/pdf/tariffbook/ELEC_SCHEDS_LS-2.pdf) and [AB 719 (2013) Assembly Committee Bill Analysis](https://leginfo.legislature.ca.gov/faces/billAnalysisClient.xhtml?bill_id=201320140AB719).
+[^7]: [CPUC Avoided Cost Calculator Documentation, 2024](https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/energy-efficiency/idsm) — battery storage equivalent based on ACC capacity cost assumptions.

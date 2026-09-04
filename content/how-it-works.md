@@ -17,7 +17,7 @@ This isn't blanket dimming. It's not "reduce everything by 30% after midnight." 
 This is [civil lighting design](/concepts/#civil-lighting-design) at scale. The result: energy savings of 25-50% while *maintaining or improving* lighting quality where it matters most.[^1]
 
 <div style="margin: var(--space-xl) 0; text-align: center;">
-  <img src="/images/how-it-works-system.png" alt="Photometrics AI system diagram showing four integrated components: Target Lighting Layer mapping, AI-accelerated Optimization Engine, Dynamic Scheduling, and Lighting Controls System Integration" style="max-width: 100%;">
+  <img src="/images/how-it-works-system.webp" width="1280" height="450" loading="lazy" decoding="async" alt="Photometrics AI system diagram showing four integrated components: Target Lighting Layer mapping, AI-accelerated Optimization Engine, Dynamic Scheduling, and Lighting Controls System Integration" style="max-width: 100%;">
   <p style="font-size: 0.85rem; color: var(--text-subtle); margin-top: var(--space-sm);">Four integrated components — from GIS mapping to your existing lighting controls</p>
 </div>
 

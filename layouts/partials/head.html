@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {{ with .Site.Params.googleSiteVerification }}<meta name="google-site-verification" content="{{ . }}">{{ end }}
 
-{{ $ogImage := printf "%simages/og-image.png" .Site.BaseURL }}
+{{ $ogImage := printf "%simages/og-image.jpg" .Site.BaseURL }}
 {{ with .Params.og_image }}{{ $ogImage = printf "%s%s" $.Site.BaseURL (strings.TrimPrefix "/" .) }}{{ end }}
 
 <!-- Primary Meta Tags -->
@@ -30,7 +30,7 @@
 <meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}">
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
 <meta property="og:image" content="{{ $ogImage }}">
-<meta property="og:image:type" content="image/png">
+<meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
 <meta property="og:site_name" content="Photometrics AI">
@@ -85,6 +85,9 @@
 {{ partial "schema-newsarticle.html" . }}
 {{ end }}
 
+{{ if .IsHome }}<!-- Hero poster is the LCP element: make it discoverable before the video -->
+<link rel="preload" as="image" href="/videos/posters/hero-night-sky.jpg" fetchpriority="high">
+{{ end }}
 <!-- Fonts: preconnect + non-blocking preload (Google Fonts) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
