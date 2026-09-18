@@ -1358,6 +1358,11 @@ section {
   border-color: var(--border-light);
 }
 
+.faq-question-heading {
+  margin: 0;
+  font: inherit;
+}
+
 .faq-question {
   width: 100%;
   text-align: left;

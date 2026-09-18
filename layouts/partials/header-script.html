@@ -1,0 +1,47 @@
+<!-- Header interaction JS, loaded at the end of body so it never blocks the parser
+     from reaching the LCP element (video/hero markup) that follows the header. -->
+<script>
+function toggleMobileMenu() {
+  const navLinks = document.getElementById('nav-links');
+  const menuButton = document.querySelector('.mobile-menu-toggle');
+  const isExpanded = navLinks.classList.toggle('active');
+  menuButton.classList.toggle('active');
+  menuButton.setAttribute('aria-expanded', isExpanded);
+}
+
+// Header theme detection based on section background
+document.addEventListener('DOMContentLoaded', function() {
+  const header = document.getElementById('site-header');
+  const sections = document.querySelectorAll('[data-theme]');
+
+  function updateHeaderTheme() {
+    const headerBottom = header.getBoundingClientRect().bottom;
+
+    // Find which section the header is overlapping
+    let currentTheme = 'dark'; // default
+
+    for (const section of sections) {
+      const rect = section.getBoundingClientRect();
+      // If the header bottom is within this section
+      if (rect.top <= headerBottom && rect.bottom > 0) {
+        currentTheme = section.dataset.theme;
+        break;
+      }
+    }
+
+    if (currentTheme === 'light') {
+      header.classList.add('theme-light');
+      header.classList.remove('theme-dark');
+    } else {
+      header.classList.add('theme-dark');
+      header.classList.remove('theme-light');
+    }
+  }
+
+  // Update on scroll
+  window.addEventListener('scroll', updateHeaderTheme, { passive: true });
+
+  // Initial check
+  updateHeaderTheme();
+});
+</script>

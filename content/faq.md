@@ -1,7 +1,8 @@
 ---
 title: "Frequently Asked Questions"
+seo_title: "Photometrics AI FAQ: Target Lighting Layers Explained"
 subtitle: "Everything you need to know about Photometrics AI"
-description: "What is a Target Lighting Layer? What is civil lighting design? How does street lighting optimization work? Answers to common questions about precision lighting, the false binary, and closing the design gap."
+description: "Answers to common questions about Photometrics AI: Target Lighting Layers, civil lighting design, and how street lighting optimization works."
 keywords: ["false binary street lighting", "target lighting layer", "networked lighting controls optimization", "blanket dimming alternative", "civil lighting design"]
 type: "faq"
 cta: "demo-both"

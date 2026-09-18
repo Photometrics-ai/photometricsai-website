@@ -14,12 +14,14 @@
       {{ range .Params.faq }}
       {{ $faqId := .id | default (printf "faq-%d" $index) }}
       <div class="faq-item" role="listitem"{{ with .id }} id="{{ . }}"{{ end }}>
-        <button class="faq-question"
-                aria-expanded="false"
-                aria-controls="answer-{{ $faqId }}"
-                onclick="toggleFaq(this)">
-          {{ .question }}
-        </button>
+        <h3 class="faq-question-heading">
+          <button class="faq-question"
+                  aria-expanded="false"
+                  aria-controls="answer-{{ $faqId }}"
+                  onclick="toggleFaq(this)">
+            {{ .question }}
+          </button>
+        </h3>
         <div class="faq-answer" id="answer-{{ $faqId }}" role="region" aria-hidden="true">
           <div class="faq-answer-content">
             {{ .answer | markdownify }}

@@ -24,6 +24,7 @@ Photometrics AI analyzes the unique context of every luminaire (height, optic ty
 - [Migratory Birds](https://photometrics.ai/best-practices/birds/): How intelligent street lighting protects migratory birds by automatically dimming during peak migration events.
 - [Public Safety](https://photometrics.ai/best-practices/public-safety/): How targeted lighting enhances public safety through evidence-based strategies rather than blanket brightness.
 - [Transportation Safety](https://photometrics.ai/best-practices/transportation-safety/): How precision lighting reduces nighttime crashes and pedestrian fatalities at high-risk locations.
+- [Dark Sky](https://photometrics.ai/best-practices/dark-sky/): How precision street lighting helps cities reduce skyglow and support DarkSky International goals without sacrificing safety.
 
 ## Key Concepts
 
@@ -41,6 +42,9 @@ Photometrics AI analyzes the unique context of every luminaire (height, optic ty
 - [Calculating the Value of Street Light Optimization for Transportation Safety (2 of 7)](https://photometrics.ai/insights/transportation-safety/): Original FARS analysis (2001–2024) shows fatal crashes spike at the darkness transition. Street lighting optimization reduces crash-related costs by $7.82 per light per year. BCA of 1.56.
 - [LED Conversion vs. Optimization: Comparing the ROI](https://photometrics.ai/insights/led-conversion-vs-optimization/): LED retrofits saved energy but left the same crude design in place. Per-luminaire optimization cuts another 25–50% from systems that already converted.
 - [Why Adaptive Street Lighting Is the Next Infrastructure Priority](https://photometrics.ai/insights/adaptive-street-lighting/): Most adaptive lighting is just blanket dimming with a network connection. Real optimization calculates every luminaire individually using GIS and photometric data.
+- [After Dark: A Year of Road Crashes, Mapped by Twilight Phase](https://photometrics.ai/insights/crashes-after-dark-map/): An interactive map of 8,293 road crashes in 2024, each classified by the calculated position of the sun. Darkness is 31% of crashes but 42% of the deaths — a crash after dark is 1.6x more likely to be fatal.
+- [How Street Lighting's Lowest-Liability Guesses Result in Overlighting](https://photometrics.ai/insights/lowest-liability-overlighting/): Street lighting design assumptions aren't best guesses, they're lowest-liability guesses, and every one biases toward more light. Five stacking factors add up to 50 to 150 percent overlight on every street.
+- [How to Use the Phase Calculator](https://photometrics.ai/insights/phase-calculator-guide/): Step-by-step guide to the free Phase Calculator tool. Upload a CSV of times and locations and get back the sun's exact position and whether streetlights were on, for every row.
 
 ## Press
 

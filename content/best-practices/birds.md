@@ -6,7 +6,6 @@ description: "How intelligent street lighting protects migratory birds by automa
 keywords: ["BirdCast street lighting", "migratory bird light pollution", "lights out automation", "context-aware lighting"]
 cta: "take-action"
 take_action_priorities: "Migratory+Birds"
-lastmod: 2026-03-13
 ---
 
 ## The Problem We Created

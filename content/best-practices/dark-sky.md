@@ -6,7 +6,6 @@ description: "How precision street lighting helps cities reduce skyglow and supp
 keywords: ["dark sky street lighting", "light pollution reduction", "DarkSky ordinance compliance", "skyglow reduction", "precision lighting dark sky"]
 cta: "take-action"
 take_action_priorities: "Light+Pollution"
-lastmod: 2026-04-10
 ---
 
 ## A Sky We Can No Longer See

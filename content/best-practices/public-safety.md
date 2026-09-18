@@ -7,7 +7,6 @@ description: "The relationship between street lighting and crime reduction is re
 keywords: ["false binary street lighting", "precision lighting safety", "CPTED street lighting", "street lighting crime reduction"]
 cta: "take-action"
 take_action_priorities: "Crime+%26+Safety"
-lastmod: 2026-03-13
 ---
 
 ## The False Binary: More Light Does Not Mean More Safety

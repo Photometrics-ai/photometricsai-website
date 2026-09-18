@@ -6,7 +6,6 @@ description: "How intelligent street lighting reduces nighttime crashes and pede
 keywords: ["RP-8 street lighting", "standards-practice gap lighting", "wet pavement visibility", "street lighting crash reduction"]
 cta: "take-action"
 take_action_priorities: "Transportation+Safety"
-lastmod: 2026-03-13
 ---
 
 ## Three Times More Dangerous After Dark
