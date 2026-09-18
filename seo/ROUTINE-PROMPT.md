@@ -64,7 +64,7 @@ Then run the same bi-weekly check-in for evarilux.com. Its real repo is `C:\User
 
 ### Part 5 — Google data + claude-seo checks
 
-1. **GSC and GA4 — only once wired up.** As of 2026-09-18 neither is: `gsc_query.py sites --json` only returns `sc-domain:photometrics.ai`, and evarilux's GA4 measurement ID (`G-BQWQ88MS3Q`, set in `hugo.yaml`) has no service-account viewer access granted yet. Check `/seo google gsc --property sc-domain:evarilux.com` (or the URL-prefix form if evarilux was verified that way instead) at the start of each run — if it now returns data, wire in the same current/prior-14-day-window analysis used for photometrics (Part 1, steps 1-3 there) and start tracking headline numbers for evarilux too. Until then, skip and note it under Skipped.
+1. **GSC and GA4.** Both wired as of 2026-09-18: property `sc-domain:evarilux.com` (service account has Full access) and GA4 `properties/553928344` (service account has Viewer access). Run `/seo google gsc --property sc-domain:evarilux.com` and `/seo google ga4 --property properties/553928344 --days 28` the same way as photometrics Part 1 steps 1-3 and 5 — current/prior 14-day windows once there's enough history to split (the site launched 2026-09-10, so early runs will have a short or empty prior window; that's expected, not an error).
 2. `/seo google pagespeed https://evarilux.com` — this needs no ownership setup, works today regardless of GSC/GA4 status. Report mobile + desktop performance score, LCP, CLS, TBT, and top opportunity every run.
 3. `/seo technical https://evarilux.com`
 4. `/seo schema https://evarilux.com` — this is a fresh migration; expect little or no structured data on the first several runs, that's a finding, not a false positive.
