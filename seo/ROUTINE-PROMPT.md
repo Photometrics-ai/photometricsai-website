@@ -1,10 +1,14 @@
 # SEO Routine Prompt (paste into Claude Code every two weeks)
 
-Copy everything below the line into a Claude Code session opened in this repo. Have Chrome open; Claude in Chrome will open Glyphex, Ahrefs, and Ubersuggest tabs and ask you to sign in if the sessions have expired.
+Copy everything below the line into a Claude Code session opened in this repo (photometricsai-website). Have Chrome open; Claude in Chrome will open Glyphex, Ahrefs, and Ubersuggest tabs and ask you to sign in if the sessions have expired.
 
 Skill script quirks learned 2026-09-04: pass Windows-style paths (`C:/...`) to the skill's Python scripts, not `/c/...`; `pagespeed_check.py` needed a one-line patch (`audit_details` was never initialized) which is applied in `~/.claude/skills/seo/scripts/`.
 
+Added 2026-09-18: this single session now also covers **evarilux.com** (Parts 5-6 below), a second site whose real repo lives outside this one at `C:\Users\aisaa\Projects\Evariluxdotcom\NewMigration\evarilux-claude-migration` — use absolute paths for it; do not `cd` there and lose this repo as the working directory for Parts 1-4. (There's also an abandoned, non-git scaffold one directory up at `C:\Users\aisaa\Projects\Evariluxdotcom` itself — not the real site, ignore it.)
+
 ---
+
+## photometrics.ai
 
 Run the bi-weekly SEO check-in for photometrics.ai. Use the /seo skill for every automated step. Do not ask me to log in or check anything manually — Claude in Chrome is already signed in to Glyphex, Ahrefs Webmaster Tools, and Ubersuggest; Google Search Console and GA4 are wired through the /seo google API credentials (service account, tier 2), so pull those via the API, not the browser.
 
@@ -48,4 +52,27 @@ Write the report to `seo/reports/YYYY-MM-DD.md` (today's date) with these sectio
 - **Skipped** — anything that could not be checked and why.
 - **Rotation state** — the 3 pages checked this run and the next 3, the competitor checked in Ubersuggest, the SERP topic used and the next one, so the next run can continue.
 
-Do not fix anything in this run. Summarize the report in the terminal, lead with the headline numbers and the top 3 action items, and tell me the report path. Then commit the report with `git add -A` and message `seo: routine report YYYY-MM-DD`.
+Do not fix anything in this run. Summarize the report in the terminal, lead with the headline numbers and the top 3 action items, and tell me the report path. Then commit the report with `git add -A` and message `seo: routine report YYYY-MM-DD` (in this repo, photometricsai-website).
+
+---
+
+## evarilux.com
+
+Then run the same bi-weekly check-in for evarilux.com. Its real repo is `C:\Users\aisaa\Projects\Evariluxdotcom\NewMigration\evarilux-claude-migration` — a separate git repo (`Photometrics-ai/evarilux-site`, deploy branch `preview`, Amplify app `d7zz1is95ds12`). Read that repo's own `seo/reports/` (once it exists) the same way, for the same reason: distinguish new issues from carried-over ones.
+
+**Deliberately smaller scope than photometrics.ai** — no Glyphex, no Ahrefs, no Ubersuggest for this site. The traffic/backlink volume doesn't justify the manual sign-in overhead or (for Ahrefs Pro-tier features) the cost yet. Revisit this call once the site has real traffic history — see `evarilux-added-2026-09-18` reference note. The whole site is small (~13 pages), so there's no page rotation — audit all of it every run instead of rotating 3 at a time.
+
+### Part 5 — Google data + claude-seo checks
+
+1. **GSC and GA4 — only once wired up.** As of 2026-09-18 neither is: `gsc_query.py sites --json` only returns `sc-domain:photometrics.ai`, and evarilux's GA4 measurement ID (`G-BQWQ88MS3Q`, set in `hugo.yaml`) has no service-account viewer access granted yet. Check `/seo google gsc --property sc-domain:evarilux.com` (or the URL-prefix form if evarilux was verified that way instead) at the start of each run — if it now returns data, wire in the same current/prior-14-day-window analysis used for photometrics (Part 1, steps 1-3 there) and start tracking headline numbers for evarilux too. Until then, skip and note it under Skipped.
+2. `/seo google pagespeed https://evarilux.com` — this needs no ownership setup, works today regardless of GSC/GA4 status. Report mobile + desktop performance score, LCP, CLS, TBT, and top opportunity every run.
+3. `/seo technical https://evarilux.com`
+4. `/seo schema https://evarilux.com` — this is a fresh migration; expect little or no structured data on the first several runs, that's a finding, not a false positive.
+5. `/seo sitemap https://evarilux.com/sitemap.xml` — cross-check against the real repo's `content/`. Known migration quirk to watch: most page body copy lives in `data/live.json` or is hardcoded in `layouts/*.html`, not in the Markdown bodies — read that repo's own `CLAUDE.md`/`README.md` before flagging a page as thin, since the Markdown body may simply not be where the words are.
+6. `/seo geo https://evarilux.com` — every run for now (not gated to monthly the way photometrics' is), since AI-crawler readiness is worth getting right early on a new site.
+7. `/seo page` on every page of the site (there's no rotation to track): `/`, `/overview/`, `/applications/`, `/projects/`, each of the 7 `/projects/<slug>/` pages, `/get-in-touch/`. Flag any of the `-coming-soon` project stub pages that are thin/placeholder and indexable — those are candidates for `noindex` until real content exists, not a content-quality problem to fix by padding them.
+8. Every other run (roughly monthly, same cadence as photometrics' Part 2 step 10): `/seo audit https://evarilux.com` for the full health score.
+
+### Part 6 — evarilux report
+
+Write to `C:\Users\aisaa\Projects\Evariluxdotcom\NewMigration\evarilux-claude-migration\seo\reports\YYYY-MM-DD.md`, same section order as Part 4 (Headline numbers / New issues / Still open / Resolved / Weakest pages / Action items / Content prompts / Skipped), minus anything that doesn't apply (no referring-domains row, no rotation-state section since there's no rotation, no Glyphex/Ahrefs/Ubersuggest subsections). Commit it inside that repo (`git add -A` + `git commit -m "seo: routine report YYYY-MM-DD"`, run from that directory) — it's a separate git history from photometricsai-website, so this is a second, separate commit from the one in Part 4.
