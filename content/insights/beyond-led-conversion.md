@@ -1,6 +1,7 @@
 ---
 title: "The LED conversion is over. What comes next?"
-description: "The economic engine that powered fifteen years of street lighting upgrades is running out of fuel. The next phase of value is not in the hardware. It is in how the hardware is operated."
+seo_title: "After LED Conversion: What's Next for Street Lighting"
+description: "LED-to-LED swaps don't pay for themselves. The next value in street lighting is software that optimizes how installed lights operate."
 tags:
   - energy
   - optimization
@@ -30,19 +31,19 @@ A 2012 sodium fixture running at 250 watts all night and a 2025 LED running at 9
 
 The question the industry stopped asking after the LED conversion: does the lighting actually serve the community well? Not cheaply. Well.
 
-Pedestrian crashes spike during dark conditions. Three out of four pedestrian fatalities happen at night. The lights that are on during those crashes were designed for a generic worst-case scenario, not for the actual conditions at that location at that moment. A crosswalk at an unlit intersection. A bus stop before dawn. A residential street where the lights are as bright at 3 AM as they are at 9 PM, but the crosswalk two blocks away is underlit because the typical layout didn't account for the geometry.
+[Pedestrian crashes spike during dark conditions](/insights/transportation-safety/). Three out of four pedestrian fatalities happen at night. The lights that are on during those crashes were designed for a generic worst-case scenario, not for the actual conditions at that location at that moment. A crosswalk at an unlit intersection. A bus stop before dawn. A residential street where the lights are as bright at 3 AM as they are at 9 PM, but the crosswalk two blocks away is underlit because the typical layout didn't account for the geometry.
 
 Efficiency did not fix these problems. It made them cheaper to ignore.
 
 ## Where the value is now
 
-Roughly 15% of the world's streetlights operate on networked lighting controls. Nodes installed. CMS running. The infrastructure to operate lights dynamically exists.
+Roughly 15% of the world's streetlights operate on [networked lighting controls](/how-it-works/). Nodes installed. CMS running. The infrastructure to operate lights dynamically exists.
 
 Most of these systems run at full power, all night, with a crude time-based dim at midnight. Not because the controls cannot do more, but because nobody has done the photometric engineering to tell them what to do.
 
 This is where the next phase of value lives. Not in replacing the luminaire, but in making the luminaire perform differently under different conditions. Software that calculates the optimal output for each fixture based on its actual geometry, the lighting standard that applies, and the conditions at that moment.
 
-The savings come from two mechanisms. First, precision design eliminates the over-illumination baked into every typical layout. When a lighting engineer designs for a generic road type, they design for the worst location within that type. Every location that is not the worst case is overlit. Per-luminaire optimization identifies and removes that excess, fixture by fixture. Second, time-of-night dimming reduces output further during hours when traffic volumes and pedestrian activity are lower, while maintaining the lighting standard required for those conditions.
+The savings come from two mechanisms. First, precision design eliminates the over-illumination baked into every typical layout. When a lighting engineer designs for a generic road type, they design for the worst location within that type. Every location that is not the worst case is overlit. [Per-luminaire optimization](/insights/adaptive-street-lighting/) identifies and removes that excess, fixture by fixture. Second, time-of-night dimming reduces output further during hours when traffic volumes and pedestrian activity are lower, while maintaining the lighting standard required for those conditions.
 
 These are not marginal gains. Combined, they produce meaningful energy savings on top of infrastructure that has already been converted to LED. And because the optimization is software-only, it requires no hardware, no field crews, no capital investment in fixtures.
 
@@ -66,13 +67,13 @@ The result is not dimmer streets. It is streets that meet the standard without t
 
 The LED conversion sold efficiency. The next sale has to sell capability.
 
-What does that mean in practice? A city's streetlights respond to weather conditions. When rain reduces road surface visibility, the lighting adjusts. When a sporting event ends and crowds hit the streets, the lighting is ready. When BirdCast forecasts a major migration night, residential areas dim while main roads stay lit. When the grid operator calls for demand reduction, the lighting system participates. When a crosswalk has a history of nighttime crashes, it gets targeted illumination during the hours the data says crashes cluster.
+What does that mean in practice? A city's streetlights respond to weather conditions. When rain reduces road surface visibility, the lighting adjusts. When a sporting event ends and crowds hit the streets, the lighting is ready. When [BirdCast forecasts a major migration night](/press/birdcast-integration/), residential areas dim while main roads stay lit. When the grid operator calls for demand reduction, the lighting system participates. When a crosswalk has a history of nighttime crashes, it gets targeted illumination during the hours the data says crashes cluster.
 
 None of this requires new luminaires. It requires intelligence applied to the luminaires already in the ground.
 
 For contractors and distributors facing the LED-to-LED replacement conversation, this changes the pitch. You are not selling a fixture swap with marginal efficiency gains. You are selling smarter infrastructure that delivers measurable results year after year. The value does not depreciate with the hardware. It compounds as more data, more scenarios, and more integrations come online.
 
-For municipalities facing tight budgets and aging LED stock, this changes the calculus. The most cost-effective investment is not replacing fixtures that still work. It is making those fixtures perform better through software.
+For municipalities facing tight budgets and aging LED stock, this changes the calculus. The most cost-effective investment is not [replacing fixtures that still work](/insights/led-conversion-vs-optimization/). It is making those fixtures perform better through software.
 
 ## The infrastructure is already there
 
