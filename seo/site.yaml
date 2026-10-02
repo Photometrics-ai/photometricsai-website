@@ -1,0 +1,38 @@
+# Config for the site-seo-routine skill (~/.claude/skills/site-seo-routine/SKILL.md).
+site: Photometrics AI
+domain: photometrics.ai
+gsc_property: sc-domain:photometrics.ai
+ga4_property: "529600118"
+noise_threshold_pct: 30
+crux: false                    # no CrUX field data for this origin (too little Chrome traffic)
+browser_checks: true           # Glyphex, Ahrefs, Ubersuggest, SERP check: see seo/browser-checks.md
+geo_audit_cadence: every_other_run
+page_rotation: rotate
+pages_per_run: 3
+pages:
+  - /
+  - /how-it-works/
+  - /benefits/
+  - /about/
+  - /faq/
+  - /tools/
+  - /take-action/
+  - /insights/adaptive-street-lighting/
+  - /insights/beyond-led-conversion/
+  - /insights/transportation-safety/
+  - /insights/utility-cost-avoidance/
+  - /insights/led-conversion-vs-optimization/
+  - /best-practices/utilities/
+  - /best-practices/birds/
+  - /best-practices/public-safety/
+  - /best-practices/transportation-safety/
+  - /best-practices/dark-sky/
+  - /press/birdcast-integration/
+  - /concepts/
+  - /civil-lighting-design/
+watch_hosts:
+  - beta.photometrics.ai       # dead host (NXDOMAIN since ~2026-09); flag if it earns impressions again
+quirks:
+  - "Footnotes link to the primary public source, never to S3 archive copies (see memory). Don't flag a missing archive link."
+  - "/take-action/ is a paid-traffic landing page (Google Ads), so judge it as a conversion page, not an organic one."
+  - "/civil-lighting-design/ is a separate newsletter, deliberately styled as a civil plan sheet. Off-brand visuals are intentional."
