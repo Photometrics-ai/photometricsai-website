@@ -102,6 +102,8 @@ Optional:
 
 Times are in local timezone (auto-detected from coordinates) with DST adjustments.
 
+Each row covers one calendar date: lights OFF that morning, ON that evening. Hours are elapsed time (midnight to OFF, ON to the next midnight), so they stay correct on DST transition days.
+
 ---
 
 ## Twilight Phases

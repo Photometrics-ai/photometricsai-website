@@ -10,7 +10,7 @@ from datetime import date, timedelta
 import pytz
 from timezonefinder import TimezoneFinder
 
-from twilight_times import calculate_nautical_times
+from twilight_times import CSV_HEADER, twilight_row
 
 
 def generate_twilight_with_progress(
@@ -58,42 +58,17 @@ def generate_twilight_with_progress(
 
     with open(output_path, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['date', 'streetlights_off_time', 'sunrise', 'sunset',
-                         'streetlights_on_time', 'streetlights_on_hours_morning',
-                         'streetlights_on_hours_evening', 'streetlights_on_hours_total'])
+        writer.writerow(CSV_HEADER)
 
         while current_date <= end_date:
             stats['total_days'] += 1
 
-            dusk, dawn, sunrise, sunset = calculate_nautical_times(lat, lon, current_date, tz)
-
-            if dusk and dawn:
+            row, valid = twilight_row(lat, lon, current_date, tz)
+            writer.writerow(row)
+            if valid:
                 stats['valid_days'] += 1
-                morning_hours = dawn.hour + dawn.minute / 60
-                evening_hours = 24 - (dusk.hour + dusk.minute / 60)
-                total_hours = morning_hours + evening_hours
-                writer.writerow([
-                    current_date.isoformat(),
-                    dawn.strftime('%H:%M'),
-                    sunrise.strftime('%H:%M') if sunrise else 'N/A',
-                    sunset.strftime('%H:%M') if sunset else 'N/A',
-                    dusk.strftime('%H:%M'),
-                    f'{morning_hours:.2f}',
-                    f'{evening_hours:.2f}',
-                    f'{total_hours:.2f}'
-                ])
             else:
                 stats['polar_days'] += 1
-                writer.writerow([
-                    current_date.isoformat(),
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A'
-                ])
 
             # Progress callback for each day
             progress_callback(stats['total_days'], total_days, tz_name)

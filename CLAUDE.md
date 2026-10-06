@@ -122,7 +122,7 @@ Astronomical sun calculation toolkit for streetlight operations. Contains CLI to
 - **`gui/`**: Desktop app (`app.py` + `tabs/`) using CustomTkinter
 - **`web/`**: SAM stack — Lambda functions, shared layer, Step Functions state machine
 
-Code is intentionally duplicated across CLI and Lambda (`sun_utils.py` exists in both `tools/sun-phase/` and `tools/sun-phase/web/layers/deps/`) for deployment isolation. When you change `sun_utils.py`, you must update both copies.
+Code is intentionally duplicated across CLI and Lambda (`sun_utils.py` exists in both `tools/sun-phase/` and `tools/sun-phase/web/layers/deps/`) for deployment isolation. When you change `sun_utils.py`, you must update both copies. Likewise, `web/layers/deps/twilight_core.py` mirrors the calculation functions in `twilight_times.py` verbatim; `python -m pytest tools/sun-phase/tests -q` fails if either pair drifts. The Lambda layer is built from `web/layers/deps/` (`BuildMethod: python3.11`); `web/lambdas/shared/` is not deployed.
 
 ### Frontend
 

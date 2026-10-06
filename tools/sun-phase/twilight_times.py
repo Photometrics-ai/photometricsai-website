@@ -23,7 +23,7 @@ Author: Evari Labs
 import argparse
 import csv
 import sys
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, time, timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -34,6 +34,10 @@ from sun_utils import sun_position
 
 # Nautical twilight threshold (degrees below horizon)
 NAUTICAL_ELEVATION = -6.0
+
+CSV_HEADER = ['date', 'streetlights_off_time', 'sunrise', 'sunset',
+              'streetlights_on_time', 'streetlights_on_hours_morning',
+              'streetlights_on_hours_evening', 'streetlights_on_hours_total']
 
 
 def find_sun_elevation_time(
@@ -111,17 +115,19 @@ def _utc_hour_to_local(utc_hour: float, target_date: date, tz: pytz.timezone) ->
     days_offset = int(utc_hour // 24)
     normalized = utc_hour % 24
     actual_date = target_date + timedelta(days=days_offset)
+    # Add minutes as a timedelta so rounding up to 24:00 rolls into the next day
     total_minutes = round(normalized * 60)
-    hour = (total_minutes // 60) % 24
-    minute = total_minutes % 60
-    dt_utc = datetime(actual_date.year, actual_date.month, actual_date.day,
-                      hour, minute, tzinfo=pytz.UTC)
+    dt_utc = (datetime(actual_date.year, actual_date.month, actual_date.day, tzinfo=pytz.UTC)
+              + timedelta(minutes=total_minutes))
     return dt_utc.astimezone(tz)
 
 
 def calculate_nautical_times(lat: float, lon: float, target_date: date, tz: pytz.timezone) -> tuple:
     """
     Calculate nautical dusk/dawn and sunrise/sunset times for a given date.
+
+    All four times fall on target_date: dawn and sunrise are that morning,
+    sunset and dusk are that evening.
 
     Args:
         lat: Latitude in degrees
@@ -146,10 +152,10 @@ def calculate_nautical_times(lat: float, lon: float, target_date: date, tz: pytz
         start_hour=solar_noon_utc, end_hour=solar_noon_utc + 12.0, rising=False
     )
 
-    # Find nautical dawn (next morning, sun rising past -6°)
+    # Find nautical dawn (same morning, sun rising past -6°)
     dawn_utc = find_sun_elevation_time(
         lat, lon, target_date, NAUTICAL_ELEVATION,
-        start_hour=solar_noon_utc + 12.0, end_hour=solar_noon_utc + 24.0, rising=True
+        start_hour=solar_noon_utc - 12.0, end_hour=solar_noon_utc, rising=True
     )
 
     # Find sunrise (morning, sun rising past 0°)
@@ -170,6 +176,54 @@ def calculate_nautical_times(lat: float, lon: float, target_date: date, tz: pytz
     sunset_local = _utc_hour_to_local(sunset_utc, target_date, tz)
 
     return dusk_local, dawn_local, sunrise_local, sunset_local
+
+
+def streetlight_hours(dusk: datetime, dawn: datetime, target_date: date, tz: pytz.timezone) -> tuple:
+    """
+    Hours streetlights are on during one calendar date, as elapsed time.
+
+    Measured in UTC so a clock change (DST) between local midnight and dawn,
+    or between dusk and the next midnight, doesn't skew the result.
+
+    Returns:
+        Tuple of (morning, evening, total): local midnight to dawn,
+        dusk to the next local midnight, and their sum.
+    """
+    midnight = tz.localize(datetime.combine(target_date, time.min))
+    next_midnight = tz.localize(datetime.combine(target_date + timedelta(days=1), time.min))
+
+    def elapsed(start, end):
+        return (end.astimezone(pytz.UTC) - start.astimezone(pytz.UTC)).total_seconds() / 3600
+
+    morning = elapsed(midnight, dawn)
+    evening = elapsed(dusk, next_midnight)
+    return morning, evening, morning + evening
+
+
+def twilight_row(lat: float, lon: float, target_date: date, tz: pytz.timezone) -> tuple:
+    """
+    Build one CSV row (matching CSV_HEADER) for a date.
+
+    Returns:
+        Tuple of (row, valid). valid is False for polar days where the sun
+        doesn't cross the nautical threshold; those rows are all N/A.
+    """
+    dusk, dawn, sunrise, sunset = calculate_nautical_times(lat, lon, target_date, tz)
+
+    if not (dusk and dawn):
+        return [target_date.isoformat()] + ['N/A'] * 7, False
+
+    morning_hours, evening_hours, total_hours = streetlight_hours(dusk, dawn, target_date, tz)
+    return [
+        target_date.isoformat(),
+        dawn.strftime('%H:%M'),
+        sunrise.strftime('%H:%M') if sunrise else 'N/A',
+        sunset.strftime('%H:%M') if sunset else 'N/A',
+        dusk.strftime('%H:%M'),
+        f'{morning_hours:.2f}',
+        f'{evening_hours:.2f}',
+        f'{total_hours:.2f}'
+    ], True
 
 
 def generate_yearly_report(lat: float, lon: float, year: int, output_path: str) -> dict:
@@ -212,44 +266,18 @@ def generate_yearly_report(lat: float, lon: float, year: int, output_path: str) 
 
     with open(output_path, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['date', 'streetlights_off_time', 'sunrise', 'sunset',
-                         'streetlights_on_time', 'streetlights_on_hours_morning',
-                         'streetlights_on_hours_evening', 'streetlights_on_hours_total'])
+        writer.writerow(CSV_HEADER)
 
         while current_date <= end_date:
             stats['total_days'] += 1
 
-            dusk, dawn, sunrise, sunset = calculate_nautical_times(lat, lon, current_date, tz)
-
-            if dusk and dawn:
+            row, valid = twilight_row(lat, lon, current_date, tz)
+            writer.writerow(row)
+            if valid:
                 stats['valid_days'] += 1
-                # Per-calendar-date darkness hours
-                morning_hours = dawn.hour + dawn.minute / 60
-                evening_hours = 24 - (dusk.hour + dusk.minute / 60)
-                total_hours = morning_hours + evening_hours
-                writer.writerow([
-                    current_date.isoformat(),
-                    dawn.strftime('%H:%M'),
-                    sunrise.strftime('%H:%M') if sunrise else 'N/A',
-                    sunset.strftime('%H:%M') if sunset else 'N/A',
-                    dusk.strftime('%H:%M'),
-                    f'{morning_hours:.2f}',
-                    f'{evening_hours:.2f}',
-                    f'{total_hours:.2f}'
-                ])
             else:
                 # Polar region - sun doesn't cross nautical threshold
                 stats['polar_days'] += 1
-                writer.writerow([
-                    current_date.isoformat(),
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A'
-                ])
 
             # Progress indicator
             if stats['total_days'] % 30 == 0:
