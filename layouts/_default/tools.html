@@ -468,11 +468,11 @@
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-perkwh"></div><div class="acc-tile-label">average avoided cost per kWh saved</div></div>
             </div>
 
-            <div class="acc-chart-title">By utility and climate zone</div>
-            <p class="acc-zone-help">Each utility and CEC climate zone has its own hour-by-hour avoided costs in the ACC.</p>
+            <div class="acc-chart-title">Lights by ACC zone</div>
+            <p class="acc-zone-help">Each utility and climate zone has its own hour-by-hour avoided costs in the ACC.</p>
             <div class="acc-table-wrap">
               <table class="acc-table" id="acc-zones">
-                <thead><tr><th>Utility</th><th>Climate zone</th><th class="num">Lights</th><th class="num">Total $/yr</th><th class="num">Median $/light/yr</th><th class="num">Summer share</th><th>Summer months</th></tr></thead>
+                <thead><tr><th>ACC zone</th><th class="num">Lights</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -819,26 +819,18 @@
       $('acc-r-perkwh').textContent = money(s.acc_value_total / s.kwh_saved_total, 3);
     }
 
-    // Utility x climate zone breakdown, largest first, with a totals row
+    // Lights per ACC zone, largest first, named as in the ACC documentation ("PG&E Climate Zone 12")
     var table = $('acc-zones');
     var tbody = table.tBodies[0];
     tbody.innerHTML = '';
     if (table.tFoot) table.deleteTFoot();
-    function czLabel(cz) { var n = cz.replace('CZ', ''); return n === '3A' ? '3A (San Francisco)' : n; }
     function row(cells, parent) {
       var tr = document.createElement('tr');
-      cells.forEach(function(c, i) { var td = document.createElement('td'); td.textContent = c; if (i >= 2 && i <= 5) td.className = 'num'; tr.appendChild(td); });
+      cells.forEach(function(c, i) { var td = document.createElement('td'); td.textContent = c; if (i === 1) td.className = 'num'; tr.appendChild(td); });
       parent.appendChild(tr);
     }
-    (s.by_zone || []).forEach(function(z) {
-      var sea = s.acc.seasons[z.iou];
-      row([z.iou, czLabel(z.cz), z.lights.toLocaleString(), money(z.acc_value_total, 0), money(z.acc_value_median, 2),
-           pct(z.acc_value_total ? z.acc_value_summer_total / z.acc_value_total : 0), md(sea.summer_start) + '–' + md(sea.summer_end)], tbody);
-    });
-    if ((s.by_zone || []).length > 1) {
-      row(['All', (s.by_zone.length) + ' combinations', s.valued.toLocaleString(), money(s.acc_value_total, 0), money(s.acc_value_median, 2),
-           pct(s.acc_value_total ? s.acc_value_summer_total / s.acc_value_total : 0), ''], table.createTFoot());
-    }
+    (s.by_zone || []).forEach(function(z) { row([z.iou + ' Climate Zone ' + z.cz.replace('CZ', ''), z.lights.toLocaleString()], tbody); });
+    if ((s.by_zone || []).length > 1) row(['Total (' + s.by_zone.length + ' zones)', s.valued.toLocaleString()], table.createTFoot());
 
     // Summer/winter: one 2-segment bar, direct-labeled; seasons named per utility present in the results
     var tot = s.acc_value_summer_total + s.acc_value_winter_total;
