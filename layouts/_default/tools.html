@@ -132,13 +132,7 @@
 .acc-fine strong { color: var(--text-body); }
 .acc-fine details { margin-top: 0.5rem; }
 .acc-fine summary { cursor: pointer; color: var(--text-body); font-weight: 500; }
-.acc-zone-help { color: var(--text-subtle); font-size: 0.78rem; margin: -0.25rem 0 0.4rem; }
-.acc-table-wrap { overflow-x: auto; }
-.acc-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.25rem; white-space: nowrap; }
-.acc-table th { font-weight: 500; color: var(--text-subtle); }
-.acc-table tfoot td { font-weight: 600; border-bottom: 0; }
-.acc-table th, .acc-table td { text-align: left; padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--border-dark); }
-.acc-table td.num, .acc-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.acc-zone-help { color: var(--text-subtle); font-size: 0.78rem; margin: 0 0 0.25rem; }
 </style>
 
 <div class="page-header" data-theme="dark">
@@ -461,20 +455,12 @@
           <!-- Step 4: Results -->
           <div id="acc-step-done" class="tools-step">
             <h3>4. Results</h3>
+            <p class="acc-zone-help" id="acc-zones"></p>
             <div class="acc-tiles">
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-median"></div><div class="acc-tile-label">median avoided cost per light, $/year</div></div>
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-total"></div><div class="acc-tile-label">total avoided cost, $/year (<span id="acc-r-valued"></span> lights)</div></div>
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-kwh"></div><div class="acc-tile-label">energy saved, kWh/year (<span id="acc-r-pct"></span> of photocell use)</div></div>
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-perkwh"></div><div class="acc-tile-label">average avoided cost per kWh saved</div></div>
-            </div>
-
-            <div class="acc-chart-title">Lights by ACC zone</div>
-            <p class="acc-zone-help">Each utility and climate zone has its own hour-by-hour avoided costs in the ACC.</p>
-            <div class="acc-table-wrap">
-              <table class="acc-table" id="acc-zones">
-                <thead><tr><th>ACC zone</th><th class="num">Lights</th></tr></thead>
-                <tbody></tbody>
-              </table>
             </div>
 
             <div class="acc-chart-title">Summer vs. winter value</div>
@@ -819,20 +805,15 @@
       $('acc-r-perkwh').textContent = money(s.acc_value_total / s.kwh_saved_total, 3);
     }
 
-    // Lights per ACC zone, largest first, named with the ACC model's utility + CZ labels ("PG&E CZ12")
-    var table = $('acc-zones');
-    var tbody = table.tBodies[0];
-    tbody.innerHTML = '';
-    if (table.tFoot) table.deleteTFoot();
-    function row(cells, parent) {
-      var tr = document.createElement('tr');
-      cells.forEach(function(c, i) { var td = document.createElement('td'); td.textContent = c; if (i === 1) td.className = 'num'; tr.appendChild(td); });
-      parent.appendChild(tr);
-    }
-    function czKey(z) { var n = z.cz.replace('CZ', ''); return parseInt(n, 10) + (n.slice(-1) === 'B' ? 0.2 : n.slice(-1) === 'A' ? 0.1 : 0); }
-    (s.by_zone || []).slice().sort(function(a, b) { return b.lights - a.lights || a.iou.localeCompare(b.iou) || czKey(a) - czKey(b); })
-      .forEach(function(z) { row([z.iou + ' ' + z.cz, z.lights.toLocaleString()], tbody); });
-    if ((s.by_zone || []).length > 1) row(['Total (' + s.by_zone.length + ' zones)', s.valued.toLocaleString()], table.createTFoot());
+    // Footnote: lights per ACC zone grouped by utility, e.g. "SCE CZ6-7, CZ8-1 · SDG&E CZ7-6" (zone-lights)
+    var groups = {};
+    (s.by_zone || []).forEach(function(z) { (groups[z.iou] = groups[z.iou] || []).push(z); });
+    function count(iou) { return groups[iou].reduce(function(a, z) { return a + z.lights; }, 0); }
+    $('acc-zones').textContent = Object.keys(groups).sort(function(a, b) { return count(b) - count(a) || a.localeCompare(b); })
+      .map(function(iou) {
+        return iou + ' ' + groups[iou].sort(function(a, b) { return b.lights - a.lights; })
+          .map(function(z) { return z.cz + '-' + z.lights.toLocaleString(); }).join(', ');
+      }).join(' · ');
 
     // Summer/winter: one 2-segment bar, direct-labeled; seasons named per utility present in the results
     var tot = s.acc_value_summer_total + s.acc_value_winter_total;
