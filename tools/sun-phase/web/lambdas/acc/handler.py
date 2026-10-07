@@ -243,6 +243,17 @@ def chunk(event, context):
     return {'chunkIndex': event['chunkIndex'], 'outputKey': out_key, 'rowsProcessed': len(df), 'summary': summary}
 
 
+def by_zone(df):
+    """Valued lights per utility / ACC climate zone, largest first: each combination has its own hourly prices."""
+    num = df[['acc_value', 'acc_value_summer', 'kwh_saved']].astype(float)
+    g = num.assign(acc_iou=df['acc_iou'], acc_cz=df['acc_cz']).groupby(['acc_iou', 'acc_cz'])
+    out = [{'iou': iou, 'cz': cz, 'lights': int(len(z)), 'acc_value_total': float(z.acc_value.sum()),
+            'acc_value_median': float(z.acc_value.median()), 'acc_value_summer_total': float(z.acc_value_summer.sum()),
+            'kwh_saved_total': float(z.kwh_saved.sum())}
+           for (iou, cz), z in g]
+    return sorted(out, key=lambda r: (-r['lights'], r['iou'], r['cz']))
+
+
 def summarize(frames, chunk_summaries):
     """Job summary from the combined valued rows and the per-chunk drop/component tallies."""
     drops = dict.fromkeys(DROP_REASONS, 0)
@@ -271,6 +282,7 @@ def summarize(frames, chunk_summaries):
         'component_share': {k: c / comps['total'] for k, c in comps.items() if k != 'total'}
         if comps.get('total') else {},
         'by_utility': df.groupby('acc_iou').size().to_dict() if valued else {},
+        'by_zone': by_zone(df) if valued else [],
         'with_overlap_note': int((df['acc_note'].fillna('') != '').sum()) if valued else 0,
         'acc': {k: acc_core.load_meta()[k] for k in ('acc_version', 'time_basis', 'seasons')},
     }

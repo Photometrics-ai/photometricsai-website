@@ -134,6 +134,17 @@ def test_fixture_job_matches_core(h, dp, tol):
     assert n == 210
     assert round(s['acc_value_summer_total'] + s['acc_value_winter_total'], 2) == round(res.acc_value.sum(), 2)
     assert sum(s['component_share'].values()) == pytest.approx(1.0)
+    # per utility/climate-zone breakdown agrees with the rows and adds up to the totals
+    bz = {(z['iou'], z['cz']): z for z in s['by_zone']}
+    grp = res.groupby(['acc_iou', 'acc_cz'])
+    assert set(bz) == set(grp.groups)
+    for k, g in grp:
+        assert bz[k]['lights'] == len(g)
+        assert bz[k]['acc_value_total'] == pytest.approx(g.acc_value.sum())
+        assert bz[k]['acc_value_median'] == pytest.approx(g.acc_value.median())
+    assert sum(z['lights'] for z in s['by_zone']) == s['valued']
+    assert sum(z['acc_value_total'] for z in s['by_zone']) == pytest.approx(s['acc_value_total'])
+    assert [z['lights'] for z in s['by_zone']] == sorted((z['lights'] for z in s['by_zone']), reverse=True)
     # input columns pass through untouched
     assert list(res.reset_index().columns[:len(pts.columns) - 1]) == [c for c in inputs().columns
                                                                        if c not in ('Utility', 'ACC_ZONE')]

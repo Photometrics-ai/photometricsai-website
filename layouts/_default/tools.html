@@ -132,7 +132,11 @@
 .acc-fine strong { color: var(--text-body); }
 .acc-fine details { margin-top: 0.5rem; }
 .acc-fine summary { cursor: pointer; color: var(--text-body); font-weight: 500; }
-.acc-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.5rem; }
+.acc-zone-help { color: var(--text-subtle); font-size: 0.78rem; margin: -0.25rem 0 0.4rem; }
+.acc-table-wrap { overflow-x: auto; }
+.acc-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.25rem; white-space: nowrap; }
+.acc-table th { font-weight: 500; color: var(--text-subtle); }
+.acc-table tfoot td { font-weight: 600; border-bottom: 0; }
 .acc-table th, .acc-table td { text-align: left; padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--border-dark); }
 .acc-table td.num, .acc-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
 </style>
@@ -462,6 +466,15 @@
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-total"></div><div class="acc-tile-label">total avoided cost, $/year (<span id="acc-r-valued"></span> lights)</div></div>
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-kwh"></div><div class="acc-tile-label">energy saved, kWh/year (<span id="acc-r-pct"></span> of photocell use)</div></div>
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-perkwh"></div><div class="acc-tile-label">average avoided cost per kWh saved</div></div>
+            </div>
+
+            <div class="acc-chart-title">By utility and climate zone</div>
+            <p class="acc-zone-help">Each utility and CEC climate zone has its own hour-by-hour avoided costs in the ACC.</p>
+            <div class="acc-table-wrap">
+              <table class="acc-table" id="acc-zones">
+                <thead><tr><th>Utility</th><th>Climate zone</th><th class="num">Lights</th><th class="num">Total $/yr</th><th class="num">Median $/light/yr</th><th class="num">Summer share</th><th>Summer months</th></tr></thead>
+                <tbody></tbody>
+              </table>
             </div>
 
             <div class="acc-chart-title">Summer vs. winter value</div>
@@ -804,6 +817,27 @@
       $('acc-r-kwh').textContent = num(s.kwh_saved_total);
       $('acc-r-pct').textContent = pct(s.kwh_saved_total / s.kwh_base_total);
       $('acc-r-perkwh').textContent = money(s.acc_value_total / s.kwh_saved_total, 3);
+    }
+
+    // Utility x climate zone breakdown, largest first, with a totals row
+    var table = $('acc-zones');
+    var tbody = table.tBodies[0];
+    tbody.innerHTML = '';
+    if (table.tFoot) table.deleteTFoot();
+    function czLabel(cz) { var n = cz.replace('CZ', ''); return n === '3A' ? '3A (San Francisco)' : n; }
+    function row(cells, parent) {
+      var tr = document.createElement('tr');
+      cells.forEach(function(c, i) { var td = document.createElement('td'); td.textContent = c; if (i >= 2 && i <= 5) td.className = 'num'; tr.appendChild(td); });
+      parent.appendChild(tr);
+    }
+    (s.by_zone || []).forEach(function(z) {
+      var sea = s.acc.seasons[z.iou];
+      row([z.iou, czLabel(z.cz), z.lights.toLocaleString(), money(z.acc_value_total, 0), money(z.acc_value_median, 2),
+           pct(z.acc_value_total ? z.acc_value_summer_total / z.acc_value_total : 0), md(sea.summer_start) + '–' + md(sea.summer_end)], tbody);
+    });
+    if ((s.by_zone || []).length > 1) {
+      row(['All', (s.by_zone.length) + ' combinations', s.valued.toLocaleString(), money(s.acc_value_total, 0), money(s.acc_value_median, 2),
+           pct(s.acc_value_total ? s.acc_value_summer_total / s.acc_value_total : 0), ''], table.createTFoot());
     }
 
     // Summer/winter: one 2-segment bar, direct-labeled; seasons named per utility present in the results
