@@ -109,10 +109,9 @@
 /* ACC Value tab -- CPUC Avoided Cost Calculator value per street light (upload -> map -> process -> results) */
 .acc-help { color: var(--text-subtle); margin-bottom: var(--space-md); line-height: 1.6; }
 .acc-settings { border: 1px solid var(--border-dark); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: var(--space-md); }
-.acc-settings summary { cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--text-body); }
-.acc-settings .tools-form-row { margin: 0.75rem 0 0.25rem; }
-.acc-settings p { color: var(--text-subtle); font-size: 0.78rem; line-height: 1.5; margin-top: 0.25rem; }
-.acc-optional-title { font-size: 0.8rem; color: var(--text-subtle); margin: 0.25rem 0 0.5rem; }
+.acc-settings-title { font-size: 0.9rem; font-weight: 500; color: var(--text-body); }
+.acc-assumptions { margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.85rem; color: var(--text-body); line-height: 1.6; }
+.acc-settings p { color: var(--text-subtle); font-size: 0.78rem; line-height: 1.5; margin-top: 0.4rem; }
 .acc-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin: var(--space-sm) 0 var(--space-md); }
 .acc-tile { border: 1px solid var(--border-dark); border-radius: var(--radius-sm); padding: 0.85rem 1rem; background: rgba(255,255,255,0.55); }
 .acc-tile-value { font-family: var(--font-display); font-size: 1.9rem; line-height: 1.1; color: var(--text-dark); }
@@ -410,19 +409,16 @@
       <section id="tab-acc" class="tools-tab-content">
         <div class="glass-card" style="padding: var(--space-lg);">
           <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: var(--space-xs);">Street Light Avoided Cost</h2>
-          <p class="acc-help">A photocell turns a street light on before dark and runs it at full power until after dawn, through the evening hours when power costs the grid the most. Upload your street lights to see what replacing that with a dimmed, networked schedule is worth to the utility system, light by light, priced hour by hour with the California Public Utilities Commission's 2026 Avoided Cost Calculator (ACC). Covers lights in PG&amp;E, SCE and SDG&amp;E territory.</p>
+          <p class="acc-help">A photocell turns a street light on before dark and runs it at full power until after dawn, through the evening hours when power costs the grid the most. Upload your street lights to see what running them on Photometrics AI's dimmed schedule is worth to the utility system, light by light, priced hour by hour with the California Public Utilities Commission's 2026 Avoided Cost Calculator (ACC). Covers lights in PG&amp;E, SCE and SDG&amp;E territory.</p>
 
-          <details class="acc-settings">
-            <summary>Schedule assumptions</summary>
-            <div class="tools-form-row">
-              <div class="form-group"><label for="acc-dim">Dimming, dusk to dawn (%)</label><input type="number" id="acc-dim" min="0" max="100" step="any" value="25"></div>
-              <div class="form-group"><label for="acc-deep">Dimming, 1&ndash;5 AM (%)</label><input type="number" id="acc-deep" min="0" max="100" step="any" value="50"></div>
-              <div class="form-group"><label for="acc-pcon">Photocell on before dusk (min)</label><input type="number" id="acc-pcon" min="0" max="240" step="1" value="30"></div>
-              <div class="form-group"><label for="acc-pcoff">Photocell off after dawn (min)</label><input type="number" id="acc-pcoff" min="0" max="240" step="1" value="30"></div>
-              <div class="form-group"><label for="acc-fixtures">Fixtures per record</label><input type="number" id="acc-fixtures" min="1" step="any" value="1"></div>
-            </div>
-            <p>Used for every light unless your file has a column for it (map it in step 2); blank cells also use these values. Dusk and dawn are the moments the sun reaches &minus;6&deg; (nautical dusk/dawn).</p>
-          </details>
+          <div class="acc-settings">
+            <div class="acc-settings-title">Schedules compared, for every light</div>
+            <ul class="acc-assumptions">
+              <li><strong>Today (photocell):</strong> on 30 minutes before dusk, off 30 minutes after dawn, full power all night.</li>
+              <li><strong>With Photometrics AI:</strong> on at dusk, off at dawn, 25% dimmed all night and 50% dimmed from 1 to 5 AM.</li>
+            </ul>
+            <p>Dusk and dawn are the moments the sun reaches &minus;6&deg; (nautical dusk/dawn), calculated for each light's location. One fixture per row.</p>
+          </div>
 
           <!-- Step 1: Upload -->
           <div id="acc-step-upload" class="tools-step active">
@@ -444,14 +440,6 @@
               <div class="form-group"><label for="acc-col-lat">Latitude</label><select id="acc-col-lat"></select></div>
               <div class="form-group"><label for="acc-col-lon">Longitude</label><select id="acc-col-lon"></select></div>
               <div class="form-group"><label for="acc-col-baseline_w">Wattage (W)</label><select id="acc-col-baseline_w"></select></div>
-            </div>
-            <p class="acc-optional-title">Optional per-light columns (otherwise the schedule assumptions above apply)</p>
-            <div class="tools-form-row">
-              <div class="form-group"><label for="acc-col-fixture_count">Fixture count</label><select id="acc-col-fixture_count"></select></div>
-              <div class="form-group"><label for="acc-col-dim_pct">Dimming %</label><select id="acc-col-dim_pct"></select></div>
-              <div class="form-group"><label for="acc-col-deep_dim_pct">1&ndash;5 AM dimming %</label><select id="acc-col-deep_dim_pct"></select></div>
-              <div class="form-group"><label for="acc-col-pc_on_offset_min">Photocell on offset (min)</label><select id="acc-col-pc_on_offset_min"></select></div>
-              <div class="form-group"><label for="acc-col-pc_off_offset_min">Photocell off offset (min)</label><select id="acc-col-pc_off_offset_min"></select></div>
             </div>
             <button type="button" id="acc-start" class="btn btn-primary">Calculate</button>
             <div id="acc-columns-status" class="tools-status tools-hidden"></div>
@@ -506,7 +494,7 @@
             <strong>What this number is.</strong> The avoided cost to the utility system (CPUC 2026 ACC Electric Model v1a, Total Resource Cost test, 2026 values only, all cost components), not a saving on the light owner's bill. It includes the ACC's greenhouse-gas adder, shown separately in the results.
             <details>
               <summary>Methodology</summary>
-              <p style="margin-top: 0.5rem;">We estimate the avoided-cost value of each street light by pairing its hour-by-hour operating schedule with the CPUC 2026 Avoided Cost Calculator (ACC) Electric Model v1a. For each location we calculate when the sun reaches &minus;6&deg; at dusk and dawn for every day of 2018, the calendar year the 2026 ACC is built on. From those times we build two schedules: a photocell baseline that turns on 30 minutes before dusk and off 30 minutes after dawn at full power, and a controlled schedule that runs from dusk to dawn at 75% power and drops to 50% power from 1 to 5 AM local time (the defaults; you can change them above). Both schedules are converted to Coordinated Universal Time and split into the 8,760 hourly periods of the ACC. Each hour's energy savings are multiplied by that hour's 2026 avoided cost for the light's utility and climate zone, using the model's Total Resource Cost settings with a one-year period (2026 values only) and all cost components included. Summer and winter use the ACC model's own seasons for each utility: PG&amp;E May&ndash;October, SCE June&ndash;September, SDG&amp;E May&ndash;September.</p>
+              <p style="margin-top: 0.5rem;">We estimate the avoided-cost value of each street light by pairing its hour-by-hour operating schedule with the CPUC 2026 Avoided Cost Calculator (ACC) Electric Model v1a. For each location we calculate when the sun reaches &minus;6&deg; at dusk and dawn for every day of 2018, the calendar year the 2026 ACC is built on. From those times we build two schedules: a photocell baseline that turns on 30 minutes before dusk and off 30 minutes after dawn at full power, and a controlled schedule that runs from dusk to dawn at 75% power and drops to 50% power from 1 to 5 AM local time. Both schedules are converted to Coordinated Universal Time and split into the 8,760 hourly periods of the ACC. Each hour's energy savings are multiplied by that hour's 2026 avoided cost for the light's utility and climate zone, using the model's Total Resource Cost settings with a one-year period (2026 values only) and all cost components included. Summer and winter use the ACC model's own seasons for each utility: PG&amp;E May&ndash;October, SCE June&ndash;September, SDG&amp;E May&ndash;September.</p>
               <p style="margin-top: 0.5rem;">The ACC documentation does not state the time basis of its hourly values. The model output has exactly 24 hours every day with no daylight-saving gaps or repeats, and the hourly pattern (the midday solar price dip and the evening peak) matches Pacific Standard Time, so we treat every ACC hour as Pacific Standard Time (UTC&minus;8) all year. We could not definitively confirm this, and Appendix A.3 notes that daylight-saving time was &ldquo;taken into account&rdquo; when transmission and distribution factors were remapped to the 2018 calendar. We have asked the ACC authors to clarify the time basis and will update the analysis if it differs.</p>
               <p style="margin-top: 0.5rem;">Utility and climate zone come from California Energy Commission utility service territories intersected with CEC building climate zones. Water and wholesale power entities whose territories overlap retail utilities (Metropolitan Water District, PWRPA, Eastside Power Authority) are not used. Where an investor-owned utility's territory overlaps a municipal utility's (for example, PG&amp;E and San Francisco's Hetch Hetchy power), the light is valued at the investor-owned utility's avoided cost and flagged in the <code>acc_note</code> column. Climate Zone 3 is split into 3A (San Francisco) and 3B (the rest); the ACC does not publish that boundary. Lights served by municipal utilities and other utilities without an ACC, and utility/climate-zone combinations the ACC model does not include, are not valued.</p>
               <p style="margin-top: 0.5rem;">Source: <a href="https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/energy-efficiency/der-cost-effectiveness" target="_blank" rel="noopener">CPUC Distributed Energy Resources cost-effectiveness: Avoided Cost Calculator</a>, adopted in D.26-09-007.</p>
@@ -711,7 +699,7 @@
 // Avoided Cost (CPUC ACC) -- upload -> map columns -> Step Functions job -> summary + CSV
 (function() {
   var API = '/api/acc';
-  var FIELDS = ['lat', 'lon', 'baseline_w', 'fixture_count', 'dim_pct', 'deep_dim_pct', 'pc_on_offset_min', 'pc_off_offset_min'];
+  var FIELDS = ['lat', 'lon', 'baseline_w'];
   var REQUIRED = { lat: 'Latitude', lon: 'Longitude', baseline_w: 'Wattage' };
   var COMPONENTS = { energy: 'Energy', ghg_adder: 'GHG adder', gen_capacity: 'Generation capacity', ghg_cap_invest: 'GHG Cap-and-Invest',
     transmission: 'Transmission capacity', distribution: 'Distribution capacity', losses: 'Losses', ancillary: 'Ancillary services',
@@ -720,7 +708,7 @@
     outside_acc_area: 'outside California utility territories', combo_not_in_acc_model: 'in a utility/climate-zone combination the ACC model does not include',
     invalid_input: 'missing or invalid latitude, longitude, wattage or settings' };
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var jobId = null, poll = null, defaults = null;
+  var jobId = null, poll = null;
   var $ = function(id) { return document.getElementById(id); };
   var steps = ['upload', 'columns', 'processing', 'done', 'error'];
 
@@ -769,7 +757,7 @@
   function fillSelects(columns, detected) {
     FIELDS.forEach(function(f) {
       var sel = $('acc-col-' + f);
-      sel.innerHTML = '<option value="">' + (REQUIRED[f] ? '&mdash; select &mdash;' : '&mdash; use assumption &mdash;') + '</option>';
+      sel.innerHTML = '<option value="">&mdash; select &mdash;</option>';
       columns.forEach(function(c) {
         var o = document.createElement('option');
         o.value = c; o.textContent = c; if (detected[f] === c) o.selected = true;
@@ -783,11 +771,9 @@
     FIELDS.forEach(function(f) { var v = $('acc-col-' + f).value; if (v) columns[f] = v; });
     var missing = Object.keys(REQUIRED).filter(function(f) { return !columns[f]; });
     if (missing.length) { showStatus($('acc-columns-status'), 'error', 'Select a column for: ' + missing.map(function(f) { return REQUIRED[f]; }).join(', ') + '.'); return; }
-    defaults = { dim_pct: $('acc-dim').value, deep_dim_pct: $('acc-deep').value, pc_on_offset_min: $('acc-pcon').value,
-      pc_off_offset_min: $('acc-pcoff').value, fixture_count: $('acc-fixtures').value };
     $('acc-columns-status').classList.add('tools-hidden');
     showStep('processing');
-    post('/start', { jobId: jobId, columns: columns, defaults: defaults })
+    post('/start', { jobId: jobId, columns: columns })
       .then(startPolling)
       .catch(function(err) { showError(err.message); });
   });

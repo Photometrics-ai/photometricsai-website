@@ -7,8 +7,9 @@ The hosted tool is the "ACC Value" tab on photometrics.ai/tools. The math lives 
 ## Method
 
 - **Twilight:** −6° nautical dusk/dawn for every 2018 date (the 2026 ACC is built on a 2018 calendar), from `twilight_core.py` (identical to the `twilight_times.py` CLI), minute precision, converted to UTC.
-- **Baseline (photocell):** on `pc_on_offset_min` before dusk, off `pc_off_offset_min` after dawn, full power. Defaults 30/30.
-- **Controlled:** dusk to dawn at `1 − dim_pct/100` (default 25%), and `1 − deep_dim_pct/100` (default 50%) from 1 to 5 AM local clock (America/Los_Angeles; 3 elapsed hours on the spring-forward night, 5 on fall-back).
+- **Baseline (photocell):** on 30 min before dusk, off 30 min after dawn, full power.
+- **Controlled (Photometrics AI):** dusk to dawn at 75% power, and 50% power from 1 to 5 AM local clock (America/Los_Angeles; 3 elapsed hours on the spring-forward night, 5 on fall-back).
+- The schedule is fixed (`acc_core.DEFAULTS`, one fixture per row): the tool values Photometrics AI's schedule, so uploads supply only location and wattage, and the API ignores any schedule columns or settings a client sends. `acc_core.value_light()` still takes the settings as arguments, for analysis.
 - **ACC hours:** treated as PST (UTC−8) all year, hour-beginning: ACC hour *k* = UTC [2018-01-01 08:00 + *k* h, +1 h). The ACC documentation does not state a time zone; this is an assumption (see methodology text on the tool page).
 - **Value** = Σ_k saved kWh(k) × ACC total $/MWh(k) / 1000, split into `acc_trim` (photocell on, controlled off) and `acc_dim` (dimming while on), and into summer/winter by the ACC model's own per-utility TOU seasons (`Losses` sheet): PG&E May 1–Oct 31, SCE Jun 1–Sep 30, SDG&E May 1–Sep 30.
 - **Zone:** point-in-polygon against the ACC zone polygons (CEC utility territories ∩ CEC building climate zones, `ACC_ZONE` = `<IOU>_CZ<nn>`).

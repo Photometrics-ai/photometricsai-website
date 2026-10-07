@@ -102,9 +102,7 @@ def fixture_csv():
 def test_detect_columns(h):
     d = h.detect_columns(['REF_ID', 'latitude', 'longitude', 'baseline_w', 'fixture_count', 'dim_pct',
                           'deep_dim_pct', 'pc_on_offset_min', 'pc_off_offset_min'])
-    assert d == {'ref_id': 'REF_ID', 'lat': 'latitude', 'lon': 'longitude', 'baseline_w': 'baseline_w',
-                 'fixture_count': 'fixture_count', 'dim_pct': 'dim_pct', 'deep_dim_pct': 'deep_dim_pct',
-                 'pc_on_offset_min': 'pc_on_offset_min', 'pc_off_offset_min': 'pc_off_offset_min'}
+    assert d == {'ref_id': 'REF_ID', 'lat': 'latitude', 'lon': 'longitude', 'baseline_w': 'baseline_w'}
     assert h.detect_columns(['Pole No', 'Lat', 'Long', 'Watts'])['baseline_w'] == 'Watts'
 
 
@@ -141,14 +139,17 @@ def test_fixture_job_matches_core(h, dp, tol):
                                                                        if c not in ('Utility', 'ACC_ZONE')]
 
 
-def test_defaults_and_blank_cells(h):
-    csv_text = 'id,lat,lon,watts,dim_pct\n1,36.7378,-119.7871,50,\n2,36.7378,-119.7871,50,25\n3,36.7378,-119.7871,50,40\n'
-    _, meta, res = run_job(h, csv_text, {'lat': 'lat', 'lon': 'lon', 'baseline_w': 'watts', 'dim_pct': 'dim_pct'})
-    assert meta['status'] == 'complete' and len(res) == 3
-    assert res.acc_value[0] == res.acc_value[1] < res.acc_value[2]
-    _, meta2, res2 = run_job(h, csv_text, {'lat': 'lat', 'lon': 'lon', 'baseline_w': 'watts'},
-                             defaults={'dim_pct': 40})
-    assert res2.acc_value.tolist() == [res.acc_value[2]] * 3
+def test_schedule_is_fixed(h):
+    """Schedule columns in the file and settings sent by a client are ignored: every light gets the
+    Photometrics AI schedule (acc_core.DEFAULTS)."""
+    csv_text = 'id,lat,lon,watts,dim_pct\n1,36.7378,-119.7871,50,0\n2,36.7378,-119.7871,50,90\n'
+    _, meta, res = run_job(h, csv_text, {'lat': 'lat', 'lon': 'lon', 'baseline_w': 'watts', 'dim_pct': 'dim_pct'},
+                           defaults={'dim_pct': 90, 'pc_on_offset_min': 0})
+    assert meta['status'] == 'complete' and len(res) == 2
+    status, ref, _ = h.acc_core.value_light(36.7378, -119.7871, 50)
+    assert res.acc_value.tolist() == [round(ref['acc_value'], 4)] * 2
+    assert h.sfn.started[-1]['defaults'] == h.acc_core.DEFAULTS
+    assert set(h.sfn.started[-1]['columns']) == {'lat', 'lon', 'baseline_w'}
 
 
 def test_bad_rows_dropped_and_counted(h):
@@ -179,11 +180,8 @@ def test_text_columns_preserved(h):
 def test_start_validation(h):
     job = str(uuid.uuid4())
     h.s3.put_object('bucket', f'uploads/{job}/input.csv', 'a,b\n1,2\n')
-    bad = [({'lat': 'a', 'lon': 'b'}, None, 'baseline_w'),
-           ({'lat': 'a', 'lon': 'b', 'baseline_w': 'a'}, {'dim_pct': 150}, 'dim_pct'),
-           ({'lat': 'a', 'lon': 'b', 'baseline_w': 'a'}, {'dim_pct': 'x'}, 'dim_pct')]
-    for cols, dflt, field in bad:
-        r = h.start({'body': json.dumps({'jobId': job, 'columns': cols, 'defaults': dflt})}, None)
+    for cols, field in [({'lat': 'a', 'lon': 'b'}, 'baseline_w'), ({'lat': 'a', 'baseline_w': 'b'}, 'lon')]:
+        r = h.start({'body': json.dumps({'jobId': job, 'columns': cols})}, None)
         assert r['statusCode'] == 400 and field in json.loads(r['body'])['error']
     assert h.start({'body': json.dumps({'jobId': '../x', 'columns': {}})}, None)['statusCode'] == 400
 

@@ -5,7 +5,7 @@ Upload and status reuse the Phase Calculator's generic upload_initiator / status
 uploads/<jobId>/ layout and meta.json status channel). Everything ACC-specific is here:
 
     detect      POST /api/acc/detect-columns  {jobId} -> {columns, detected}
-    start       POST /api/acc/start           {jobId, columns, defaults} -> starts the state machine
+    start       POST /api/acc/start           {jobId, columns} -> starts the state machine
     split       SFN: input.csv -> chunks/chunk_NNNN.csv (text preserved, CHUNK_ROWS rows each)
     chunk       SFN: value one chunk -> processed/chunk_NNNN.csv + small summary
     combine     SFN: concatenate processed chunks -> result.csv, summary into meta.json
@@ -13,6 +13,8 @@ uploads/<jobId>/ layout and meta.json status channel). Everything ACC-specific i
 
 Valuation is acc_core (layer). Lights outside PG&E/SCE/SDG&E, in combos the ACC model doesn't
 offer, or with invalid inputs get no value and are left out of result.csv; meta.summary counts them.
+The schedule (dimming, 1-5 AM deep dim, photocell offsets, one fixture per row) is fixed at
+acc_core.DEFAULTS, the Photometrics AI schedule being valued; uploads supply only location and wattage.
 """
 
 import csv
@@ -42,7 +44,7 @@ s3 = boto3.client('s3')
 sfn = boto3.client('stepfunctions')
 
 REQUIRED = ('lat', 'lon', 'baseline_w')
-OPTIONAL = ('ref_id', 'fixture_count', 'dim_pct', 'deep_dim_pct', 'pc_on_offset_min', 'pc_off_offset_min')
+OPTIONAL = ('ref_id',)
 LIMITS = {  # inclusive valid ranges for numeric inputs
     'lat': (-90, 90), 'lon': (-180, 180), 'baseline_w': (0.001, 100_000), 'fixture_count': (0.001, 10_000),
     'dim_pct': (0, 100), 'deep_dim_pct': (0, 100), 'pc_on_offset_min': (0, 240), 'pc_off_offset_min': (0, 240),
@@ -52,11 +54,6 @@ PATTERNS = {
     'lat': r'^(lat|latitude|y|lat_?dd|point_?y)$',
     'lon': r'^(lon|lng|long|longitude|x|lon_?dd|point_?x)$',
     'baseline_w': r'^(baseline_?w|watts?|wattage|input_?watts?|lamp_?watts?|fixture_?watts?|power_?w|kw?)$',
-    'fixture_count': r'^(fixture_?count|fixtures|heads|count|qty|quantity)$',
-    'dim_pct': r'^dim_?pct$',
-    'deep_dim_pct': r'^deep_?dim_?pct$',
-    'pc_on_offset_min': r'^pc_?on_?offset(_?min)?$',
-    'pc_off_offset_min': r'^pc_?off_?offset(_?min)?$',
 }
 DROP_REASONS = (acc_core.OUTSIDE, acc_core.NO_ZONE, acc_core.INVALID_COMBO, 'invalid_input')
 OUT_FIELDS = ['acc_note'] + acc_core.RESULT_FIELDS
@@ -104,25 +101,12 @@ def detect(event, context):
     return _resp(200, {'columns': columns, 'detected': detected, 'defaults': acc_core.DEFAULTS})
 
 
-def validate_start(columns, defaults):
-    """Returns (error, columns, defaults) with defaults merged over acc_core.DEFAULTS."""
+def validate_start(columns):
+    """Returns (error, columns). Only location/wattage/ID columns are kept; schedule settings are fixed."""
     for f in REQUIRED:
         if not columns.get(f):
-            return f'columns.{f} is required', None, None
-    columns = {k: v for k, v in columns.items() if k in REQUIRED + OPTIONAL and v}
-    merged = dict(acc_core.DEFAULTS)
-    for k, v in (defaults or {}).items():
-        if k not in acc_core.DEFAULTS:
-            continue
-        try:
-            v = float(v)
-        except (TypeError, ValueError):
-            return f'defaults.{k} must be a number', None, None
-        lo, hi = LIMITS[k]
-        if not lo <= v <= hi:
-            return f'defaults.{k} must be between {lo} and {hi}', None, None
-        merged[k] = v
-    return None, columns, merged
+            return f'columns.{f} is required', None
+    return None, {k: v for k, v in columns.items() if k in REQUIRED + OPTIONAL and v}
 
 
 def start(event, context):
@@ -130,7 +114,8 @@ def start(event, context):
     job_id = body.get('jobId')
     if not _valid_job_id(job_id):
         return _resp(400, {'error': 'jobId is required'})
-    err, columns, defaults = validate_start(body.get('columns') or {}, body.get('defaults'))
+    err, columns = validate_start(body.get('columns') or {})
+    defaults = dict(acc_core.DEFAULTS)
     if err:
         return _resp(400, {'error': err})
     s3_key = f'uploads/{job_id}/input.csv'
@@ -178,9 +163,9 @@ def split(event, context):
 
 
 def _numeric(df, columns, defaults, n):
-    """Parse mapped columns -> dict of float arrays; blank optional cells take the default."""
+    """Parse mapped columns -> dict of float arrays; unmapped fields (the fixed schedule) take the default."""
     vals, bad = {}, np.zeros(n, dtype=bool)
-    for f in REQUIRED + OPTIONAL[1:]:
+    for f in REQUIRED + tuple(acc_core.DEFAULTS):
         if f in columns:
             raw = df[columns[f]].str.strip()
             v = pd.to_numeric(raw, errors='coerce').to_numpy(dtype=np.float64)
