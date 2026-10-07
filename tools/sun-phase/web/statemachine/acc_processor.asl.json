@@ -1,0 +1,74 @@
+{
+  "Comment": "ACC Street Light Value: split CSV -> parallel chunk valuation -> combine; any failure marks meta.json error",
+  "StartAt": "Split",
+  "States": {
+    "Split": {
+      "Type": "Task",
+      "Resource": "${AccSplitFunctionArn}",
+      "ResultPath": "$",
+      "Next": "ProcessChunks",
+      "Catch": [{"ErrorEquals": ["States.ALL"], "Next": "MarkFailed", "ResultPath": "$.error"}]
+    },
+    "ProcessChunks": {
+      "Type": "Map",
+      "ItemsPath": "$.chunks",
+      "MaxConcurrency": 25,
+      "ResultPath": "$.chunkResults",
+      "Parameters": {
+        "jobId.$": "$.jobId",
+        "bucket.$": "$.bucket",
+        "columns.$": "$.columns",
+        "defaults.$": "$.defaults",
+        "chunkKey.$": "$$.Map.Item.Value.chunkKey",
+        "chunkIndex.$": "$$.Map.Item.Value.chunkIndex",
+        "rowCount.$": "$$.Map.Item.Value.rowCount"
+      },
+      "Iterator": {
+        "StartAt": "ValueOneChunk",
+        "States": {
+          "ValueOneChunk": {
+            "Type": "Task",
+            "Resource": "${AccChunkFunctionArn}",
+            "Retry": [
+              {
+                "ErrorEquals": ["Lambda.TooManyRequestsException", "Lambda.ServiceException"],
+                "IntervalSeconds": 5,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ],
+            "End": true
+          }
+        }
+      },
+      "Next": "Combine",
+      "Catch": [{"ErrorEquals": ["States.ALL"], "Next": "MarkFailed", "ResultPath": "$.error"}]
+    },
+    "Combine": {
+      "Type": "Task",
+      "Resource": "${AccCombineFunctionArn}",
+      "Parameters": {
+        "jobId.$": "$.jobId",
+        "bucket.$": "$.bucket",
+        "chunkResults.$": "$.chunkResults"
+      },
+      "End": true,
+      "Catch": [{"ErrorEquals": ["States.ALL"], "Next": "MarkFailed", "ResultPath": "$.error"}]
+    },
+    "MarkFailed": {
+      "Type": "Task",
+      "Resource": "${AccMarkFailedFunctionArn}",
+      "Parameters": {
+        "jobId.$": "$.jobId",
+        "bucket.$": "$.bucket",
+        "error.$": "$.error"
+      },
+      "Next": "FailState"
+    },
+    "FailState": {
+      "Type": "Fail",
+      "Error": "ProcessingFailed",
+      "Cause": "An error occurred during ACC valuation"
+    }
+  }
+}

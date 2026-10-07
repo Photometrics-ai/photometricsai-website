@@ -100,6 +100,12 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/phase/upload
             Method: POST
+        PostAccUpload:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/acc/upload
+            Method: POST
 
   DetectColumnsFunction:
     Type: AWS::Serverless::Function
@@ -204,6 +210,12 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/phase/status
             Method: GET
+        GetAccStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/acc/status
+            Method: GET
 
   # ─── Synchronous Phase API ───
   PhaseApiFunction:
@@ -256,6 +268,123 @@ Resources:
             FunctionName: !Ref ChunkProcessorFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref CombinerFunction
+
+  # --- ACC Street Light Value (lambdas/acc/handler.py; upload + status reuse the functions above) ---
+  AccDetectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/acc/
+      Handler: handler.detect
+      MemorySize: 512
+      Timeout: 20
+      Layers:
+        - !Ref DepsLayer
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref DataBucket
+      Events:
+        PostAccDetect:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/acc/detect-columns
+            Method: POST
+
+  AccStartFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/acc/
+      Handler: handler.start
+      MemorySize: 512
+      Timeout: 20
+      Layers:
+        - !Ref DepsLayer
+      Environment:
+        Variables:
+          STATE_MACHINE_ARN: !Ref AccProcessorStateMachine
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+        - StepFunctionsExecutionPolicy:
+            StateMachineName: !GetAtt AccProcessorStateMachine.Name
+      Events:
+        PostAccStart:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/acc/start
+            Method: POST
+
+  AccSplitFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/acc/
+      Handler: handler.split
+      MemorySize: 2048
+      Timeout: 300
+      Layers:
+        - !Ref DepsLayer
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+
+  AccChunkFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/acc/
+      Handler: handler.chunk
+      MemorySize: 2048
+      Timeout: 900
+      Layers:
+        - !Ref DepsLayer
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+
+  AccCombineFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/acc/
+      Handler: handler.combine
+      MemorySize: 2048
+      Timeout: 300
+      Layers:
+        - !Ref DepsLayer
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+
+  AccMarkFailedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/acc/
+      Handler: handler.mark_failed
+      MemorySize: 256
+      Timeout: 20
+      Layers:
+        - !Ref DepsLayer
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+
+  AccProcessorStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: statemachine/acc_processor.asl.json
+      DefinitionSubstitutions:
+        AccSplitFunctionArn: !GetAtt AccSplitFunction.Arn
+        AccChunkFunctionArn: !GetAtt AccChunkFunction.Arn
+        AccCombineFunctionArn: !GetAtt AccCombineFunction.Arn
+        AccMarkFailedFunctionArn: !GetAtt AccMarkFailedFunction.Arn
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref AccSplitFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref AccChunkFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref AccCombineFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref AccMarkFailedFunction
 
 Outputs:
   ApiUrl:

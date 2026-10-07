@@ -213,6 +213,15 @@ sam deploy          # uses samconfig.toml defaults (us-east-2, sun-phase-web sta
 | `layouts/_default/tools.html` | Hugo layout (markup + inline JS) |
 | (inline `<style>` in tools.html) | Tool-specific component styles |
 
+## ACC Street Light Value (`tools/acc-value/`, "Avoided Cost" tab at `/tools/#acc`)
+
+Per-light avoided cost to the utility system (CPUC 2026 ACC Electric Model v1a, TRC, single-year 2026, all components) of replacing photocell control with a dimmed networked schedule — PG&E/SCE/SDG&E only; everything else is dropped and counted. Not a bill saving; label it that way. Full method, overlap rules and refresh steps: `tools/acc-value/README.md`.
+
+- **Math:** `tools/sun-phase/web/layers/deps/acc_core.py` (ported from the prototype in the analysis folder `C:\Users\aisaa\Downloads\UtilityClimateZones\scripts\`). Twilight comes from the layer's `twilight_core.py`, 2018 calendar (the ACC's), ACC hours treated as PST all year.
+- **Data:** `layers/deps/acc_data/` (prices + per-utility TOU seasons npz, zone polygons npz, meta json), built by `tools/acc-value/build_data.py` from the analysis folder. Wholesale/water entities (MWD, PWRPA, Eastside) are excluded from the zone lookup; IOU wins over overlapping POUs with an `acc_note`.
+- **Backend:** same `sun-phase-web` stack. `lambdas/acc/handler.py` holds every handler (`detect`, `start`, `split`, `chunk`, `combine`, `mark_failed`); `statemachine/acc_processor.asl.json` (Map concurrency 25, 1,000-row chunks, 50,000-row limit, any failure → meta `status:error`). Routes `/api/acc/{upload,detect-columns,start,status}`; upload/status reuse the Phase Calculator functions.
+- **Tests:** `python -m pytest tools/acc-value/tests -q` (~3 min) — data vs sources, PIP vs a geopandas reference, values vs the prototype, invariants, handlers against fake S3. `python tools/acc-value/live_check.py` runs the fixture through the deployed API and compares with a local run.
+
 ## Take Action Lambda (`lambda/take-action/`)
 
 Backend for the citizen-advocacy tool at `/take-action/` — a visitor picks a street-lighting priority, the Lambda finds their local officials and drafts a letter, and can send it to those officials on the visitor's behalf. The Google Ads campaign that drives traffic here is tracked outside this repo, in the separate `Ads` repo's `google/take-action-campaign.md`.

@@ -1,0 +1,57 @@
+{
+  "acc_version": "CPUC 2026 ACC Electric Model v1a (D.26-09-007)",
+  "settings": {
+    "start_year": 2026.0,
+    "cost_test": "TRC",
+    "levelization_years": 1.0,
+    "discount_rate": 0.07536666666666667,
+    "components_included": {
+      "Cap and Invest": true,
+      "GHG Adder": true,
+      "Energy": true,
+      "Generation Capacity": true,
+      "Transmission Capacity": true,
+      "Distribution Capacity": true,
+      "Ancillary Services": true,
+      "Losses": true,
+      "Methane Leakage": true,
+      "Air Quality Adder (SCT only)": true,
+      "Final Air Quality Adder": false
+    },
+    "source": "2026-acc-electric-model-v1a.xlsb",
+    "time_basis": "PST (UTC-8) all year, hour-beginning; row 0 = 2018-01-01 00:00 PST"
+  },
+  "calendar_year": 2018,
+  "time_basis": "PST (UTC-8) all year, hour-beginning; ACC hour k = UTC [2018-01-01 08:00 + k h, +1 h)",
+  "seasons": {
+    "PG&E": {
+      "summer_start": "05-01",
+      "summer_end": "10-31",
+      "summer_hours": 4416
+    },
+    "SCE": {
+      "summer_start": "06-01",
+      "summer_end": "09-30",
+      "summer_hours": 2928
+    },
+    "SDG&E": {
+      "summer_start": "05-01",
+      "summer_end": "09-30",
+      "summer_hours": 3672
+    }
+  },
+  "season_source": "ACC model 'Losses' sheet TOU periods (2000 vintage TOU periods); TOU 1-3 = summer",
+  "zones": {
+    "excluded_wholesale": [
+      "Eastside Power Authority",
+      "Metropolitan Water District of So. Cal",
+      "Power and Water Resource Pooling Authority"
+    ],
+    "overlap_rule": "an ACC (IOU) zone polygon wins over an overlapping non-ACC polygon; acc_note names it"
+  },
+  "sources": {
+    "2026-acc-electric-model-v1a.xlsb": "672eabcb83b771ae8ec2ebaaa1db9a1f9a6e4497ea6d179cfe3be7b6db6e813d",
+    "acc2026_hourly_PST.csv": "03e9351951bab756880efecf255aa54d209289b6bb30b0eef1e41bdc110f47be",
+    "Intersection_exp_reporoject_elim.gpkg": "714765cbfa3fba04aac473ae00948213f14b99899575907034e7b308a1690121"
+  }
+}

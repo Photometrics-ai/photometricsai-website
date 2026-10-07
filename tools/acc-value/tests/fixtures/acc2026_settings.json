@@ -1,0 +1,21 @@
+{
+  "start_year": 2026.0,
+  "cost_test": "TRC",
+  "levelization_years": 1.0,
+  "discount_rate": 0.07536666666666667,
+  "components_included": {
+    "Cap and Invest": true,
+    "GHG Adder": true,
+    "Energy": true,
+    "Generation Capacity": true,
+    "Transmission Capacity": true,
+    "Distribution Capacity": true,
+    "Ancillary Services": true,
+    "Losses": true,
+    "Methane Leakage": true,
+    "Air Quality Adder (SCT only)": true,
+    "Final Air Quality Adder": false
+  },
+  "source": "2026-acc-electric-model-v1a.xlsb",
+  "time_basis": "PST (UTC-8) all year, hour-beginning; row 0 = 2018-01-01 00:00 PST"
+}

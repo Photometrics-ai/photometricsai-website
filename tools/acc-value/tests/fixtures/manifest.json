@@ -1,0 +1,26 @@
+{
+  "acc_model": {
+    "file": "2026-acc-electric-model-v1a.xlsb",
+    "sha256": "672eabcb83b771ae8ec2ebaaa1db9a1f9a6e4497ea6d179cfe3be7b6db6e813d"
+  },
+  "acc_hourly": {
+    "file": "acc2026_hourly_PST.csv",
+    "sha256": "03e9351951bab756880efecf255aa54d209289b6bb30b0eef1e41bdc110f47be"
+  },
+  "zones": {
+    "file": "Intersection_exp_reporoject_elim.gpkg",
+    "sha256": "714765cbfa3fba04aac473ae00948213f14b99899575907034e7b308a1690121"
+  },
+  "points": {
+    "file": "AccZone_pts.gpkg",
+    "sha256": "1d9215180e123ff0b3e57e0b831b0f079abcf7d88c87e98c6bd7785ca370e526"
+  },
+  "twilight": {
+    "file": "twilight_points_2018.csv",
+    "sha256": "90b344c2af3eee2c020654de09831d2b18cdef804235ef04ea99ae1ef2521cc3"
+  },
+  "value_by_point": {
+    "file": "acc2026_value_by_point.csv",
+    "sha256": "8c3a228f43f47511ae22c30a40ac434195e72dfcaaaff0d1f498bf6a064fef46"
+  }
+}
