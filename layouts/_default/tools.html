@@ -968,7 +968,7 @@
           mapPopup = new maplibregl.Popup({ closeButton: true, maxWidth: '240px' }).setLngLat(e.features[0].geometry.coordinates).setDOMContent(el).addTo(map);
         });
       });
-      map.on('load', function() {
+      map.once('idle', function() {   // first full render, whether or not every basemap tile arrived
         var attrib = document.querySelector('#acc-map .maplibregl-ctrl-attrib');
         if (attrib) attrib.classList.remove('maplibregl-compact-show');  // start collapsed; (i) expands it
         var missing = (d_totalRows(s) - m.points.length);
