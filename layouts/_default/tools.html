@@ -133,6 +133,20 @@
 .acc-fine details { margin-top: 0.5rem; }
 .acc-fine summary { cursor: pointer; color: var(--text-body); font-weight: 500; }
 .acc-zone-help { color: var(--text-subtle); font-size: 0.78rem; margin: 0 0 0.25rem; }
+.acc-results-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-md); align-items: start; }
+@media (max-width: 900px) { .acc-results-layout { grid-template-columns: 1fr; } }
+.acc-results-layout .acc-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.acc-map-col { position: sticky; top: 90px; margin-top: var(--space-sm); }
+@media (max-width: 900px) { .acc-map-col { position: static; margin-top: 0; } }
+.acc-map-wrap { position: relative; height: 560px; border: 1px solid var(--border-dark); border-radius: var(--radius-sm); overflow: hidden; background: #e8e8e8; }
+@media (max-width: 900px) { .acc-map-wrap { height: 320px; } }
+#acc-map { position: absolute; inset: 0; }
+.acc-map-status { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.35rem 0.7rem; font-size: 0.76rem; color: var(--text-body); background: rgba(255,255,255,0.85); z-index: 2; }
+.acc-map-legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-size: 0.78rem; color: var(--text-body); margin-top: 0.5rem; }
+.acc-map-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.acc-dot { width: 11px; height: 11px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.25); }
+.acc-ring { width: 9px; height: 9px; border-radius: 50%; border: 2px solid #1a1a2e; background: transparent; }
+.acc-pop { font-size: 12px; line-height: 1.45; color: #222; font-family: var(--font-body); }
 </style>
 
 <div class="page-header" data-theme="dark">
@@ -456,6 +470,8 @@
           <div id="acc-step-done" class="tools-step">
             <h3>4. Results</h3>
             <p class="acc-zone-help" id="acc-zones"></p>
+            <div class="acc-results-layout">
+            <div class="acc-results-main">
             <div class="acc-tiles">
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-median"></div><div class="acc-tile-label">median avoided cost per light, $/year</div></div>
               <div class="acc-tile"><div class="acc-tile-value" id="acc-r-total"></div><div class="acc-tile-label">total avoided cost, $/year (<span id="acc-r-valued"></span> lights)</div></div>
@@ -479,6 +495,15 @@
             <div style="margin-top: var(--space-md);">
               <a id="acc-download" class="btn btn-primary" download style="margin-right: 0.75rem;">Download CSV</a>
               <button type="button" id="acc-start-over" class="btn btn-secondary" style="color: var(--text-body); border-color: var(--border-dark);">Start Over</button>
+            </div>
+            </div>
+            <div class="acc-map-col">
+              <div class="acc-map-wrap">
+                <div id="acc-map" role="img" aria-label="Map of the uploaded street lights, coloured by ACC zone"></div>
+                <div class="acc-map-status" id="acc-map-status">Loading map&hellip;</div>
+              </div>
+              <div class="acc-map-legend" id="acc-map-legend"></div>
+            </div>
             </div>
           </div>
 
@@ -872,11 +897,104 @@
     on.textContent = s.with_overlap_note ? s.with_overlap_note.toLocaleString() + ' valued light' + (s.with_overlap_note > 1 ? 's are' : ' is') +
       ' where an investor-owned utility’s territory overlaps a municipal utility’s; see the acc_note column. If the municipal utility serves them, they have no ACC value.' : '';
     showStep('done');
+    renderMap(d.mapUrl, s);   // after the step is visible, so the map gets its real size
   }
+
+  // ─── Results map: lights coloured by ACC zone, dropped lights as hollow rings, zone tints + dashed boundaries ───
+  var map = null, mapPopup = null;
+  var ZONE_COLORS = ['#2a78d6', '#eb6834', '#1baf7a'];  // categorical slots 1-3 (validated all-pairs on light gray)
+  var OTHER_COLOR = '#4a5568';
+  var INK = '#1a1a2e';
+  var DROP_SHORT = { no_acc_zone: 'utility with no ACC', outside_acc_area: 'outside utility territories',
+    combo_not_in_acc_model: 'zone not in the ACC model', invalid_input: 'missing or invalid wattage' };
+
+  function renderMap(url, s) {
+    var status = $('acc-map-status');
+    status.textContent = 'Loading map…'; status.classList.remove('tools-hidden');
+    if (map) { map.remove(); map = null; }
+    if (!url || !window.maplibregl) { status.textContent = 'Map unavailable.'; return; }
+    if (typeof maplibregl.setWorkerUrl === 'function') maplibregl.setWorkerUrl('/vendor/maplibre/maplibre-gl-csp-worker.js'); else maplibregl.workerUrl = '/vendor/maplibre/maplibre-gl-csp-worker.js';
+    fetch(url).then(function(r) { if (!r.ok) throw new Error('map data'); return r.json(); }).then(function(m) {
+      // colour follows the zone, ranked by light count; zones past the third share one neutral
+      var ranked = (s.by_zone || []).slice().sort(function(a, b) { return b.lights - a.lights; }).map(function(z) { return z.iou + ' ' + z.cz; });
+      var colorOf = {};
+      ranked.forEach(function(z, i) { colorOf[z] = ZONE_COLORS[i] || OTHER_COLOR; });
+      function polyColor(label) {
+        if (colorOf[label]) return colorOf[label];
+        return colorOf[label + 'A'] || colorOf[label + 'B'] || '';   // PG&E CZ3 polygon -> CZ3A/3B lights
+      }
+      var lit = [], dropped = [];
+      m.points.forEach(function(p) {
+        var f = { type: 'Feature', geometry: { type: 'Point', coordinates: [p[1], p[0]] }, properties: { zone: p[2], value: p[3], id: p[4] } };
+        if (p[3] === null) dropped.push(f); else { f.properties.color = colorOf[p[2]] || OTHER_COLOR; lit.push(f); }
+      });
+      m.zones.features.forEach(function(f) { f.properties.color = polyColor(f.properties.zone); f.properties.filled = f.properties.color ? 1 : 0; });
+      if (!m.points.length) { status.textContent = 'No lights with coordinates to show.'; return; }
+      var b = new maplibregl.LngLatBounds();
+      m.points.forEach(function(p) { b.extend([p[1], p[0]]); });
+      map = new maplibregl.Map({
+        container: 'acc-map', attributionControl: { compact: true },
+        style: { version: 8,
+          sources: {
+            base: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 16, attribution: 'Basemap &copy; Esri, HERE, Garmin, FAO, NOAA, USGS | Zones: CEC, CPUC ACC' },
+            ref: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 16 },
+            zones: { type: 'geojson', data: m.zones },
+            lit: { type: 'geojson', data: { type: 'FeatureCollection', features: lit } },
+            dropped: { type: 'geojson', data: { type: 'FeatureCollection', features: dropped } } },
+          layers: [
+            { id: 'base', type: 'raster', source: 'base' },
+            { id: 'zone-fill', type: 'fill', source: 'zones', filter: ['==', ['get', 'filled'], 1], paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.14 } },
+            { id: 'zone-line', type: 'line', source: 'zones', paint: { 'line-color': INK, 'line-width': 1.3, 'line-opacity': 0.7, 'line-dasharray': [3, 2] } },
+            { id: 'ref', type: 'raster', source: 'ref' },
+            { id: 'dropped', type: 'circle', source: 'dropped', paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 3, 15, 6], 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': INK, 'circle-stroke-width': 1.6 } },
+            { id: 'lit', type: 'circle', source: 'lit', paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 3, 15, 6], 'circle-color': ['get', 'color'], 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.5 } }
+          ] },
+        bounds: b, fitBoundsOptions: { padding: 40, maxZoom: 15 },
+        maxBounds: m.bounds ? [[m.bounds[0], m.bounds[1]], [m.bounds[2], m.bounds[3]]] : undefined
+      });
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+      ['lit', 'dropped'].forEach(function(layer) {
+        map.on('mouseenter', layer, function() { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', layer, function() { map.getCanvas().style.cursor = ''; });
+        map.on('click', layer, function(e) {
+          var p = e.features[0].properties;
+          // build the content first so MapLibre measures it and anchors the popup inside the map
+          var el = document.createElement('div'), title = document.createElement('strong'), line = document.createElement('div');
+          el.className = 'acc-pop';
+          title.textContent = p.id;
+          line.textContent = layer === 'lit' ? p.zone + ' · ' + money(p.value, 2) + '/yr' : 'Not analyzed: ' + (DROP_SHORT[p.zone] || p.zone);
+          el.appendChild(title); el.appendChild(line);
+          if (mapPopup) mapPopup.remove();
+          mapPopup = new maplibregl.Popup({ closeButton: true, maxWidth: '240px' }).setLngLat(e.features[0].geometry.coordinates).setDOMContent(el).addTo(map);
+        });
+      });
+      map.on('load', function() {
+        var attrib = document.querySelector('#acc-map .maplibregl-ctrl-attrib');
+        if (attrib) attrib.classList.remove('maplibregl-compact-show');  // start collapsed; (i) expands it
+        var missing = (d_totalRows(s) - m.points.length);
+        status.textContent = missing > 0 ? missing.toLocaleString() + ' row' + (missing > 1 ? 's' : '') + ' without usable coordinates not shown.' : '';
+        status.classList.toggle('tools-hidden', missing <= 0);
+      });
+      // legend: one entry per coloured zone (first three), "Other ACC zones" beyond that, then not analyzed
+      var legend = $('acc-map-legend');
+      legend.innerHTML = '';
+      function item(cls, color, text) {
+        var span = document.createElement('span'), sw = document.createElement('i');
+        sw.className = cls; if (color) sw.style.background = color;
+        span.appendChild(sw); span.appendChild(document.createTextNode(text)); legend.appendChild(span);
+      }
+      ranked.slice(0, 3).forEach(function(z, i) { item('acc-dot', ZONE_COLORS[i], z); });
+      if (ranked.length > 3) item('acc-dot', OTHER_COLOR, 'Other ACC zones (' + (ranked.length - 3) + ')');
+      if (dropped.length) item('acc-ring', '', 'Not analyzed');
+      var dash = document.createElement('span'); dash.textContent = '- - - ACC zone boundary'; dash.style.color = 'var(--text-subtle)'; legend.appendChild(dash);
+    }).catch(function() { status.textContent = 'Map unavailable.'; });
+  }
+  function d_totalRows(s) { return s.valued + Object.keys(s.dropped).reduce(function(a, k) { return a + s.dropped[k]; }, 0); }
 
   function showError(msg) { $('acc-error-text').textContent = msg; showStep('error'); }
   function reset() {
     if (poll) clearInterval(poll);
+    if (map) { map.remove(); map = null; }
     jobId = null; input.value = '';
     $('acc-upload-progress').classList.add('tools-hidden'); $('acc-upload-fill').style.width = '0%';
     $('acc-upload-status').classList.add('tools-hidden');

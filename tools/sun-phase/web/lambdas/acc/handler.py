@@ -179,8 +179,12 @@ def _numeric(df, columns, defaults, n):
     return vals, bad
 
 
-def value_frame(df, columns, defaults):
-    """Value every row of a text DataFrame. Returns (output DataFrame of valued rows, summary)."""
+def value_frame(df, columns, defaults, row_offset=0):
+    """Value every row of a text DataFrame.
+
+    Returns (output DataFrame of valued rows, summary, points). points has one entry per row with
+    plottable coordinates, valued or not, for the results map: [lat, lon, zone or drop reason, $/yr, id].
+    """
     n = len(df)
     v, bad = _numeric(df, columns, defaults, n)
     zones = np.full(n, None, dtype=object)
@@ -188,9 +192,15 @@ def value_frame(df, columns, defaults):
     ok_idx = np.flatnonzero(~bad)
     if len(ok_idx):
         zones[ok_idx], notes[ok_idx] = acc_core.zone_at(v['lat'][ok_idx], v['lon'][ok_idx])
+    ids = (df[columns['ref_id']].astype(str).to_numpy() if 'ref_id' in columns
+           else np.array([f'row {row_offset + i + 1}' for i in range(n)]))
+    plottable = (np.isfinite(v['lat']) & np.isfinite(v['lon']) & (np.abs(v['lat']) <= 90) & (np.abs(v['lon']) <= 180))
+    point_of = {}  # row index -> [zone or drop reason, value]
 
     drops = dict.fromkeys(DROP_REASONS, 0)
     drops['invalid_input'] = int(bad.sum())
+    for i in np.flatnonzero(bad):
+        point_of[i] = ['invalid_input', None]
     tw_cache, kw_cache = {}, {}
     rows, keep = [], []
     comp_sum = {}
@@ -199,12 +209,14 @@ def value_frame(df, columns, defaults):
         status, iou, cz = acc_core.acc_zone_key(zones[i], lat, lon)
         if status != 'ok':
             drops[status] += 1
+            point_of[i] = [status, None]
             continue
         tk = (lat, lon) if TWILIGHT_DP is None else (round(lat, TWILIGHT_DP), round(lon, TWILIGHT_DP))
         if tk not in tw_cache:
             tw_cache[tk] = acc_core.twilight_minutes(*tk)
         if tw_cache[tk] is None:
             drops['invalid_input'] += 1
+            point_of[i] = ['invalid_input', None]
             continue
         s = tuple(float(v[f][i]) for f in ('dim_pct', 'deep_dim_pct', 'pc_on_offset_min', 'pc_off_offset_min'))
         kk = (tk, iou, cz, s)
@@ -216,6 +228,7 @@ def value_frame(df, columns, defaults):
         r['acc_note'] = notes[i]
         rows.append(r)
         keep.append(i)
+        point_of[i] = [f'{iou} {cz}', round(r['acc_value'], 2)]
         for k, c in comp.items():
             comp_sum[k] = comp_sum.get(k, 0.0) + c * kw
 
@@ -227,20 +240,87 @@ def value_frame(df, columns, defaults):
     out = pd.concat([out, res], axis=1)
     summary = {'drops': drops, 'valued': len(keep), 'components': comp_sum,
                'twilightLocations': len(tw_cache), 'valuations': len(kw_cache)}
-    return out, summary
+    points = [[round(float(v['lat'][i]), 6), round(float(v['lon'][i]), 6), *point_of[i], ids[i]]
+              for i in range(n) if plottable[i] and i in point_of]
+    return out, summary, points
 
 
 def chunk(event, context):
     t0 = time.time()
     bucket = event['bucket']
     df = _read_text_csv(s3.get_object(Bucket=bucket, Key=event['chunkKey'])['Body'])
-    out, summary = value_frame(df, event['columns'], event['defaults'])
+    out, summary, points = value_frame(df, event['columns'], event['defaults'],
+                                       row_offset=event['chunkIndex'] * CHUNK_ROWS)
     out_key = event['chunkKey'].replace('/chunks/', '/processed/')
     s3.put_object(Bucket=bucket, Key=out_key, Body=out.to_csv(index=False, lineterminator='\n'),
                   ContentType='text/csv')
+    points_key = out_key.replace('/processed/', '/points/').replace('.csv', '.json')
+    s3.put_object(Bucket=bucket, Key=points_key, Body=json.dumps(points, separators=(',', ':')),
+                  ContentType='application/json')
     print(f'[acc-chunk] jobId={event["jobId"]} chunk={event["chunkIndex"]} rows={len(df)} valued={summary["valued"]} '
           f'locations={summary["twilightLocations"]} duration={time.time() - t0:.2f}s')
-    return {'chunkIndex': event['chunkIndex'], 'outputKey': out_key, 'rowsProcessed': len(df), 'summary': summary}
+    return {'chunkIndex': event['chunkIndex'], 'outputKey': out_key, 'pointsKey': points_key,
+            'rowsProcessed': len(df), 'summary': summary}
+
+
+def _clip_ring(xy, box):
+    """Sutherland-Hodgman clip of one ring (list of (x, y)) to box = (x0, y0, x1, y1)."""
+    x0, y0, x1, y1 = box
+    edges = [(lambda p: p[0] >= x0, lambda a, b: (x0, a[1] + (b[1] - a[1]) * (x0 - a[0]) / (b[0] - a[0]))),
+             (lambda p: p[0] <= x1, lambda a, b: (x1, a[1] + (b[1] - a[1]) * (x1 - a[0]) / (b[0] - a[0]))),
+             (lambda p: p[1] >= y0, lambda a, b: (a[0] + (b[0] - a[0]) * (y0 - a[1]) / (b[1] - a[1]), y0)),
+             (lambda p: p[1] <= y1, lambda a, b: (a[0] + (b[0] - a[0]) * (y1 - a[1]) / (b[1] - a[1]), y1))]
+    pts = list(xy)
+    for inside, cross in edges:
+        if not pts:
+            break
+        out, prev = [], pts[-1]
+        for cur in pts:
+            if inside(cur):
+                if not inside(prev):
+                    out.append(cross(prev, cur))
+                out.append(cur)
+            elif inside(prev):
+                out.append(cross(prev, cur))
+            prev = cur
+        pts = out
+    return pts
+
+
+def _padded(lat, lon, pad, min_pad):
+    span = max(lon.max() - lon.min(), lat.max() - lat.min())  # square-ish padding: the map is not the extent's shape
+    p = max(span * pad, min_pad)
+    return (lon.min() - p, lat.min() - p, lon.max() + p, lat.max() + p)
+
+
+def zone_outlines(points):
+    """ACC zone polygons clipped to a padded box around the plotted lights, as GeoJSON for the results map.
+    Returns (feature collection, view bounds). The map can't pan past the view bounds, which sit well inside
+    the clip box, so the clip box's straight edges never show as zone boundaries."""
+    if not points:
+        return {'type': 'FeatureCollection', 'features': []}, None
+    lat = np.array([p[0] for p in points])
+    lon = np.array([p[1] for p in points])
+    view = _padded(lat, lon, 1.0, 0.05)
+    box = _padded(lat, lon, 2.0, 0.15)
+    codes, poly_zone, _, poly_bbox, _ = acc_core.load_zones()
+    d = np.load(acc_core.DATA_DIR / 'acc2026_zones.npz')
+    rs, coords, ring_poly = d['ring_start'], d['coords'], d['ring_poly']
+    features = []
+    for p in range(len(poly_zone)):
+        bx0, by0, bx1, by1 = poly_bbox[p]
+        if poly_zone[p] < 0 or bx1 < box[0] or bx0 > box[2] or by1 < box[1] or by0 > box[3]:
+            continue
+        rings = []
+        for r in np.flatnonzero(ring_poly == p):
+            clipped = _clip_ring(coords[rs[r]:rs[r + 1], :2].tolist(), box)  # stored rings carry a zero Z
+            if len(clipped) >= 3:
+                rings.append([[round(x, 5), round(y, 5)] for x, y in clipped + [clipped[0]]])
+        if rings:
+            iou, cz = codes[poly_zone[p]].split('_CZ')
+            features.append({'type': 'Feature', 'properties': {'zone': f'{acc_core.IOU[iou]} CZ{int(cz)}'},
+                             'geometry': {'type': 'Polygon', 'coordinates': rings}})
+    return {'type': 'FeatureCollection', 'features': features}, [round(b, 5) for b in view]
 
 
 def by_zone(df):
@@ -305,9 +385,17 @@ def combine(event, context):
     out_key = f'uploads/{job_id}/result.csv'
     s3.put_object(Bucket=bucket, Key=out_key, Body=buf.getvalue().encode('utf-8'), ContentType='text/csv')
     url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket, 'Key': out_key}, ExpiresIn=3600)
+    points = []
+    for c in results:
+        points.extend(json.loads(s3.get_object(Bucket=bucket, Key=c['pointsKey'])['Body'].read()))
+    outlines, box = zone_outlines(points)
+    map_key = f'uploads/{job_id}/map.json'
+    s3.put_object(Bucket=bucket, Key=map_key, ContentType='application/json',
+                  Body=json.dumps({'points': points, 'zones': outlines, 'bounds': box}, separators=(',', ':')))
+    map_url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket, 'Key': map_key}, ExpiresIn=3600)
     total_rows = sum(c['rowsProcessed'] for c in results)
     _put_meta(bucket, job_id, {'jobId': job_id, 'status': 'complete', 'tool': 'acc', 'totalRows': total_rows,
-                               'resultKey': out_key, 'downloadUrl': url, 'summary': summary})
+                               'resultKey': out_key, 'downloadUrl': url, 'mapUrl': map_url, 'summary': summary})
     print(f'[acc-combine] jobId={job_id} rows={total_rows} valued={summary["valued"]} '
           f'chunks={len(results)} duration={time.time() - t0:.2f}s')
     return {'jobId': job_id, 'status': 'complete', 'totalRows': total_rows}

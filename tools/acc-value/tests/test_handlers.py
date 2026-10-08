@@ -203,3 +203,38 @@ def test_failure_marks_meta_error(h):
     h.MAX_ROWS = 2
     _, meta, _ = run_job(h, 'a,b,c\n1,2,3\n1,2,3\n1,2,3\n', {'lat': 'a', 'lon': 'b', 'baseline_w': 'c'})
     assert meta['status'] == 'error' and 'Maximum' in meta['error']
+
+
+def test_map_data(h):
+    """map.json: one point per light with coordinates (valued or not), zone outlines clipped to a box that
+    contains every point."""
+    csv_text = ('id,lat,lon,watts\n'
+                'a,32.651516,-116.969257,50\n'          # SDG&E CZ10 (Chula Vista sample row 19)
+                'b,32.626333,-117.033575,50\n'          # SDG&E CZ7
+                'c,32.626333,-117.033575,fifty\n'       # invalid wattage, still plottable
+                'd,34.0522,-118.2437,50\n'              # LADWP, no ACC
+                'e,,-117.0,50\n')                       # no latitude: not plottable
+    _, meta, res = run_job(h, csv_text, {'ref_id': 'id', 'lat': 'lat', 'lon': 'lon', 'baseline_w': 'watts'})
+    assert meta['status'] == 'complete'
+    m = json.loads(h.s3.objects[meta['mapUrl'].split('https://fake/')[1]])
+    by_id = {p[4]: p for p in m['points']}
+    assert sorted(by_id) == ['a', 'b', 'c', 'd']
+    assert by_id['a'][2] == 'SDG&E CZ10' and by_id['b'][2] == 'SDG&E CZ7'
+    assert by_id['a'][3] == round(res.set_index('id').loc['a', 'acc_value'], 2)
+    assert by_id['c'][2:4] == ['invalid_input', None] and by_id['d'][2:4] == ['no_acc_zone', None]
+    x0, y0, x1, y1 = m['bounds']
+    assert all(x0 <= p[1] <= x1 and y0 <= p[0] <= y1 for p in m['points'])
+    zones = {f['properties']['zone'] for f in m['zones']['features']}
+    assert {'SDG&E CZ7', 'SDG&E CZ10'} <= zones
+    # outlines are clipped to a box strictly larger than the view, so clip edges stay off screen
+    xs = [x for f in m['zones']['features'] for ring in f['geometry']['coordinates'] for x, _ in ring]
+    ys = [y for f in m['zones']['features'] for ring in f['geometry']['coordinates'] for _, y in ring]
+    assert any(x < x0 or x > x1 for x in xs) or any(y < y0 or y > y1 for y in ys)
+    assert all(r[0] == r[-1] for f in m['zones']['features'] for r in f['geometry']['coordinates'])
+
+
+def test_clip_ring(h):
+    square = [(0, 0), (4, 0), (4, 4), (0, 4)]
+    clipped = h._clip_ring(square, (1, 1, 2, 3))
+    assert sorted(clipped) == sorted([(1, 1), (2, 1), (2, 3), (1, 3)])
+    assert h._clip_ring(square, (5, 5, 6, 6)) == []
