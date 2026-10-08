@@ -809,11 +809,14 @@
     var groups = {};
     (s.by_zone || []).forEach(function(z) { (groups[z.iou] = groups[z.iou] || []).push(z); });
     function count(iou) { return groups[iou].reduce(function(a, z) { return a + z.lights; }, 0); }
-    $('acc-zones').textContent = Object.keys(groups).sort(function(a, b) { return count(b) - count(a) || a.localeCompare(b); })
+    var zoneText = Object.keys(groups).sort(function(a, b) { return count(b) - count(a) || a.localeCompare(b); })
       .map(function(iou) {
         return iou + ' ' + groups[iou].sort(function(a, b) { return b.lights - a.lights; })
           .map(function(z) { return z.cz + '-' + z.lights.toLocaleString(); }).join(', ');
       }).join(' · ');
+    var notValued = Object.keys(s.dropped).reduce(function(a, k) { return a + s.dropped[k]; }, 0);
+    $('acc-zones').textContent = (zoneText ? 'Street lights analyzed in ' + zoneText + '.' : 'No street lights analyzed.') +
+      (notValued ? ' ' + notValued.toLocaleString() + ' street light' + (notValued > 1 ? 's fall' : ' falls') + ' outside the ACC area and ' + (notValued > 1 ? 'were' : 'was') + ' not analyzed.' : '');
 
     // Summer/winter: one 2-segment bar, direct-labeled; seasons named per utility present in the results
     var tot = s.acc_value_summer_total + s.acc_value_winter_total;
