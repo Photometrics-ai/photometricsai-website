@@ -1,6 +1,6 @@
 # ACC Street Light Value
 
-Avoided-cost value of each street light under the **CPUC 2026 Avoided Cost Calculator (ACC) Electric Model v1a** (D.26-09-007): the avoided utility-system cost (TRC perspective, single-year 2026 values, all components) of the energy saved when a photocell-controlled light is replaced by a networked, dimmed schedule. This is an avoided cost to the utility system, not a bill saving to the light's owner.
+Avoided-cost value of each street light under the **CPUC 2026 Avoided Cost Calculator (ACC) Electric Model v1b** (adopted in Resolution E-5476, 8 Oct 2026, per D.26-09-007): the avoided utility-system cost (TRC perspective, single-year 2026 values, all components) of the energy saved when a photocell-controlled light is replaced by a networked, dimmed schedule. This is an avoided cost to the utility system, not a bill saving to the light's owner.
 
 The hosted tool is the "ACC Value" tab on photometrics.ai/tools. The math lives in `tools/sun-phase/web/layers/deps/acc_core.py` (Lambda layer); this folder holds the data build, fixtures and tests.
 
@@ -43,7 +43,7 @@ python -m pytest tools/acc-value/tests -q    # ~2 min; analysis-folder tests ski
 
 1. Download the new electric model `.xlsb` into the analysis folder and update `02_extract_acc.py` (file name, valid combos, cell addresses if the layout changed). Run it (needs Excel).
 2. Rerun `01_twilight_points.py` if the ACC calendar year changed (and update `YEAR`/`T0` in `acc_core.py`), then `03_acc_value.py`.
-3. `python tools/acc-value/build_data.py` and `python tools/acc-value/make_fixtures.py`.
+3. Set `ACC_MODEL` (file name) and `ACC_VERSION` (label) at the top of `build_data.py`; `make_fixtures.py` reads them from there. Then `python tools/acc-value/build_data.py` and `python tools/acc-value/make_fixtures.py`.
 4. Update the expected numbers in `tests/test_data.py` (IOU means, seasons) and `tests/test_core.py` (benchmarks), run the tests.
 5. Deploy the SAM stack (`tools/sun-phase/web`), then update the tool page's version labels.
 

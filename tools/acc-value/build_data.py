@@ -9,7 +9,7 @@ Build the static data the ACC Value Lambda ships with (in the sun-phase deps lay
 Inputs (analysis folder, see README.md):
     acc/acc2026_hourly_PST.csv                  from scripts/02_extract_acc.py (Excel-driven)
     acc/acc2026_settings.json                   settings recorded by 02_extract_acc.py
-    ACC_2026/2026-acc-electric-model-v1a.xlsb   'Losses' sheet TOU periods (seasons)
+    ACC_2026/<ACC_MODEL>                        'Losses' sheet TOU periods (seasons)
     Intersection_exp_reporoject_elim.gpkg       ACC zone polygons, attribute ACC_ZONE
 
 Usage:
@@ -28,6 +28,10 @@ from shapely.geometry import Polygon
 
 DEFAULT_ANALYSIS = Path(r"C:\Users\aisaa\Downloads\UtilityClimateZones")
 OUT = Path(__file__).resolve().parents[1] / "sun-phase" / "web" / "layers" / "deps" / "acc_data"
+# The ACC release being used. On a new release, change these two (and SRC in the analysis folder's
+# scripts/02_extract_acc.py), then follow "Refreshing for a new ACC release" in README.md.
+ACC_MODEL = "2026-acc-electric-model-v1brev.xlsb"
+ACC_VERSION = "CPUC 2026 ACC Electric Model v1b (Resolution E-5476, per D.26-09-007)"
 
 COMPONENTS = ["ghg_cap_invest", "ghg_adder", "air_quality", "energy", "gen_capacity", "transmission",
               "distribution", "ancillary", "losses", "methane", "total"]
@@ -125,7 +129,7 @@ def build_zones(analysis):
 def main(analysis):
     OUT.mkdir(parents=True, exist_ok=True)
     combos, prices = build_prices(analysis)
-    xlsb = analysis / "ACC_2026" / "2026-acc-electric-model-v1a.xlsb"
+    xlsb = analysis / "ACC_2026" / ACC_MODEL
     summer = read_seasons(xlsb)
     np.savez_compressed(OUT / "acc2026_prices.npz", combos=combos, components=np.array(COMPONENTS),
                         prices=prices, season_ious=np.array(IOUS), summer=summer)
@@ -133,7 +137,7 @@ def main(analysis):
 
     settings = json.loads((analysis / "acc" / "acc2026_settings.json").read_text())
     meta = {
-        "acc_version": "CPUC 2026 ACC Electric Model v1a (D.26-09-007)",
+        "acc_version": ACC_VERSION,
         "settings": settings,
         "calendar_year": 2018,
         "time_basis": "PST (UTC-8) all year, hour-beginning; ACC hour k = UTC [2018-01-01 08:00 + k h, +1 h)",

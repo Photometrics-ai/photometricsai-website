@@ -9,7 +9,7 @@ import pytest
 import acc_core
 from conftest import ANALYSIS, FIXTURES, analysis, inputs
 
-IOU_MEANS = {'PG&E': 152.20, 'SCE': 147.03, 'SDG&E': 150.93}  # single-year 2026 average total $/MWh
+IOU_MEANS = {'PG&E': 150.45, 'SCE': 143.69, 'SDG&E': 147.61}  # single-year 2026 average total $/MWh
 SEASONS = {'PG&E': ('05-01', '10-31', 4416), 'SCE': ('06-01', '09-30', 2928), 'SDG&E': ('05-01', '09-30', 3672)}
 COMBOS = {
     'PG&E': ['CZ1', 'CZ2', 'CZ3A', 'CZ3B', 'CZ4', 'CZ5', 'CZ11', 'CZ12', 'CZ13', 'CZ16'],

@@ -16,6 +16,6 @@
     "Air Quality Adder (SCT only)": true,
     "Final Air Quality Adder": false
   },
-  "source": "2026-acc-electric-model-v1a.xlsb",
+  "source": "2026-acc-electric-model-v1brev.xlsb",
   "time_basis": "PST (UTC-8) all year, hour-beginning; row 0 = 2018-01-01 00:00 PST"
 }

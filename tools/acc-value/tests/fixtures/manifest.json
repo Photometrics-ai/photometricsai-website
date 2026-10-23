@@ -1,11 +1,11 @@
 {
   "acc_model": {
-    "file": "2026-acc-electric-model-v1a.xlsb",
-    "sha256": "672eabcb83b771ae8ec2ebaaa1db9a1f9a6e4497ea6d179cfe3be7b6db6e813d"
+    "file": "2026-acc-electric-model-v1brev.xlsb",
+    "sha256": "802f6b957e0bd058cfb2395fb7a69ac394b5666dc97d5313084b61f19e71b5d5"
   },
   "acc_hourly": {
     "file": "acc2026_hourly_PST.csv",
-    "sha256": "03e9351951bab756880efecf255aa54d209289b6bb30b0eef1e41bdc110f47be"
+    "sha256": "73a1ac9a4a5996df5c029f5c3a4353f3b3d3f562e1c9b7d0fc0fe83d2d7e7cad"
   },
   "zones": {
     "file": "Intersection_exp_reporoject_elim.gpkg",
@@ -21,6 +21,6 @@
   },
   "value_by_point": {
     "file": "acc2026_value_by_point.csv",
-    "sha256": "8c3a228f43f47511ae22c30a40ac434195e72dfcaaaff0d1f498bf6a064fef46"
+    "sha256": "38a1f49b65c41ce1a94ed1b80f525b1916e89b519f049c6335d6e5b3c23fc1f3"
   }
 }

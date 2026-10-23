@@ -19,6 +19,8 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 
+from build_data import ACC_MODEL
+
 DEFAULT_ANALYSIS = Path(r"C:\Users\aisaa\Downloads\UtilityClimateZones")
 FIXTURES = Path(__file__).resolve().parent / "tests" / "fixtures"
 
@@ -53,7 +55,7 @@ def main(analysis):
     shutil.copy2(analysis / "acc" / "acc2026_settings.json", FIXTURES / "acc2026_settings.json")
 
     sources = {
-        "acc_model": analysis / "ACC_2026" / "2026-acc-electric-model-v1a.xlsb",
+        "acc_model": analysis / "ACC_2026" / ACC_MODEL,
         "acc_hourly": analysis / "acc" / "acc2026_hourly_PST.csv",
         "zones": analysis / "Intersection_exp_reporoject_elim.gpkg",
         "points": analysis / "AccZone_pts.gpkg",

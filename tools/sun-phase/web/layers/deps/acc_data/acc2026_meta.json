@@ -1,5 +1,5 @@
 {
-  "acc_version": "CPUC 2026 ACC Electric Model v1a (D.26-09-007)",
+  "acc_version": "CPUC 2026 ACC Electric Model v1b (Resolution E-5476, per D.26-09-007)",
   "settings": {
     "start_year": 2026.0,
     "cost_test": "TRC",
@@ -18,7 +18,7 @@
       "Air Quality Adder (SCT only)": true,
       "Final Air Quality Adder": false
     },
-    "source": "2026-acc-electric-model-v1a.xlsb",
+    "source": "2026-acc-electric-model-v1brev.xlsb",
     "time_basis": "PST (UTC-8) all year, hour-beginning; row 0 = 2018-01-01 00:00 PST"
   },
   "calendar_year": 2018,
@@ -50,8 +50,8 @@
     "overlap_rule": "an ACC (IOU) zone polygon wins over an overlapping non-ACC polygon; acc_note names it"
   },
   "sources": {
-    "2026-acc-electric-model-v1a.xlsb": "672eabcb83b771ae8ec2ebaaa1db9a1f9a6e4497ea6d179cfe3be7b6db6e813d",
-    "acc2026_hourly_PST.csv": "03e9351951bab756880efecf255aa54d209289b6bb30b0eef1e41bdc110f47be",
+    "2026-acc-electric-model-v1brev.xlsb": "802f6b957e0bd058cfb2395fb7a69ac394b5666dc97d5313084b61f19e71b5d5",
+    "acc2026_hourly_PST.csv": "73a1ac9a4a5996df5c029f5c3a4353f3b3d3f562e1c9b7d0fc0fe83d2d7e7cad",
     "Intersection_exp_reporoject_elim.gpkg": "714765cbfa3fba04aac473ae00948213f14b99899575907034e7b308a1690121"
   }
 }

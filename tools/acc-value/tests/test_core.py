@@ -68,7 +68,7 @@ def test_values_match_prototype():
 def test_benchmarks():
     results = [_value(p) for p in inputs().itertuples()]
     vals = [out[0]['acc_value'] for status, out in results if status == 'ok']
-    assert (round(min(vals), 2), round(float(np.median(vals)), 2), round(max(vals), 2)) == (14.79, 15.03, 15.44)
+    assert (round(min(vals), 2), round(float(np.median(vals)), 2), round(max(vals), 2)) == (14.44, 14.76, 15.10)
 
 
 def _point(ref_id):
